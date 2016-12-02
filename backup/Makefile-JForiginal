@@ -1,0 +1,69 @@
+CC=g++
+OPTIM = -O0
+DEBUG=-g -Wall -Wextra -Wpedantic
+#DEBUG = -g -Weverything -Wnoc++98-compat -Wno-padded
+#OPTIM = -O2
+#DEBUG = 
+#OPTIM=-O3
+CXX11=-std=c++11
+#-stdlib=libc++ 
+CPPCLEAN=/Users/jfcaron/Software/cppclean/cppclean/cppclean
+CPPCHECK=cppcheck --enable=style --inconclusive -j 8 --language=c++ -q --std=c++11
+
+ROOTA=-I`root-config --incdir`
+ROOTB=`root-config --glibs` -lMathMore
+ROOTS=$(ROOTA) $(ROOTB)
+
+CCT=$(CC) $(DEBUG) $(OPTIM) $(CXX11)
+
+FILES = Likelihood.C Output_Vars.C MySpline2.C Geom.C t2x.C CC_algorithms.C \
+	Utility.C Utility.h daqT.C daqT.h MydaqT.C MydaqT.h JFTrackFit.C JFTrackFit.h
+LIBS = libUtility.so libdaqT.so libJFTrackFit.so libMydaqT.so libdict.so
+
+all: $(FILES) $(LIBS)
+	$(CCT) -o main.out main.C $(ROOTS) -L. -lUtility -ldaqT -lJFTrackFit -lMydaqT -ldict
+	-./hidefiles.sh
+
+.PHONY : clean
+clean:
+	-rm main.out
+	-rm *.so
+	-rm *.o
+	-rm *.d
+	-rm *.pcm
+	-rm -r *.so.dSYM
+
+libUtility.so: Geom.C Utility.C Utility.h Makefile
+	$(CPPCLEAN) Utility.C Utility.h
+	$(CPPCHECK) Utility.C Utility.h
+	$(CCT) -c Utility.C $(ROOTA)
+	$(CCT) -shared -o libUtility.so Utility.o $(ROOTS)
+
+libdaqT.so: daqT.C daqT.h Makefile
+	$(CPPCLEAN) daqT.C daqT.h
+	$(CPPCHECK) daqT.C daqT.h
+	$(CCT) -c daqT.C $(ROOTA)
+	$(CCT) -shared -o libdaqT.so daqT.o $(ROOTS)
+
+libJFTrackFit.so: t2x.C Geom.C MySpline2.C JFTrackFit.C JFTrackFit.h Makefile
+	$(CPPCLEAN) JFTrackFit.C JFTrackFit.h t2x.C Geom.C
+	$(CPPCHECK) JFTrackFit.C JFTrackFit.h t2x.C Geom.C
+	$(CCT) -c JFTrackFit.C $(ROOTA)
+	$(CCT) -shared -o libJFTrackFit.so JFTrackFit.o $(ROOTS) -lUtility -L.
+
+libMydaqT.so: Likelihood.C t2x.C Geom.C daqT.h daqT.C MySpline2.C CC_algorithms.C MydaqT.C MydaqT.h libUtility.so libdaqT.so libJFTrackFit.so libdict.so Makefile
+	$(CPPCLEAN) MydaqT.C MydaqT.h
+	$(CPPCHECK) t2x.C Geom.C daqT.h daqT.C MySpline2.C CC_algorithms.C MydaqT.C MydaqT.h
+	$(CCT) -c  MydaqT.C $(ROOTA)
+	$(CCT) -shared -o libMydaqT.so MydaqT.o $(ROOTS) -lUtility -ldaqT -lJFTrackFit -ldict -L.
+
+libdict.so: linkdef.h Output_Vars.C JFTrackFit.h Makefile
+	rootcint -f dict.cxx -c Output_Vars.C JFTrackFit.h linkdef.h
+	$(CCT) -c dict.cxx $(ROOTA)
+	$(CCT) -shared -o libdict.so dict.o $(ROOTS)
+
+cppclean: 
+	$(CPPCLEAN) $(FILES)
+
+cppcheck:
+	$(CPPCHECK) $(FILES)

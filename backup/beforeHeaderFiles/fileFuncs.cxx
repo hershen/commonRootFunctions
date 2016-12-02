@@ -1,0 +1,300 @@
+#pragma once
+
+#ifndef fileFunctions_cxx
+#define fileFunctions_cxx
+
+#include <iostream>
+#include "TFile.h"
+#include "TTree.h"
+#include "TChain.h"
+#include "TString.h"
+#include "TROOT.h"
+#include "TObjArray.h"
+
+
+//ToDo - Find why I need to do getEntries in order to use the tree
+//ToDo - Change all TChain functions to NOT use pointers
+
+
+
+
+namespace fileFuncs
+{
+  
+//   enum {kBigNumber = 1234567890}; // Used for TChain default value
+      
+      
+  //--------------------------------------------------------------------------------------------
+  //openChain
+  //********************************************************************************************
+  //Create a new TChain pointer. 
+  //The files corresponding to fileNamesString are added to the chain. fileNamesString can have wildcards
+  //<b>All</b> files are expected to contain a tree treeName
+  //NOTE - This also disables all branches (sets all branch statuses to 0). Each branch that needs to be read needs to be specifically enabled (set branch status to 1)
+  //--------------------------------------------------------------------------------------------
+  TChain *openChain(TString treeName, TString fileNamesString)
+  {
+    
+    //create chain
+    TChain * chain = new TChain( treeName.Data() );
+    
+    //Add files
+    int numOfFiles = chain->Add(fileNamesString.Data());
+    
+    //Check if files were added
+    if( !numOfFiles )
+    {
+	std::cout << "fileFuncs::openChain: Error - No files found corresponding to string '" << fileNamesString.Data() << "'. Returning 0." << std::endl;
+	delete chain;
+	return 0;
+    }
+    gROOT->cd();
+    
+    //Check if tree exists in the files
+    if( !chain->GetListOfBranches() )
+    {
+      std::cout << "fileFuncs::openChain: Error - No TTree with name '" << treeName.Data() << "' in files with string '" << fileNamesString.Data() << "'. Returning 0." << std::endl;
+      delete chain;
+      return 0;
+      
+    }
+    
+    //Check if tree is empty
+    if( !(chain->GetListOfBranches()->GetEntriesFast()) )
+    {
+      std::cout << "fileFuncs::openChain: Error - TTree with name '" << treeName.Data() << "' in files with string '" << fileNamesString.Data() << "' has no branches (it's probably empty). Returning 0." << std::endl;
+//       delete branchArray;
+      delete chain;
+      return 0;
+      
+    }
+    chain->SetBranchStatus("*",0);
+//     chain->LoadTree(0);
+    return chain;
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //setChainBranch
+  //********************************************************************************************
+  //Add branch branchName to chain with variable pointed at by pointer.
+  //Also set branch status to 1 so that the branch can be read.
+  //There is no check of what pointer points to. The pointer should probably point to zero - this seems to work best.
+  //--------------------------------------------------------------------------------------------
+  int setChainBranch(TChain * chain, TString branchName, void* pointer)
+  {
+    if( !chain)
+    {
+      std::cout << "fileFuncs::setChainBranch: Error - empty TChain given. Aborting." << std::endl;
+      return 100;
+    }
+    
+    // ------------------------------------------------------------------
+    //Set branch status to 1 so it can be accessed by getEntry(i)
+    // ------------------------------------------------------------------
+    chain->SetBranchStatus(branchName.Data(), 1);  //TChain documentation says this should be set before the SetBranchAddress()
+    
+    // ------------------------------------------------------------------
+    //Set branch address
+    // ------------------------------------------------------------------
+    int returnVal = 0;
+    
+    returnVal = chain->SetBranchAddress(branchName.Data(), pointer) || returnVal;
+      
+    if( returnVal )
+    {
+      std::cout << "fileFuncs::setChainBranch: Error - Error while setting branch '" << branchName.Data() << "' address - check branch name. Aborting" << std::endl;
+      return returnVal;
+    }
+    
+    return returnVal; // should be 0
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //setChainBranches
+  //********************************************************************************************
+  //Recieve a chain and vectors of branch names and pointers to variables.
+  //Set branch address for each branch name to the corresponding variable.
+  //Also set branch status to 1 so that the branches can be read.
+  //--------------------------------------------------------------------------------------------
+  int setChainBranches(TChain * chain, std::vector<TString> branchNamesV, std::vector<void*> pointerV)
+  {
+    if( !chain)
+    {
+      std::cout << "fileFuncs::setChainBranches: Error - empty TChain given. Aborting." << std::endl;
+      return 1000;
+    }
+    
+    if( branchNamesV.size() != pointerV.size())
+    {
+      std::cout << "fileFuncs::setChainBranches: Error - branchNamesV.size() = " << branchNamesV.size() << " != pointerV.size() = " << pointerV.size() << ". Aborting" << std::endl;
+      return 1001;
+    }
+    
+    if( branchNamesV.size() < 1)
+    {
+      std::cout << "fileFuncs::setChainBranches: Error - vector sizes different. Aborting" << std::endl;
+      return 1002;
+    }
+    
+    // ------------------------------------------------------------------
+    //Set branch addresses and statuses
+    // ------------------------------------------------------------------
+    int returnVal = 0;
+    for(unsigned int idx = 0; idx < branchNamesV.size(); ++idx)
+      returnVal = setChainBranch(chain, branchNamesV[idx].Data(), pointerV[idx]) || returnVal;
+      
+    if( returnVal )
+    {
+      std::cout << "fileFuncs::setChainBranches: Error - Error while setting branch address - check branch names. Aborting" << std::endl;
+      return returnVal;
+    }
+    
+    return returnVal; // shoud be 0
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //openChain_setBranch
+  //********************************************************************************************
+  //Create chain with tree treeName. Add file(s) corresponding to fileNameString(allows wildcards).
+  //Then set branch branchName with variable pointed at by pointer.
+  //There are no sanity checks on pointer. 
+  //All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
+  //--------------------------------------------------------------------------------------------
+  TChain * openChain_setBranch(TString fileNameString, TString treeName, TString branchName, void* pointer)
+  {
+    //create chain
+    TChain * chain = openChain(treeName, fileNameString);
+    if( !chain)
+    {
+      std::cout << "fileFuncs::openChain_setBranch: Could not open chain. Aborting" << std::endl;
+      return 0;
+    }
+    
+    //Set branch
+    int returnVal = setChainBranch(chain, branchName, pointer);
+    if( returnVal)
+    {
+      std::cout << "fileFuncs::openChain_setBranch: Could not set branch address. Recieved returnVal = " << returnVal << ". Aborting" << std::endl;
+      return 0;
+    }
+    
+    return chain;
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //openChain_setBranch - Overloaded
+  //********************************************************************************************
+  //Overloaded function - Create chain with tree treeName. Add file(s) corresponding to the elements in fileNameStringV(allows wildcards).
+  //Then set branch branchName with variable pointed at by pointer.
+  //There are no sanity checks on pointer. 
+  //All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
+  //
+  //The first element in fileNameStringV has to have a tree treeName and branch branchName. There is no check(I think) that the other files have them...
+  //--------------------------------------------------------------------------------------------
+  TChain * openChain_setBranch(std::vector<TString> fileNameStringV, TString treeName, TString branchName, void* pointer)
+  {
+    
+    if(fileNameStringV.empty() )
+    {
+      std::cout << "fileFuncs::openChain_setBranch: fileNameStringV is empty. Aborting" << std::endl;
+      return 0;      
+    }
+    
+    // ------------------------------------------------------------------
+    //Create chain
+    // ------------------------------------------------------------------
+    TChain * chain = openChain_setBranch(fileNameStringV[0], treeName, branchName, pointer);
+    
+    if( !chain)
+    {
+      std::cout << "fileFuncs::openChain_setBranch: Error - Could not open chain. Aborting" << std::endl;
+      return 0;
+    }
+    
+    // ------------------------------------------------------------------
+    //Add all other files to chain
+    // ------------------------------------------------------------------
+    for(size_t iFile = 1; iFile < fileNameStringV.size(); ++iFile)
+    {
+      int numFilesAdded = chain->Add(fileNameStringV[iFile].Data());
+      if( !numFilesAdded)  std::cout << "fileFuncs::openChain_setBranch: Warning - fileNameStringV[" << iFile << "] = " << fileNameStringV[iFile].Data() << " did not add any files to chain. Continuing." << std::endl;
+    }
+    
+    return chain;
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //openChain_setBranches
+  //********************************************************************************************
+  //Create chain with tree treeName. Add file(s) corresponding to fileNameString(allows wildcards).
+  //Then set branches in branchNamesV with variables pointed at by pointers in pointerV.
+  //There are no sanity checks on the pointers. 
+  //All other branch statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
+  //--------------------------------------------------------------------------------------------
+  TChain * openChain_setBranches(TString fileNameString, TString treeName, std::vector<TString> branchNamesV, std::vector<void*> pointerV)
+  {
+    //create chain
+    TChain * chain = openChain(treeName, fileNameString);
+    if( !chain)
+    {
+      std::cout << "fileFuncs::openChain_setBranches: Could not open chain. Aborting" << std::endl;
+      return 0;
+    }
+    
+    //Set branch
+    int returnVal = setChainBranches(chain, branchNamesV, pointerV);
+    if( returnVal)
+    {
+      std::cout << "fileFuncs::openChain_setBranches: Could not set branch addresses. Recieved returnVal = " << returnVal << ". Aborting" << std::endl;
+      return 0;
+    }
+    
+    return chain;
+  }
+  
+  //--------------------------------------------------------------------------------------------
+  //openChain_setBranch - Overloaded
+  //********************************************************************************************
+  //Overloaded function - Create chain with tree treeName. Add file(s) corresponding to the elements in fileNameStringV(allows wildcards).
+  //Then set branches in branchNamesV with variables pointed at by pointers in pointerV.
+  //There are no sanity checks on pointer. 
+  //All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
+  //
+  //The first element in fileNameStringV has to have a tree treeName and branch branchName. There is no check(I think) that the other files have them...
+  //--------------------------------------------------------------------------------------------
+  TChain * openChain_setBranches(std::vector<TString> fileNameStringV, TString treeName, std::vector<TString> branchNamesV, std::vector<void*> pointerV)
+  {
+    if(fileNameStringV.empty() )
+    {
+      std::cout << "fileFuncs::openChain_setBranches: fileNameStringV is empty. Aborting" << std::endl;
+      return 0;      
+    }
+    
+    // ------------------------------------------------------------------
+    //Create chain
+    // ------------------------------------------------------------------
+    TChain * chain = openChain_setBranches(fileNameStringV[0], treeName, branchNamesV, pointerV);
+    
+    if( !chain)
+    {
+      std::cout << "fileFuncs::openChain_setBranches: Error - Could not open chain. Aborting" << std::endl;
+      return 0;
+    }
+    
+    // ------------------------------------------------------------------
+    //Add all other files to chain
+    // ------------------------------------------------------------------
+    for(size_t iFile = 1; iFile < fileNameStringV.size(); ++iFile)
+    {
+      int numFilesAdded = chain->Add(fileNameStringV[iFile].Data());
+      if( !numFilesAdded)  std::cout << "fileFuncs::openChain_setBranches: Warning - fileNameStringV[" << iFile << "] = " << fileNameStringV[iFile].Data() << " did not add any files to chain. Continuing." << std::endl;
+    }
+    
+    
+    return chain;
+  }
+  
+
+} //namespace fileFuncs
+
+#endif

@@ -1,0 +1,5 @@
+[ libeclCrystalDB.so ]
+
+# List of selected classes
+class eclCrystalDB
+header eclCrystalDB.h

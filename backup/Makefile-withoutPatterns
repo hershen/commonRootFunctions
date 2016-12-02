@@ -1,0 +1,61 @@
+CC=g++
+DEBUG=-g -Wall -Wextra -Wpedantic
+CXX11=-std=c++1y
+CPPCHECK=cppcheck --enable=warning,style,performance --inconclusive --language=c++ -q --std=c++11
+OPTIM=-O3
+
+
+CCT=$(CC) $(OPTIM) $(DEBUG) $(CXX11)
+
+SRC_DIR=src
+OBJ_DIR=obj
+INC_DIR=include
+
+INC=-I$(INC_DIR)
+
+
+ROOT_HEADERS=-I`root-config --incdir`
+# ROOTlibs=`root-config --glibs` -lMathMore
+# ROOTS=$(ROOTheaders) $(ROOTlibs)
+#
+
+
+#make the text red - used to distinguish cppcheck from g++
+TEXT_RED=tput setaf 1;
+TEXT_RESET=tput sgr0;
+
+all: $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/filterFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/btFuncs.o $(OBJ_DIR)/MVectorTemplate.o
+	
+clean:
+	@rm $(OBJ_DIR)/*
+	
+$(OBJ_DIR)/MVectorTemplate.o: $(SRC_DIR)/MVectorTemplate.cxx $(INC_DIR)/MVectorTemplate.h
+	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/MVectorTemplate.cxx 
+	@$(TEXT_RESET)
+	$(CCT) -c $(INC) -o $(OBJ_DIR)/MVectorTemplate.o $(SRC_DIR)/MVectorTemplate.cxx
+
+$(OBJ_DIR)/fileFuncs.o: $(SRC_DIR)/fileFuncs.cxx
+	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/fileFuncs.cxx 
+	@$(TEXT_RESET)
+	$(CCT) -c $(INC) -o $(OBJ_DIR)/fileFuncs.o $(SRC_DIR)/fileFuncs.cxx
+
+$(OBJ_DIR)/filterFuncs.o: $(SRC_DIR)/filterFuncs.cxx
+	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/filterFuncs.cxx 
+	@$(TEXT_RESET)
+	$(CCT) -c $(INC) -o $(OBJ_DIR)/filterFuncs.o $(SRC_DIR)/filterFuncs.cxx
+	
+$(OBJ_DIR)/mathFuncs.o: $(SRC_DIR)/mathFuncs.cxx
+	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/mathFuncs.cxx 
+	@$(TEXT_RESET)
+	$(CCT) -c $(INC) -o $(OBJ_DIR)/mathFuncs.o $(SRC_DIR)/mathFuncs.cxx
+	
+$(OBJ_DIR)/btFuncs.o: $(SRC_DIR)/btFuncs.cxx
+	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/btFuncs.cxx 
+	@$(TEXT_RESET)
+	$(CCT) -c $(INC) -o $(OBJ_DIR)/btFuncs.o $(SRC_DIR)/btFuncs.cxx
+	
+# ${OBJ_DIR}/%.o: $(SRC_DIR)/%.cxx %.h
+# 	echo aaa
+# 	@$(TEXT_RED) $(CPPCHECK) $(SRC_DIR)/$<
+# 	@$(TEXT_RESET)
+# 	$(CCT) -c $(INC) -o $@ $(SRC_DIR)/$<
