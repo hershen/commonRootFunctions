@@ -102,5 +102,12 @@ namespace myFuncs
   //Open a file and check that it's exists/ not zombie.
   TFile* openFile(const std::string& filename, const std::string& options);
 //   TFile getTFile(const std::string &fullFileName, const std::string &options);
+	
+	//--------------------------------------------------------------------------------------------
+  //readParamFile
+  //********************************************************************************************
+  //Read paramter file.
+	//return string of pairs <paramName, paramValue>
+	std::map<std::string, std::string> getParams(const std::string& filename);
   
 }

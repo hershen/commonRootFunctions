@@ -9,6 +9,7 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TFile.h"
+#include "TGraphErrors.h"
 
 namespace myFuncs
 {
@@ -62,13 +63,27 @@ template <class rootClass> rootClass getRootObjectFromFile(TFile& file, const st
 	return rootObj;
 }
 
-/**
-* Extract a root object rootObjName from a root file file. The file is assumed to be not zombie. If rootObjName doesn't exist in file, print error.
-* rootClass should be a pointer (unless you figure out how to use it otherwise).
-*/
-void binGraph(const TGraph& graph, TH1& hist)
-{
-	
-}
+//Bin a TGraph into a hist. Hist should already have the required bins.
+//The content of each bin will be the average y values of the points corresponding to that bin.
+//If errorOnMean is false, the y error for each point will be the population STD in that bin.
+//If errorOnMean is true, the y error for each point will be the (population STD in that bin) / sqrt(number of entries in the bin).
+void binGraph(const TGraph& graph, TH1& hist, const bool errorOnMean = false);
+
+//Convert a histogram to a TGraphErrors.
+//Error on x is the bin width.
+//Error on y is the bin error.
+TGraphErrors histToGraph(const TH1& hist);
+
+// template <class histClass>
+// histClass scaleXaxis(const histClass& hist, const double scale)
+// {
+//   histClass newHist = *(static_cast<histClass*> (hist.Clone()) );
+// 	newHist.Clear();
+//   for(iBin = 1; iBin <= hist.GetNbinsX(); ++iBin)
+// 		newHist.
+// 
+//   return newHist;	
+// 	
+// }
 
 } //namespace

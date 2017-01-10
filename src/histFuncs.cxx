@@ -185,4 +185,56 @@ void normalize(TH1D& hist, const double area, const std::string& options)
 	hist.Scale(area/integral); 	
 } 
 
+void binGraph(const TGraph& graph, TH1& hist, const bool errorOnMean)
+{
+	//Histogram to store number of points in each bin.
+	TH1* numEntriesHist = static_cast<TH1*>( hist.Clone() );
+ 	numEntriesHist->FillN(graph.GetN(), graph.GetX(), nullptr);
+
+	//Fill histogram with points from graph. 
+	//Each bin contains the sum of all the y values in that bin.
+	hist.FillN(graph.GetN(), graph.GetX(), graph.GetY() );
+
+	//Prevent warning of unsigned integer expression because TGraph::GetN returns int isntead of unsigned int
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-compare" 
+	for(size_t iBin = 0; iBin <= hist.GetNbinsX(); ++iBin)
+	#pragma GCC diagnostic pop
+	{
+		double content = hist.GetBinContent(iBin); // sum of y values in the bin.
+		double error = hist.GetBinError(iBin);     // sum of y^2
+		long entries = numEntriesHist->GetBinContent(iBin) ; //num of points in the bin
+		
+		if(entries > 0) 
+		{
+			hist.SetBinContent(iBin, content / entries ); //Set content to average
+			error = std::sqrt(std::pow(error, 2) / entries - std::pow(content / entries,2) ); //Calculate std in bin
+			
+			if(errorOnMean) error /= std::sqrt( entries ); //Set error to error mean (std/sqrt(n))
+		
+			hist.SetBinError(iBin, error); //Set error.
+		}
+		
+	}
+	delete numEntriesHist;
+}
+
+TGraphErrors histToGraph(const TH1& hist)
+{
+	TGraphErrors graph;
+	
+	//Prevent warning of unsigned integer expression because TGraph::GetN returns int isntead of unsigned int
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wsign-compare" 
+	for(size_t iBin = 1; iBin <= hist.GetNbinsX(); ++iBin)
+	#pragma GCC diagnostic pop
+	{
+		size_t iPoint = graph.GetN();
+		graph.SetPoint(iPoint, hist.GetBinCenter(iBin), hist.GetBinContent(iBin) );
+		graph.SetPointError( iPoint, hist.GetBinWidth(iBin), hist.GetBinError(iBin) );
+	}	
+	return graph;
+	
+}
+
 } //namespace histFuncs

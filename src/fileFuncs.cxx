@@ -7,6 +7,8 @@
 #include "TObjArray.h"
 #include "dirent.h"
 
+//For getParams
+#include <fstream>
 
 //ToDo - Find why I need to do getEntries in order to use the tree
 //ToDo - Change all TChain functions to NOT use pointers
@@ -274,4 +276,22 @@ namespace myFuncs
     }
     return file;
   }
+  
+  std::map<std::string, std::string> getParams(const std::string& filename)
+	{
+		std::ifstream file(filename);
+
+    std::string paramName;
+		std::string paramValue;
+
+		std::map<std::string, std::string> params;
+    while (file >> paramName >> paramValue)
+    {
+			params[paramName] = paramValue;
+    }
+		
+		return params;
+	}
+	
+	
 } //namespace fileFuncs
