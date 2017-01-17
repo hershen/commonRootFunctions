@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef myMathFunctions_cxx
-#define myMathFunctions_cxx
-
 #include <iostream>
 #include "TF1.h"
 #include "TMath.h"
@@ -17,7 +14,7 @@
 // #include "Math/Factory.h"
 // #include "Math/Functor.h"
 
-namespace mathFuncs
+namespace myFuncs
 {
   
   void test();
@@ -191,6 +188,3 @@ namespace mathFuncs
 
 } //namespace myMathFunctions
 
-
-
-#endif

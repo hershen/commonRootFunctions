@@ -1,4 +1,5 @@
 #include "mathFuncs.h"
+#include "histFuncs.h"
 
 //std
 #include <iostream>

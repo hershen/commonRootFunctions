@@ -281,6 +281,11 @@ namespace myFuncs
 	{
 		std::ifstream file(filename);
 
+		if(!file.is_open())
+		{
+			std::cout << "Could not open stream " << filename << ". Perhaps file doesn't exist???" << std::endl;
+		}
+
     std::string paramName;
 		std::string paramValue;
 
