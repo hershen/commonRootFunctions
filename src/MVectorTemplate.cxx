@@ -534,10 +534,29 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string &fullFileName)
   delete rTemplateValuesPointer;
   delete inputChain;
 
-  rTF1 = TF1("templateTF1",this,&MVectorTemplate::TF1Eval,0,rDx*(rTemplateValues.size()-1),3,"MVectorTemplate","TF1Eval");
-  setTF1Parameters(1.,0.,0.);
-  setTF1ParNames();
-    
-    
-  return 0;
+	rTF1 = TF1("templateTF1",this,&MVectorTemplate::TF1Eval,0,rDx*(rTemplateValues.size()-1),3,"MVectorTemplate","TF1Eval");
+// 	rTF1 = TF1("templateTF1",
+// 				[&](double*var, double *p)
+// 				{   
+// 					const double effectiveX = var[0] - p[2]; 
+// 					if(effectiveX <= 0) return p[1] + p[0]*rTemplateValues[0];
+// 					if(effectiveX >= rDx * double(rTemplateValues.size() - 1)) return p[1] + p[0]*rTemplateValues.back();
+// 					const int idx = int(effectiveX / rDx);
+// 
+// 					//Linear interpolation
+// 					const double x1 = double(idx)*rDx;
+// 					const double x2 = double(idx + 1) * rDx;
+// 					const double y1 = rTemplateValues[idx];
+// 					const double y2 = rTemplateValues[idx + 1];
+// 					double returnVal = p[1] + p[0]*((y2 - y1)/(x2-x1)*(effectiveX-x1) + y1);
+// 					
+// 					return returnVal;    
+// 				}//Lambda
+// 				
+// 				, 0, rDx*(rTemplateValues.size()-1), 3);
+// 	setTF1Parameters(1.,0.,0.);
+// 	setTF1ParNames();
+// 		
+		
+	return 0;
 }
