@@ -20,7 +20,7 @@
 namespace myFuncs
 {       
 
-  TChain * openChain(std::string treeName, std::string fileNamesString)
+  TChain * openChain(const std::string& treeName, const std::string& fileNamesString)
   {
     
     //create chain
@@ -63,7 +63,7 @@ namespace myFuncs
   
 
   
-  int setChainBranch(TChain * chain, std::string branchName, void* pointer)
+  int setChainBranch(TChain * chain, const std::string& branchName, void* pointer)
   {
     if( !chain)
     {
@@ -93,7 +93,7 @@ namespace myFuncs
   }
   
   
-  int setChainBranch(TChain * chain, std::vector<std::string> branchNamesV, std::vector<void*> pointerV)
+  int setChainBranch(TChain * chain, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV)
   {
     if( !chain)
     {
@@ -129,7 +129,7 @@ namespace myFuncs
     return returnVal; // shoud be 0
   }
   
-  TChain * openChain_setBranch(std::string fileNameString, std::string treeName, std::string branchName, void* pointer)
+  TChain * openChain_setBranch(const std::string& fileNameString, const std::string& treeName, const std::string& branchName, void* pointer)
   {
     //create chain
     TChain * chain = openChain(treeName, fileNameString);
@@ -151,7 +151,7 @@ namespace myFuncs
     return chain;
   }
   
-  TChain * openChain_setBranch(std::vector<std::string> fileNameStringV, std::string treeName, std::string branchName, void* pointer)
+  TChain * openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName, const std::string& branchName, void* pointer)
   {
     
     if(fileNameStringV.empty() )
@@ -183,7 +183,7 @@ namespace myFuncs
     return chain;
   }
   
-  TChain * openChain_setBranch(std::string fileNameString, std::string treeName, std::vector<std::string> branchNamesV, std::vector<void*> pointerV)
+  TChain * openChain_setBranch(const std::string& fileNameString, const std::string& treeName, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV)
   {
     //create chain
     TChain * chain = openChain(treeName, fileNameString);
@@ -205,7 +205,7 @@ namespace myFuncs
     return chain;
   }
   
-  TChain * openChain_setBranch(std::vector<std::string> fileNameStringV, std::string treeName, std::vector<std::string> branchNamesV, std::vector<void*> pointerV)
+  TChain * openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV)
   {
     if(fileNameStringV.empty() )
     {

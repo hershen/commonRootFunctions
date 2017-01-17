@@ -14,7 +14,7 @@ namespace myFuncs
   //<b>All</b> files are expected to contain a tree treeName
   //NOTE - This also disables all branches (sets all branch statuses to 0). Each branch that needs to be read needs to be specifically enabled (set branch status to 1)
   //--------------------------------------------------------------------------------------------
-  TChain * openChain(std::string treeName, std::string fileNamesString);
+  TChain * openChain(const std::string& treeName, const std::string& fileNamesString);
 
 
   //--------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace myFuncs
   //Also set branch status (and sub branch) to 1 so that the branch can be read.
   //There is no check of what pointer points to. The pointer should probably point to zero - this seems to work best.
   //--------------------------------------------------------------------------------------------
-  int setChainBranch(TChain * chain, std::string branchName, void* pointer);
+  int setChainBranch(TChain * chain, const std::string& branchName, void* pointer);
 
   //--------------------------------------------------------------------------------------------
   //setChainBranch
@@ -34,7 +34,7 @@ namespace myFuncs
   //Set branch address for each branch name to the corresponding variable.
   //Also set branch (and sub branch) status to 1 so that the branches can be read.
   //--------------------------------------------------------------------------------------------
-  int setChainBranch(TChain * chain, std::vector<std::string> branchNamesV, std::vector<void*> pointerV);
+  int setChainBranch(TChain * chain, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV);
     
   //--------------------------------------------------------------------------------------------
   //openChain_setBranch
@@ -44,7 +44,7 @@ namespace myFuncs
   //There are no sanity checks on pointer. 
   //All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
   //--------------------------------------------------------------------------------------------
-  TChain * openChain_setBranch(std::string fileNameString, std::string treeName, std::string branchName, void* pointer);
+  TChain * openChain_setBranch(const std::string& fileNameString, const std::string& treeName, const std::string& branchName, void* pointer);
   
     
   //--------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace myFuncs
   //
   //The first element in fileNameStringV has to have a tree treeName and branch branchName. There is no check(I think) that the other files have them...
   //--------------------------------------------------------------------------------------------
-  TChain * openChain_setBranch(std::vector<std::string> fileNameStringV, std::string treeName, std::string branchName, void* pointer);
+  TChain * openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName, const std::string& branchName, void* pointer);
       
   //--------------------------------------------------------------------------------------------
   //openChain_setBranch
@@ -68,7 +68,7 @@ namespace myFuncs
   //There are no sanity checks on the pointers. 
   //All other branch statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
   //--------------------------------------------------------------------------------------------
-  TChain * openChain_setBranch(std::string fileNameString, std::string treeName, std::vector<std::string> branchNamesV, std::vector<void*> pointerV);
+  TChain * openChain_setBranch(const std::string& fileNameString, const std::string& treeName, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV);
     
     
   //--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace myFuncs
   //
   //The first element in fileNameStringV has to have a tree treeName and branch branchName. There is no check(I think) that the other files have them...
   //--------------------------------------------------------------------------------------------
-  TChain * openChain_setBranch(std::vector<std::string> fileNameStringV, std::string treeName, std::vector<std::string> branchNamesV, std::vector<void*> pointerV);
+  TChain * openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV);
   
   //--------------------------------------------------------------------------------------------
   //getFilesEndingWith
