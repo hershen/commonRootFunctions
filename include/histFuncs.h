@@ -10,6 +10,8 @@
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TGraphErrors.h"
+#include "TPaveText.h"
+#include "TSystem.h"
 
 namespace myFuncs
 {
@@ -85,5 +87,45 @@ TGraphErrors histToGraph(const TH1& hist);
 //   return newHist;	
 // 	
 // }
+
+
+class myPaveText : public TPaveText
+{
+public:
+	myPaveText (const Double_t x1,const Double_t y1, const Double_t x2,const Double_t y2, Option_t *option="NDCNB"):
+	TPaveText(x1, y1, x2, y2, option)
+	{
+		this->SetTextFont(22);
+//     this->SetFillColor(kWhite);
+		this->SetFillStyle(0);  //Make fill color transparent
+		this->SetBorderSize(0); //No border
+	}
+};
+
+//Overwrites files if they already exis
+void saveCanvas(const TCanvas* canvas, const std::string& filename)
+{
+	//Create figure dump dir. If already exists, or there's a problem, it returns -1.
+	gSystem->mkdir("figureDump");
+	
+	canvas->SaveAs(("figureDump/" + filename + ".png").data());
+	canvas->SaveAs(("figureDump/" + filename + ".pdf").data());
+	canvas->SaveAs(("figureDump/" + filename + ".C").data());
+	
+}
+
+
+void saveCanvas(const TCanvas* canvas)
+{
+	saveCanvas(canvas, canvas->GetName());
+	
+}
+
+
+
+
+
+
+
 
 } //namespace
