@@ -1,16 +1,17 @@
 #include "MVectorTemplate.h"
 
 #include <iostream>
+
 #include "TF1.h"
 #include "TMath.h"
 #include "TH1D.h"
-#include "mathFuncs.h"
 #include "TFitResult.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "fileFuncs.h"
-
 #include "TCanvas.h"
+
+#include "mathFuncs.h"
+#include "fileFuncs.h"
 
 #define cline std::cout << "line = " << __LINE__ << std::endl;
 
@@ -49,7 +50,7 @@ MVectorTemplate::MVectorTemplate():
 
 }
 
-MVectorTemplate::MVectorTemplate(const std::vector<double> &newVec, const double &newDx):
+MVectorTemplate::MVectorTemplate(const std::vector<double>& newVec, const double newDx):
   MVectorTemplate()
 {
   setDx(newDx);
@@ -76,13 +77,13 @@ void MVectorTemplate::resetTemplateRange()
   if(rTF1.IsValid()) rTF1.SetRange(0,rDx*(rTemplateValues.size()-1) );
 }
 
-void MVectorTemplate::setDx(const double &newDx)
+void MVectorTemplate::setDx(const double newDx)
 {
   rDx = newDx;
   resetTemplateRange();
 }
 
-int MVectorTemplate::addVector(const std::vector<double> &newVector, const double &std)
+int MVectorTemplate::addVector(const std::vector<double>& newVector, const double std)
 {
   //TODO implement with TMinuit
   //TODO average using a weighted average

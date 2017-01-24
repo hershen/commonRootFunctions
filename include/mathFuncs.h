@@ -1,6 +1,9 @@
 #pragma once
 
+//std
 #include <iostream>
+
+//Root
 #include "TF1.h"
 #include "TMath.h"
 #include "TRandom3.h"
@@ -15,10 +18,8 @@
 // #include "Math/Functor.h"
 
 namespace myFuncs
-{
-  
-  void test();
-  
+{  
+	
   //trying to compile with g++
 //   int vecSize = 0;
 //   TF1 globalFunc;
@@ -38,33 +39,55 @@ namespace myFuncs
   //--------------------------------------------------------------------------------------------
   //calcResiduals
   //********************************************************************************************
-  //Function to calculate residuals between a a model function (TF1) and y(x) yValuesV taken at points xValuesV.
-  //x values are in vector xValuesV of type xValueType
-  //y values are in vector yValuesV of type yValueType
+  //Function to calculate residuals between a a model function (TF1) and y(x) yValues taken at points xValuesV.
+	//Residual defined as f(x) - yValue
+  //x values are in vector xValues of type xValueType
+  //y values are in vector yValues of type yValueType
+	//If there are more yValues than xValues, the residuals are calculated only for the xValues given.
+	//More xValues than yValues are not allowed.
   //--------------------------------------------------------------------------------------------
+	//Not implemented with boost zip itirators because ROOT doesn't compile Boost libraries well.
   template <typename xValType, typename yValType> 
-  std::vector<double> calcResiduals(std::vector<xValType> xValuesV, std::vector<yValType> yValuesV, TF1 modelFunc);
-  
-  //--------------------------------------------------------------------------------------------
-  //vecMean
-  //********************************************************************************************
-  //Calculate the mean of a vector
-  //y values are in vector yValuesV of type yValueType
-  //-------------------------------------------------------------------------------------------- 
-  template <typename Type> 
-  double vecMean(std::vector<Type> vec);
-  
-  
-  //--------------------------------------------------------------------------------------------
-  //vecSum2
-  //********************************************************************************************
-  //Calculate Sum( x_i ^2 )
-  //-------------------------------------------------------------------------------------------- 
-  template <typename Type> 
-  Type vecSum2(std::vector<Type> vec);
-  
-  
-    
+  std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues, const std::vector<double>& stds, const TF1& modelFunc)
+	{
+    // ------------------------------------------------------------------
+    //Sanity checks
+    // ------------------------------------------------------------------
+		//Allow cases where there are more y values than x values
+    if(yValues.size() < xValues.size()) 
+      throw std::invalid_argument("yValuesV.size() < xValuesV.size()");
+		
+		if(stds.size() < xValues.size()) 
+      throw std::invalid_argument("stds.size() < xValuesV.size()");
+		
+		//Output vector
+    std::vector<double> residuals;
+		residuals.reserve( xValues.size() );
+		
+		auto xIt = xValues.begin();
+		auto yIt = yValues.begin();
+		auto stdIt = stds.begin();
+		//Loop on num elements = xValues.size()
+		while( xIt != xValues.end() )
+		{
+// 			std::cout << "xVal = " << *xIt << ", yVal = " << *yIt << std::endl;
+			residuals.push_back ( (modelFunc.Eval(*xIt) - static_cast<double>(*yIt)) / *stdIt );
+		  ++xIt;
+			++yIt;
+			++stdIt;
+		}
+		
+		return residuals;
+	}
+	
+	//Overloaded
+	template <typename xValType, typename yValType> 
+	std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues, const double std, const TF1& modelFunc)
+	{
+		return calcResiduals(xValues, yValues, std::vector<double>(xValues.size(), std), modelFunc);
+	}
+	
+	
   //--------------------------------------------------------------------------------------------
   //convertArray2TF1Internal
   //********************************************************************************************
@@ -145,16 +168,6 @@ namespace myFuncs
   //Same as before, only without the fitResult parameter.
   //--------------------------------------------------------------------------------------------
   inline TF1 getGaussianFit(TH1D hist, double xMinInitial, double xMaxInitial, double xMinFracOfSigma, double xMaxFracOfSigma);
-  
-  
-  //--------------------------------------------------------------------------------------------
-  //getVectorStd
-  //********************************************************************************************
-  //Calculate the standard deviation of the vector
-  // 1/N*( E[x^2] - E[x]^2)
-  //--------------------------------------------------------------------------------------------
-  template <typename Type> 
-  double getVectorStd(const std::vector<Type> &vec);
   
   //--------------------------------------------------------------------------------------------
   //getCorrelationMatrix

@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef MVectorTemplate_cxx
-#define MVectorTemplate_cxx
-
-
 #include <vector>
 #include "TF1.h"
 
@@ -12,13 +8,13 @@ class MVectorTemplate
 
   public:
     MVectorTemplate();
-    MVectorTemplate(const std::vector<double> &newVec, const double &newDx);
+    MVectorTemplate(const std::vector<double>& newVec, const double newDx);
     
     
     inline unsigned int getNumAveragedFuncs() const {return rNumAveragedFuncs;}
     
     inline double getDx() const {return rDx;}
-    void setDx(const double &newDx);
+    void setDx(const double newDx);
     
     //inline void setVectorValues(const std::vector<double> &newValues) {rTemplateValues = newValues; rNumAveragedFuncs = 0;}
     inline std::vector<double> getTemplateValues() const {return rTemplateValues;}
@@ -44,7 +40,7 @@ class MVectorTemplate
     
     //Adds a new vector to the template. The values are averaged (taking into account the relative wight of the new vector according to the number of previous vectors added.
     //rTF1 parameters reset at the end (otherwise they keep values of last vector added.
-    int addVector(const std::vector<double> &newVector, const double &std);
+    int addVector(const std::vector<double>& newVector, const double std);
     
     inline TF1 *getTF1() {return &rTF1;}
     
@@ -128,6 +124,3 @@ class MVectorTemplate
     void setTF1Parameters();
     
 };
- 
-
-#endif

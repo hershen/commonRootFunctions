@@ -15,9 +15,6 @@ bool compareHistMaximum(const TH1* hist1, const TH1* hist2) { return hist1->GetB
 
 namespace myFuncs
 {       
-
-
-  
 void drawHistograms_highestFirst(const std::vector<TH1*> &histVector)
 {
   

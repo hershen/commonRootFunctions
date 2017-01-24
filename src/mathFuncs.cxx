@@ -15,19 +15,14 @@
 #include "TH1D.h"
 #include "TFitResult.h"
 #include "TH2D.h"
-#include "histFuncs.h"
 #include "TStyle.h"
 
+//Mine
+#include "histFuncs.h"
 
-
-namespace mathFuncs
-{
-  
-  void test()
-  {
-    std::cout << "this is a test " << std::endl;
-  }
-  
+namespace myFuncs
+{  
+	
   TF1 globalFunc;
   int vecSize = 0;
   //--------------------------------------------------------------------------------------------
@@ -56,81 +51,8 @@ namespace mathFuncs
     
     return analytical;
   }
-  
-  //--------------------------------------------------------------------------------------------
-  //calcResiduals
-  //********************************************************************************************
-  //Function to calculate residuals between a a model function (TF1) and y(x) yValuesV taken at points xValuesV.
-  //x values are in vector xValuesV of type xValueType
-  //y values are in vector yValuesV of type yValueType
-  //--------------------------------------------------------------------------------------------
-  template <typename xValType, typename yValType> 
-  std::vector<double> calcResiduals(std::vector<xValType> xValuesV, std::vector<yValType> yValuesV, TF1 modelFunc)
-  {
-    // ------------------------------------------------------------------
-    //Sanity checks
-    // ------------------------------------------------------------------
-    if(xValuesV.size() != yValuesV.size()) 
-    {
-      std::cout << "calcResiduals: xValuesV.size() != yValuesV.size(). Aborting." << std::endl;
-      return std::vector<double>(0,0);
-    }
-    
-    //return vector
-    std::vector<double> residualV = std::vector<double>(xValuesV.size(),0);
-    
-    
-    // ------------------------------------------------------------------
-    //Calculate residuals
-    // ------------------------------------------------------------------
-    for(size_t idx = 0; idx < xValuesV.size(); ++idx) residualV[idx] = double(yValuesV[idx]) - modelFunc.Eval(xValuesV[idx]);
-    
-    
-    return residualV;
-  }
-  
-  //Declare all usefule implementations in order to avoid linker problems!
-  template std::vector<double> calcResiduals<double>(std::vector<double> xValuesV, std::vector<double> yValuesV, TF1 modelFunc);
-  template std::vector<double> calcResiduals<int>(std::vector<int> xValuesV, std::vector<int> yValuesV, TF1 modelFunc);
-  
-  //--------------------------------------------------------------------------------------------
-  //vecMean
-  //********************************************************************************************
-  //Calculate the mean of a vector
-  //y values are in vector yValuesV of type yValueType
-  //-------------------------------------------------------------------------------------------- 
-  template <typename Type> 
-  double vecMean(std::vector<Type> vec)
-  {
-    Type sum = 0;
-    for(size_t idx = 0; idx < vec.size(); ++idx) sum += vec[idx];
-    
-    return double(sum)/double(vec.size());
-  }
-  
-  
-  //Declare all usefule implementations in order to avoid linker problems!
-  template double vecMean<double>(std::vector<double> vec);
-  template double vecMean<int>(std::vector<int> vec);
-  
-  //--------------------------------------------------------------------------------------------
-  //vecSum2
-  //********************************************************************************************
-  //Calculate Sum( x_i ^2 )
-  //-------------------------------------------------------------------------------------------- 
-  template <typename Type> 
-  Type vecSum2(std::vector<Type> vec)
-  {
-    Type sum2 = 0;
-    for(size_t idx = 0; idx < vec.size(); ++idx) sum2 += vec[idx]*vec[idx];
-    
-    return sum2;
-  }
 
-  //Declare all usefule implementations in order to avoid linker problems!
-  template double vecSum2<double>(std::vector<double> vec);
-  template int vecSum2<int>(std::vector<int> vec);
-    
+  
   //--------------------------------------------------------------------------------------------
   //convertArray2TF1Internal
   //********************************************************************************************
@@ -146,7 +68,7 @@ namespace mathFuncs
     double x = var[0] - timeShift;
     
     if(x <= 0) return params[numOfAdditionalParams];
-    if(x >= dT * double(mathFuncs::vecSize - 1)) return params[numOfAdditionalParams + mathFuncs::vecSize - 1];
+    if(x >= dT * double(myFuncs::vecSize - 1)) return params[numOfAdditionalParams + myFuncs::vecSize - 1];
     
     int idx = int(x / dT); // x corrisponds to a time between idx and idx+1
     
@@ -181,13 +103,13 @@ namespace mathFuncs
     double tMin = timeShift;
     double tMax = (vecValues.size()-1) * dT + timeShift;
     
-    mathFuncs::vecSize = vecValues.size();
+    myFuncs::vecSize = vecValues.size();
     
-    TF1 convertArray2TF1("convertArray2TF1Internal",convertArray2TF1Internal, tMin, tMax, mathFuncs::vecSize + 2);
+    TF1 convertArray2TF1("convertArray2TF1Internal",convertArray2TF1Internal, tMin, tMax, myFuncs::vecSize + 2);
     convertArray2TF1.SetParameter(0,timeShift);
     convertArray2TF1.FixParameter(1,dT);
     //set parameters
-    for(int idx = 2; idx < mathFuncs::vecSize + 2; ++idx) convertArray2TF1.FixParameter(idx, vecValues[idx-2]);
+    for(int idx = 2; idx < myFuncs::vecSize + 2; ++idx) convertArray2TF1.FixParameter(idx, vecValues[idx-2]);
     return convertArray2TF1;
   }
     
@@ -199,7 +121,7 @@ namespace mathFuncs
     double DLY = params[0];
     double fraction = params[1];
     double x = var[0];
-    return fraction * mathFuncs::globalFunc.Eval(x) - mathFuncs::globalFunc.Eval(x - DLY);
+    return fraction * myFuncs::globalFunc.Eval(x) - myFuncs::globalFunc.Eval(x - DLY);
   }
   
   
@@ -210,7 +132,7 @@ namespace mathFuncs
   //-------------------------------------------------------------------------------------------- 
   TF1 CFD(TF1 func, double DLY, double fraction = 0.2)
   {
-    mathFuncs::globalFunc = func;
+    myFuncs::globalFunc = func;
     
     TF1 CFDfunc("CFDfunc",CFDfuncInternal, func.GetXmin(), func.GetXmax(), 2);
     CFDfunc.SetParameters(DLY,fraction);
@@ -339,27 +261,6 @@ namespace mathFuncs
   
   //--------------------------------------------------------------------------------------------
   
-  template <typename Type> 
-  double getVectorStd(const std::vector<Type> &vec)
-  {
-    double sum = 0., sum2 = 0.;
-    
-    for (size_t idx = 0; idx < vec.size(); ++idx)
-    {
-      sum += double(vec[idx]);
-      sum2 += std::pow(double(vec[idx]),2);
-    }
-    
-    double std = TMath::Sqrt( sum2 / double(vec.size()) - std::pow(sum / double(vec.size()),2) ) ;
-    
-    return std;
-  }
-  
-  template double getVectorStd(const std::vector<double> &vec);
-  template double getVectorStd(const std::vector<int> &vec);
-  template double getVectorStd(const std::vector<unsigned int> &vec);
-  
-  
   
   //********************************************************************************************
   //getCorrelationMatrix
@@ -412,7 +313,11 @@ namespace mathFuncs
     std::cout << std::endl;
     
     //Print values
-    for (auto i = 0; i < matrix.GetNrows(); ++i)
+		//Prevent warning of unsigned integer expression because TMatrixD::GetNrows returns int isntead of unsigned int
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wsign-compare" 
+    for (size_t i = 0; i < matrix.GetNrows(); ++i)
+		#pragma GCC diagnostic pop
     {
       //Print heading at begining of line
       if( i < headings.size() ) std::cout << std::setw(width) << align <<  headings[i];
@@ -428,13 +333,21 @@ namespace mathFuncs
   //********************************************************************************************
   TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string>& xAxisHeadings, const std::vector<std::string>& yAxisHeadings, const double zMin, const double zMax, const std::string& precision )
   {
+		//Prevent warning of unsigned integer expression because TMatrixD::GetNcols returns int isntead of unsigned int
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wsign-compare" 
     if( xAxisHeadings.size() < matrix.GetNcols() )
+		#pragma GCC diagnostic pop
     {
       std::cout << "mathFuncs::drawMatrix : matrix has " << matrix.GetNcols() << "columns, but only "<< xAxisHeadings.size() << " headings. Abroting. " << std::endl;
       return new TCanvas();
     }
     
+    //Prevent warning of unsigned integer expression because TMatrixD::GetNcols returns int isntead of unsigned int
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wsign-compare" 
     if( yAxisHeadings.size() < matrix.GetNcols() )
+		#pragma GCC diagnostic pop
     {
       std::cout << "mathFuncs::drawMatrix : matrix has " << matrix.GetNrows() << "rows, but only "<< yAxisHeadings.size() << " headings. Abroting. " << std::endl;
       return new TCanvas();

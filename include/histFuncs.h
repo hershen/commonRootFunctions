@@ -1,10 +1,12 @@
 #pragma once
 
+//std
 #include <iostream>
 
+//Boost
 #include "boost/format.hpp"
 
-
+//Root
 #include "TH1.h"
 #include "TGraph.h"
 #include "TCanvas.h"
@@ -89,6 +91,22 @@ TGraphErrors histToGraph(const TH1& hist);
 // }
 
 
+// Overwrites files if they already exis
+inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename)
+{
+	//Create figure dump dir. If already exists, or there's a problem, it returns -1.
+	gSystem->mkdir("figureDump");
+	
+	canvas->SaveAs(("figureDump/" + filename + ".png").data());
+	canvas->SaveAs(("figureDump/" + filename + ".pdf").data());
+	canvas->SaveAs(("figureDump/" + filename + ".C").data());
+}
+
+
+inline void mySaveCanvas(const TCanvas* canvas) {
+	mySaveCanvas(canvas, canvas->GetName());	
+}
+
 class myPaveText : public TPaveText
 {
 public:
@@ -101,31 +119,5 @@ public:
 		this->SetBorderSize(0); //No border
 	}
 };
-
-//Overwrites files if they already exis
-void saveCanvas(const TCanvas* canvas, const std::string& filename)
-{
-	//Create figure dump dir. If already exists, or there's a problem, it returns -1.
-	gSystem->mkdir("figureDump");
-	
-	canvas->SaveAs(("figureDump/" + filename + ".png").data());
-	canvas->SaveAs(("figureDump/" + filename + ".pdf").data());
-	canvas->SaveAs(("figureDump/" + filename + ".C").data());
-	
-}
-
-
-void saveCanvas(const TCanvas* canvas)
-{
-	saveCanvas(canvas, canvas->GetName());
-	
-}
-
-
-
-
-
-
-
 
 } //namespace
