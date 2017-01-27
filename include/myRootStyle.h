@@ -1,7 +1,12 @@
 #pragma once
 
 #include "TStyle.h"
-#include "TColor.h"
+
+namespace myFuncs {
+
+TStyle* MyRootStyle();
+
+void setMyRootStyle();
 
 void setRootStyle()
 {
@@ -29,3 +34,5 @@ void setRootStyle()
 //   
 //   gStyle->SetStatBorderSize(1.);
 }
+
+}//namespace

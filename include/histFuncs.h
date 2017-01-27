@@ -110,7 +110,7 @@ inline void mySaveCanvas(const TCanvas* canvas) {
 class myPaveText : public TPaveText
 {
 public:
-	myPaveText (const Double_t x1,const Double_t y1, const Double_t x2,const Double_t y2, Option_t *option="NDCNB"):
+	myPaveText (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2, Option_t *option="NDCNB"):
 	TPaveText(x1, y1, x2, y2, option)
 	{
 		this->SetTextFont(22);
@@ -118,6 +118,38 @@ public:
 		this->SetFillStyle(0);  //Make fill color transparent
 		this->SetBorderSize(0); //No border
 	}
+	
+	//Constructor which puts text at the top of a histogram. Just need to set x2
+	//Numbers for x1,y1,y2 assume bottom and left pad margin = 0.16, top pad margin = 0.05.
+	//TODO - think if might be accessed with gPad
+	myPaveText (const Double_t x2, Option_t *option="NDCNB"):
+	myPaveText (0.16, 0.95, x2, 1, option) {}
 };
+
+
+template <typename rootObject>
+TCanvas& drawWithResiduals(TCanvas& canvas, rootObject object, const TF1& function)
+{
+	canvas.cd();
+	TPad* topPad = new TPad( (canvas.GetName() + std::string("_topPad")).data(), "", 0, 0.2, 1, 1);
+	topPad->SetTopMargin(0.03);
+	topPad->SetBottomMargin(0.);
+	topPad->Draw();
+	topPad->cd();
+	object.Draw();
+	topPad->Update();
+	
+	//Change to canvas before creating second pad
+	canvas.cd();
+	
+	TPad* bottomPad = new TPad( (canvas.GetName() + std::string("_bottomPad")).data(), "", 0, 0, 1, 0.2);
+	topPad->SetBottomMargin(0);
+	bottomPad->Draw();
+	bottomPad->cd();
+	//Draw TGraph
+	
+	return canvas;
+}
+
 
 } //namespace

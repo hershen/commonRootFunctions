@@ -1,0 +1,127 @@
+#include "testbeam/RunDB.h"
+#include <iostream>
+using namespace myFuncs::testbeam;
+
+
+//-----------------------------------------------------------
+//Singleton class to access DB
+//-----------------------------------------------------------
+RunDB::RunDB():
+m_DB({ 
+{ 570, RunParams(570, Crystal::CsI_Tl_Belle, -1.0,58, -140 ) }, 
+{ 571, RunParams(571, Crystal::CsI_Tl_Belle, -1.0,58, -140 ) },
+{ 566, RunParams(566, Crystal::CsI_Tl_Belle, -1.0,58, 0.0 ) },
+{ 567, RunParams(567, Crystal::CsI_Tl_Belle, -1.0,58, 300 ) },
+{ 568, RunParams(568, Crystal::CsI_Tl_Belle, -1.0,58, 300 ) },
+{ 572, RunParams(572, Crystal::CsI_Tl_Belle, -1.0,58, 300 ) },
+{ 573, RunParams(573, Crystal::CsI_Tl_Belle, -1.0,58, -100 ) },
+{ 574, RunParams(574, Crystal::CsI_Tl_Belle, -1.0,58, -120 ) },
+{ 575, RunParams(575, Crystal::CsI_Tl_Belle, 31.0,58, -140 ) },
+{ 576, RunParams(576, Crystal::CsI_Tl_Belle, 31.0,58, 0.0 ) },
+{ 577, RunParams(577, Crystal::CsI_Tl_Belle, 31.0,58, 300 ) },
+{ 578, RunParams(578, Crystal::CsI_Tl_Belle, 6.0,58, 0.0 ) },
+{ 579, RunParams(579, Crystal::CsI_Tl_Belle, 6.0,58, -140 ) },
+{ 580, RunParams(580, Crystal::CsI_Tl_Belle, 6.0,58, 300 ) },
+{ 584, RunParams(584, Crystal::CsI_Tl_Belle, 3.0,58, 0.0 ) },
+{ 585, RunParams(585, Crystal::CsI_Tl_Belle, 3.0,58, 300 ) },
+{ 586, RunParams(586, Crystal::CsI_Tl_Belle, 3.0,58, -140 ) },
+{ 588, RunParams(588, Crystal::CsI_Tl_Belle, 0.5,58, 0.0 ) },
+{ 589, RunParams(589, Crystal::CsI_Tl_Belle, 0.5,58, 300 ) },
+{ 591, RunParams(591, Crystal::CsI_Tl_Belle, 0.5,58, -140 ) },
+{ 592, RunParams(592, Crystal::CsI_Tl_Belle, 3.0,58, 300 ) },
+{ 593, RunParams(593, Crystal::CsI_Tl_Belle, 6.0,58, 300 ) },
+{ 594, RunParams(594, Crystal::CsI_Tl_Belle, 31.0,58, 300 ) },
+{ 595, RunParams(595, Crystal::CsI_Tl_Belle, 31.0,58, -140 ) },
+{ 596, RunParams(596, Crystal::CsI_Tl_Belle, -1.0,58, 300 ) },
+{ 597, RunParams(597, Crystal::CsI_Tl_Belle, -1.0,58, -140 ) },
+{ 599, RunParams(599, Crystal::CsI_Tl_Belle, -1.0,58, -120 ) },
+{ 600, RunParams(600, Crystal::CsI_Tl_Belle, -1.0,58, -100 ) },
+{ 602, RunParams(602, Crystal::CsI_Tl_Belle, -1.0,58, 0.0 ) },
+{ 611, RunParams(611, Crystal::CsI_Chinese, -1.0,458, -120 ) },
+{ 612, RunParams(612, Crystal::CsI_Chinese, -1.0,458, 0.0 ) },
+{ 625, RunParams(625, Crystal::CsI_Chinese, -1.0,458, -140 ) },
+{ 626, RunParams(626, Crystal::CsI_Chinese, -1.0,458, -140 ) },
+{ 627, RunParams(627, Crystal::CsI_Chinese, -1.0,458, -100 ) },
+{ 628, RunParams(628, Crystal::CsI_Chinese, -1.0,458, 300 ) },
+{ 629, RunParams(629, Crystal::CsI_Chinese, -1.0,458, 300 ) },
+{ 630, RunParams(630, Crystal::CsI_Chinese, 31.0,458, 0.0 ) },
+{ 631, RunParams(631, Crystal::CsI_Chinese, 31.0,458, 300 ) },
+{ 634, RunParams(634, Crystal::CsI_Chinese, 31.0,458, -140 ) },
+{ 635, RunParams(635, Crystal::CsI_Chinese, 6.0,458, 0.0 ) },
+{ 637, RunParams(637, Crystal::CsI_Chinese, 6.0,458, -140 ) },
+{ 638, RunParams(638, Crystal::CsI_Chinese, 6.0,458, 300 ) },
+{ 641, RunParams(641, Crystal::CsI_Chinese, 6.0,458, 300 ) },
+{ 642, RunParams(642, Crystal::CsI_Chinese, 3.0,458, 0.0 ) },
+{ 643, RunParams(643, Crystal::CsI_Chinese, 3.0,458, 300 ) },
+{ 646, RunParams(646, Crystal::CsI_Chinese, 3.0,458, 300 ) },
+{ 650, RunParams(650, Crystal::CsI_Chinese, 3.0,458, -140 ) },
+{ 651, RunParams(651, Crystal::CsI_Chinese, 0.5,458, 0.0 ) },
+{ 652, RunParams(652, Crystal::CsI_Chinese, 0.5,458, -140 ) },
+{ 653, RunParams(653, Crystal::CsI_Chinese, 0.5,458, -140 ) },
+{ 654, RunParams(654, Crystal::CsI_Chinese, 0.5,458, 300 ) },
+{ 655, RunParams(655, Crystal::CsI_Chinese, -1.0,458, 0.0 ) },
+{ 661, RunParams(661, Crystal::CsI_Tl_Babar, -1.0,458, 0.0 ) },
+{ 662, RunParams(662, Crystal::CsI_Tl_Babar, -1.0,458, -100 ) },
+{ 663, RunParams(663, Crystal::CsI_Tl_Babar, -1.0,458, -120 ) },
+{ 664, RunParams(664, Crystal::CsI_Tl_Babar, -1.0,458, -120 ) },
+{ 666, RunParams(666, Crystal::CsI_Tl_Babar, -1.0,458, -140 ) },
+{ 676, RunParams(676, Crystal::CsI_Tl_Babar, -1.0,458, 300 ) },
+{ 677, RunParams(677, Crystal::CsI_Tl_Babar, 31.0,458, -140 ) },
+{ 678, RunParams(678, Crystal::CsI_Tl_Babar, 31.0,458, 0.0 ) },
+{ 679, RunParams(679, Crystal::CsI_Tl_Babar, 31.0,458, 300 ) },
+{ 680, RunParams(680, Crystal::CsI_Tl_Babar, 6.0,458, 0.0 ) },
+{ 681, RunParams(681, Crystal::CsI_Tl_Babar, 6.0,458, 300 ) },
+{ 682, RunParams(682, Crystal::CsI_Tl_Babar, 6.0,458, -140 ) },
+{ 683, RunParams(683, Crystal::CsI_Tl_Babar, 3.0,458, 0.0 ) },
+{ 684, RunParams(684, Crystal::CsI_Tl_Babar, 3.0,458, -140 ) },
+{ 685, RunParams(685, Crystal::CsI_Tl_Babar, 3.0,458, 300 ) },
+{ 686, RunParams(686, Crystal::CsI_Tl_Babar, 3.0,458, 300 ) },
+{ 688, RunParams(688, Crystal::CsI_Tl_Babar, 0.5,458, 300 ) },
+{ 687, RunParams(687, Crystal::CsI_Tl_Babar, 0.5,458, -140 ) },
+{ 689, RunParams(689, Crystal::CsI_Tl_Babar, -1.0,458, 0.0 ) },
+{ 696, RunParams(696, Crystal::CsI_Tl_Babar, -1.0,458, 0.0 ) },
+{ 707, RunParams(707, Crystal::CsI_Tl_Babar, -1.0,458, 300  ) },
+{ 712, RunParams(712, Crystal::CsI_Ukrainian, -1.0,458, 300 ) },
+{ 713, RunParams(713, Crystal::CsI_Ukrainian, -1.0,458, -100 ) },
+{ 714, RunParams(714, Crystal::CsI_Ukrainian, -1.0,458, 0.0 ) },
+{ 715, RunParams(715, Crystal::CsI_Ukrainian, -1.0,458, -120 ) },
+{ 716, RunParams(716, Crystal::CsI_Ukrainian, -1.0,458, -140 ) },
+{ 717, RunParams(717, Crystal::CsI_Ukrainian, 31.0,458, 300 ) },
+{ 719, RunParams(719, Crystal::CsI_Ukrainian, 31.0,458, 0.0 ) },
+{ 720, RunParams(720, Crystal::CsI_Ukrainian, 31.0,458, -140 ) },
+{ 722, RunParams(722, Crystal::CsI_Ukrainian, 6.0,458, 0.0 ) },
+{ 721, RunParams(721, Crystal::CsI_Ukrainian, 6.0,458, -140 ) },
+{ 723, RunParams(723, Crystal::CsI_Ukrainian, 6.0,458, 300 ) },
+{ 724, RunParams(724, Crystal::CsI_Ukrainian, 3.0,458, 300 ) },
+{ 725, RunParams(725, Crystal::CsI_Ukrainian, 3.0,458, 0.0 ) },
+{ 726, RunParams(726, Crystal::CsI_Ukrainian, 3.0,458, -140 ) },
+{ 729, RunParams(729, Crystal::CsI_Ukrainian, 0.5,458, 0.0 ) },
+{ 730, RunParams(730, Crystal::CsI_Ukrainian, 0.5,458, 300 ) },
+{ 731, RunParams(731, Crystal::CsI_Ukrainian, 0.5,458, -140 ) },
+{ 732, RunParams(732, Crystal::CsI_Ukrainian, 31.0,458, 300 ) },
+{ 734, RunParams(734, Crystal::CsI_Ukrainian, -1.0,458, -140 ) },
+{ 735, RunParams(735, Crystal::CsI_Ukrainian, -1.0,458, -140 ) },
+{ 738, RunParams(738, Crystal::CsI_Ukrainian, -1.0,1000, -140 ) },
+{ 737, RunParams(737, Crystal::CsI_Ukrainian, -1.0,458, -140 ) },
+{ 739, RunParams(739, Crystal::CsI_Ukrainian, 31.0,458, 300 ) },
+{ 743, RunParams(743, Crystal::CsI_Ukrainian, -1.0,458, 0.0 ) },
+{ 746, RunParams(746, Crystal::CsI_Tl_Belle, -1.0,58, 300 ) },
+{ 747, RunParams(747, Crystal::CsI_Tl_Belle, 31.0,58, 300 ) },
+{ 748, RunParams(748, Crystal::CsI_Tl_Belle, 6.0,58, 300 ) },
+{ 751, RunParams(751, Crystal::CsI_Tl_Belle, 3.0,58, 300 ) },
+{ 752, RunParams(752, Crystal::CsI_Tl_Belle, 0.5,58, 300 ) },
+{ 754, RunParams(754, Crystal::CsI_Chinese, -1.0,458, 0.0 ) },
+{ 755, RunParams(755, Crystal::CsI_Chinese, 3.0,458, 300 ) }
+}//unordered_map
+)//initialization list
+{ }//constructor
+
+const RunParams& RunDB::operator[](const int runNum) const
+{ 
+	try{return m_DB.at(runNum); }
+	catch(std::out_of_range){
+		std::cout << "RunParams::[]: no run with number " << runNum << " in DB" << std::endl;
+		throw;
+	}
+	
+}
