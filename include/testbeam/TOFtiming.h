@@ -76,8 +76,8 @@ public:
 	double getT1Error() const {return m_ch6Error;}
 	double getT2Error() const {return 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
 	
-	/*constexpr - might be possible with c++14*/ double getX0() const {return -myFuncs::testbeam::downstreamTOFtoUpstreamTOF;}
-	/*constexpr - might be possible with c++14*/ double getX1() const {return -myFuncs::testbeam::DownstreamtoS0TOF;}
+	/*constexpr - might be possible with c++14*/ double getX0() const {return -myFuncs::testbeam::c_downstreamTOF2upstreamTOFdistance;}
+	/*constexpr - might be possible with c++14*/ double getX1() const {return -myFuncs::testbeam::c_downstreamTOF2S0distance;}
 	/*constexpr - might be possible with c++14*/ double getX2() const {return 0.0;}
 	
 	//--------------------------------------------------------------------------------------

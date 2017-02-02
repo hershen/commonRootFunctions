@@ -8,6 +8,7 @@
 #include "TH1D.h"
 
 //Mine
+#include "constants.h"
 #include "fileFuncs.h"
 
 using namespace myFuncs::testbeam;
@@ -51,8 +52,8 @@ TFitResultPtr TOFtiming::getTOF(const bool boundSpeed) const
 	//Fit function
 	TF1 function("function",m_TOFfunctionString.data(), -4,1); //0 - intercept, 1 - speed
 	
-	if(boundSpeed) function.SetParLimits(1, 0.0, lightSpeed);
-	function.SetParameter(1, 0.9 * lightSpeed);
+	if(boundSpeed) function.SetParLimits(1, 0.0, myFuncs::c_lightSpeed_mPerNs);
+	function.SetParameter(1, 0.9 * myFuncs::c_lightSpeed_mPerNs);
 	
 	return graph.Fit(&function, "E M B EX0 S Q"); //E - better errors, M - Minos, B - use parameter limits in the fit, EX0 - Don't use errors on x values, S - return smaprt ptr, Q - queit
 }
