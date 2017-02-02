@@ -3,8 +3,10 @@
 #include <vector>
 #include <unordered_map>
 
+//Mine
+#include "testbeam/constants.h"
+
 namespace myFuncs {
-	
 namespace testbeam{
 	
 enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
@@ -16,12 +18,13 @@ enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
 class RunParams
 {
 public:
-	constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV, const double nominalBeamMomentum):
+	constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV, const double nominalBeamMomentum, const double crystalFrontFaceToIncubatorSideWallDistance):
 	m_runNum(runNum),
 	m_crystal(crystal),
 	m_sourceDistance(sourceDistance), 
 	m_HV(HV),
-	m_nominalBeamMomentum(nominalBeamMomentum)
+	m_nominalBeamMomentum(nominalBeamMomentum),
+	m_crystalFrontFaceToIncubatorSideWallDistance(crystalFrontFaceToIncubatorSideWallDistance)
 	{}
 	
 	int getRunNum() const {return m_runNum;}
@@ -37,12 +40,21 @@ public:
 	//[MeV/c]. Negative means negative charged particles in beam
 	double getNominalBeamMomentum() const {return m_nominalBeamMomentum;}
 	
+	//Returns the downstream TOF center to crystal center distance in meters.
+	/*constexpr */double getDownstream2crystalCenterDistance() const {
+		return c_downstreamCenter2incubatorWall + 
+					 c_incubatorWallSideWidth + 
+					 m_crystalFrontFaceToIncubatorSideWallDistance + //different per run
+					 0.5 * c_crystalLength;
+	}
+	
 private:
 	int m_runNum;
 	Crystal m_crystal;
 	double m_sourceDistance; // Negative means no source
 	double m_HV; // [V]
 	double m_nominalBeamMomentum; // [MeV/c]. Negative means negative charged particles in beam
+	double m_crystalFrontFaceToIncubatorSideWallDistance; // meters
 };
 
 
@@ -75,6 +87,7 @@ public:
 private:
 //This holds the DB	
 const std::unordered_map<int, const RunParams> m_DB;
+
 
 	
 };

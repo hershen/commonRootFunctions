@@ -1,28 +1,17 @@
 #pragma once
 
+#ifndef TESTBEAMFUNCS_H
+#define TESTBEAMFUNCS_H
+
 //Boost
 #include "boost/format.hpp"
 
 //Mine
 #include "testbeam/RunDB.h"
 
-
-
 namespace myFuncs {
 namespace testbeam{
-	
-	
-constexpr double electronMass = 0.5109989461; //MeV/c^2
-constexpr double muonMass = 105.6583745; //MeV/c^2
-constexpr double chargedPionMass = 139.57018; //MeV/c^2
 
-constexpr double lightSpeed = 0.299792458;  //meters / ns
-
-constexpr double upstreamTOFtoS0Distance = 0.437; //in meters #(average of 43.1 cm, 43.43 cm, 44.56 cm)
-constexpr double downstreamTOFtoUpstreamTOF = 3.092; //in meters
-constexpr double DownstreamtoS0TOF = downstreamTOFtoUpstreamTOF - upstreamTOFtoS0Distance;
-
-	
 constexpr std::array<int, 20> representitiveRuns =  {591, 
 																								 597, 
 																								 599, 
@@ -100,3 +89,5 @@ inline std::string getRunNum(const std::string& filename)
 
 }//testbeam namespace
 }//myFuncs namespace
+
+#endif
