@@ -49,10 +49,10 @@ public:
 	
 	//Do linear fit and return fit result
 	//Assumes all channel times and errors are filled
-	TFitResultPtr getTOF(const bool boundSpeed) const;
+	TFitResultPtr fitTOF(const bool boundSpeed) const;
 	
 	//GetEntry entry and perform TOF fit. Return fit result
-	TFitResultPtr getTOF(const Long64_t entry, const bool boundSpeed);
+	TFitResultPtr fitTOF(const Long64_t entry, const bool boundSpeed);
 	
 	//Downstream time - upstream time (ignores S0)
 	//Assumes all channel times and errors are filled

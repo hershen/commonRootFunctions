@@ -44,7 +44,7 @@ TOFtiming::TOFtiming(const std::vector<std::string>& filenames):
 
 
 //Do linear fit and return fit result
-TFitResultPtr TOFtiming::getTOF(const bool boundSpeed) const
+TFitResultPtr TOFtiming::fitTOF(const bool boundSpeed) const
 {
 												//x values																								//y values																									 //y values errors
 	TGraphErrors graph(3, (std::array<double,3>{getX0(), getX1(), getX2()}).data(), (std::array<double,3>{getT0(), getT1(), getT2()}).data(), 0, (std::array<double,3>{getT0Error(), getT1Error(), getT2Error()}).data() );
@@ -59,10 +59,10 @@ TFitResultPtr TOFtiming::getTOF(const bool boundSpeed) const
 }
 
 //GetEntry entry and perform TOF fit. Return fit result
-TFitResultPtr TOFtiming::getTOF(const Long64_t entry, const bool boundSpeed)
+TFitResultPtr TOFtiming::fitTOF(const Long64_t entry, const bool boundSpeed)
 {
 	getEntry(entry);
-	return getTOF(boundSpeed);
+	return fitTOF(boundSpeed);
 }
 	
 bool TOFtiming::isSimpleElectron(const double numSigmas) {
