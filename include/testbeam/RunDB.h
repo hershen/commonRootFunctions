@@ -41,7 +41,7 @@ public:
 	double getNominalBeamMomentum() const {return m_nominalBeamMomentum;}
 	
 	//Returns the downstream TOF center to crystal center distance in meters.
-	/*constexpr */double getDownstream2crystalCenterDistance() const {
+	constexpr double getDownstream2crystalCenterDistance() const {
 		return c_downstreamCenter2incubatorWall + 
 					 c_incubatorWallSideWidth + 
 					 m_crystalFrontFaceToIncubatorSideWallDistance + //different per run

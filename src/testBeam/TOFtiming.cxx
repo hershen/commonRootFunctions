@@ -8,7 +8,6 @@
 #include "TH1D.h"
 
 //Mine
-#include "constants.h"
 #include "fileFuncs.h"
 
 using namespace myFuncs::testbeam;
@@ -29,10 +28,10 @@ TOFtiming::TOFtiming(const std::vector<std::string>& filenames):
 	m_muonSimpleTOFsigma(0.0),
 	m_pionSimpleTOFmean(0.0),
 	m_pionSimpleTOFsigma(0.0),
+	m_timeErrorScaling(1.0), // ns
 	m_calculatedSimpleTOFmean_sigma(false),
 	m_treeName("timingAndWaveforms"),
   m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time", "TOFch12TimeError","TOFch13Time", "TOFch13TimeError"}),
-  m_TOFfunctionString("[0] + x/[1]"),
 	m_filenames(filenames)
 {
 	//Define vector of pointer addresses
@@ -52,10 +51,15 @@ TFitResultPtr TOFtiming::fitTOF(const bool boundSpeed) const
 	//Fit function
 	TF1 function("function",m_TOFfunctionString.data(), -4,1); //0 - intercept, 1 - speed
 	
-	if(boundSpeed) function.SetParLimits(1, 0.0, myFuncs::c_lightSpeed_mPerNs);
-	function.SetParameter(1, 0.9 * myFuncs::c_lightSpeed_mPerNs);
+	std::string fitOptions = "E M EX0 S Q"; //E - better errors, M - Minos, EX0 - Don't use errors on x values, S - return smaprt ptr, Q - queit
+	if(boundSpeed) {
+		fitOptions += " B"; //B - use parameter limits in the fit
+		function.SetParLimits(1, 0.0, 1);
+	}
 	
-	return graph.Fit(&function, "E M B EX0 S Q"); //E - better errors, M - Minos, B - use parameter limits in the fit, EX0 - Don't use errors on x values, S - return smaprt ptr, Q - queit
+	function.SetParameter(1, 0.9);
+	
+	return graph.Fit(&function, fitOptions.data()); 
 }
 
 //GetEntry entry and perform TOF fit. Return fit result

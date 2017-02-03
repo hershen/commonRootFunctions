@@ -1,7 +1,7 @@
 #pragma once
 
 namespace myFuncs {
-namespace testbeam {
+namespace testbeam{
 	
 constexpr double c_upstreamTOF2S0distance = 0.437; //in meters #(average of 43.1 cm, 43.43 cm, 44.56 cm)
 constexpr double c_downstreamTOF2upstreamTOFdistance = 3.092; //in meters

@@ -7,9 +7,11 @@
 #include "Rtypes.h"
 #include "TChain.h"
 
-
 //Mine
+
 #include "testbeam/testbeamFuncs.h"
+#include "natureConstants.h"
+
 
 class TFitResultPtr;
 class TH1D;
@@ -48,6 +50,7 @@ public:
 	}
 	
 	//Do linear fit and return fit result
+	//Fitting function is defined in m_TOFfunctionString.
 	//Assumes all channel times and errors are filled
 	TFitResultPtr fitTOF(const bool boundSpeed) const;
 	
@@ -72,9 +75,9 @@ public:
 	double getT1() const {return m_ch6Time + m_C21;}
 	double getT2() const {return 0.5 * ( m_ch12Time + m_ch13Time );}
 	
-	double getT0Error() const {return m_ch4Error;}
-	double getT1Error() const {return m_ch6Error;}
-	double getT2Error() const {return 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
+	double getT0Error() const {return m_timeErrorScaling * m_ch4Error;}
+	double getT1Error() const {return m_timeErrorScaling * m_ch6Error;}
+	double getT2Error() const {return m_timeErrorScaling * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
 	
 	/*constexpr - might be possible with c++14*/ double getX0() const {return -myFuncs::testbeam::c_downstreamTOF2upstreamTOFdistance;}
 	/*constexpr - might be possible with c++14*/ double getX1() const {return -myFuncs::testbeam::c_downstreamTOF2S0distance;}
@@ -101,6 +104,10 @@ public:
 	bool isSimplePion(const Long64_t entry, const double numSigmas);
 	
 	std::string getTOFfunctionString() const {return m_TOFfunctionString;}
+	
+	double getTimeErrorScaling() const {return m_timeErrorScaling;}
+	void setTimeErrorScaling(const double timeErrorScaling) {m_timeErrorScaling = timeErrorScaling;}
+	
 private:
 	const double m_C20 = -20.654; //ns. C2 - C0
 	const double m_C21 = -18.619; //ns. C2 - C1
@@ -126,11 +133,13 @@ private:
 	double m_pionSimpleTOFmean;		
 	double m_pionSimpleTOFsigma;
 	
+	double m_timeErrorScaling; //holds scaling factor foreach TOF counter. Actual error is m_timeErrorScaling * m_chxxError.
+	
 	bool m_calculatedSimpleTOFmean_sigma; //Keeps track if simpleTOF mean and sigma have been calculated for different particles
 	
 	const std::string m_treeName;
 	const std::vector<std::string> m_branchNames;
-	const std::string m_TOFfunctionString;
+	const std::string m_TOFfunctionString = "[0] + x / [1] / " + myFuncs::c_lightSpeed_mPerNs_string;
 	std::vector<void*> m_pointers;
 	const std::vector<std::string> m_filenames;
 	std::shared_ptr<TChain> m_chain;
