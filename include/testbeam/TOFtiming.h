@@ -8,8 +8,6 @@
 #include "TChain.h"
 
 //Mine
-
-#include "testbeam/testbeamFuncs.h"
 #include "natureConstants.h"
 
 
@@ -25,27 +23,29 @@ namespace testbeam{
 class TOFtiming
 {
 public:
-	TOFtiming(const std::vector<std::string>& filenames);
+	
+	//Construct the object from all files in pathToFiles with runNum in file name
+	TOFtiming(const std::string pathToFiles, const int runNum);
 	
 	std::shared_ptr<TChain> getChain() {return m_chain;}
 
-	double eventNumber() const {return m_eventNumber;}
-	double ch4Time() const {return m_ch4Time;}
-	double ch6Time() const {return m_ch6Time;}
-	double ch12Time() const {return m_ch12Time;}
-	double ch13Time() const {return m_ch13Time;}
-	double ch4TimeError() const {return m_ch4Error;}
-	double ch6TimeError() const {return m_ch6Error;}
-	double ch12TimeError() const {return m_ch12Error;}
-	double ch13TimeError() const {return m_ch13Error;}
+	inline double eventNumber() const {return m_eventNumber;}
+	inline double ch4Time() const {return m_ch4Time;}
+	inline double ch6Time() const {return m_ch6Time;}
+	inline double ch12Time() const {return m_ch12Time;}
+	inline double ch13Time() const {return m_ch13Time;}
+	inline double ch4TimeError() const {return m_ch4Error;}
+	inline double ch6TimeError() const {return m_ch6Error;}
+	inline double ch12TimeError() const {return m_ch12Error;}
+	inline double ch13TimeError() const {return m_ch13Error;}
 	
 	
-	 Long64_t getEntries() const {
+	inline Long64_t getEntries() const {
 		if(!m_chain) return 0;
 		return m_chain->GetEntries();
 	}
 	
-	void getEntry(const size_t entry) {
+	inline void getEntry(const size_t entry) {
 		if(m_chain) m_chain->GetEntry(entry);
 	}
 	
@@ -59,29 +59,29 @@ public:
 	
 	//Downstream time - upstream time (ignores S0)
 	//Assumes all channel times and errors are filled
-	double getSimpleTOF() const { return (m_ch12Time + m_ch13Time)/2. - m_ch4Time; }
+	inline double getSimpleTOF() const { return (m_ch12Time + m_ch13Time)/2. - m_ch4Time; }
 	
 	//Downstream time - upstream time (ignores S0)
 	//Does getEntry before the calculation
-	double getSimpleTOF(const Long64_t entry) { 
+	inline double getSimpleTOF(const Long64_t entry) { 
 		getEntry(entry);
 		return getSimpleTOF(); 
 	}
 	
-	double getC20() const {return m_C20;}
-	double getC21() const {return m_C21;}
+	inline double getC20() const {return m_C20;}
+	inline double getC21() const {return m_C21;}
 	
-	double getT0() const {return m_ch4Time + m_C20;}
-	double getT1() const {return m_ch6Time + m_C21;}
-	double getT2() const {return 0.5 * ( m_ch12Time + m_ch13Time );}
+	inline double getT0() const {return m_ch4Time + m_C20;}
+	inline double getT1() const {return m_ch6Time + m_C21;}
+	inline double getT2() const {return 0.5 * ( m_ch12Time + m_ch13Time );}
 	
-	double getT0Error() const {return m_timeErrorScaling * m_ch4Error;}
-	double getT1Error() const {return m_timeErrorScaling * m_ch6Error;}
-	double getT2Error() const {return m_timeErrorScaling * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
+	inline double getT0Error() const {return m_timeErrorScaling * m_ch4Error;}
+	inline double getT1Error() const {return m_timeErrorScaling * m_ch6Error;}
+	inline double getT2Error() const {return m_timeErrorScaling * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
 	
-	/*constexpr - might be possible with c++14*/ double getX0() const {return -myFuncs::testbeam::c_downstreamTOF2upstreamTOFdistance;}
-	/*constexpr - might be possible with c++14*/ double getX1() const {return -myFuncs::testbeam::c_downstreamTOF2S0distance;}
-	/*constexpr - might be possible with c++14*/ double getX2() const {return 0.0;}
+	/*constexpr - might be possible with c++14*/ double getX0() const;
+	/*constexpr - might be possible with c++14*/ double getX1() const;
+	/*constexpr - might be possible with c++14*/ double getX2() const;
 	
 	//--------------------------------------------------------------------------------------
 	//Calculate them by creating a simpleTOF histogram, if they haven't been calculated yet.
@@ -103,10 +103,12 @@ public:
 	bool isSimpleMuon(const Long64_t entry, const double numSigmas);
 	bool isSimplePion(const Long64_t entry, const double numSigmas);
 	
-	std::string getTOFfunctionString() const {return m_TOFfunctionString;}
+	inline std::string getTOFfunctionString() const {return m_TOFfunctionString;}
 	
-	double getTimeErrorScaling() const {return m_timeErrorScaling;}
-	void setTimeErrorScaling(const double timeErrorScaling) {m_timeErrorScaling = timeErrorScaling;}
+	inline double getTimeErrorScaling() const {return m_timeErrorScaling;}
+	inline void setTimeErrorScaling(const double timeErrorScaling) {m_timeErrorScaling = timeErrorScaling;}
+	
+	inline int getRunNum() const {return m_runNum;}
 	
 private:
 	const double m_C20 = -20.654; //ns. C2 - C0
@@ -137,11 +139,12 @@ private:
 	
 	bool m_calculatedSimpleTOFmean_sigma; //Keeps track if simpleTOF mean and sigma have been calculated for different particles
 	
+	const int m_runNum;
+	
 	const std::string m_treeName;
 	const std::vector<std::string> m_branchNames;
 	const std::string m_TOFfunctionString = "[0] + x / [1] / " + myFuncs::c_lightSpeed_mPerNs_string;
 	std::vector<void*> m_pointers;
-	const std::vector<std::string> m_filenames;
 	std::shared_ptr<TChain> m_chain;
 	
 	//-----------------------------------------------------------
@@ -155,6 +158,7 @@ private:
 	//At the end, makes sure the last entry loaded is the same as before the function was called.
 	//-----------------------------------------------------------
 	void calculateSimpleTOFmean_sigma();
+	
 };
 
 

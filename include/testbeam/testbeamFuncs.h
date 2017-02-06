@@ -6,8 +6,6 @@
 //Boost
 #include "boost/format.hpp"
 
-//Mine
-#include "testbeam/RunDB.h"
 
 namespace myFuncs {
 namespace testbeam{
@@ -42,34 +40,19 @@ constexpr std::array<int, 20> representitiveRuns =  {591,
 //-----------------------------------------------------------
 //Return Nominal beam momentum string with units
 //-----------------------------------------------------------
-std::string getNominalMomentumString(const int runNum) {
-	int momentum = static_cast<int>(RunDB::instance()[runNum].getNominalBeamMomentum()); //Convert to int to get rid of decimal place
-	return std::to_string(momentum) + " MeV/c";
-}
+std::string getNominalMomentumString(const int runNum);
 
 //-----------------------------------------------------------
 //Return crystal string
 //-----------------------------------------------------------
-std::string getCrystalString(const int runNum) {
-	
-	Crystal crystal = RunDB::instance()[runNum].getCrystal();
-	if(crystal == Crystal::CsI_Tl_Belle) return "CsI(Tl) Belle";
-	else if(crystal == Crystal::CsI_Tl_Babar) return "CsI(Tl) Babar";
-	else if(crystal == Crystal::CsI_Ukrainian) return "CsI AMCRYS";
-	else if(crystal == Crystal::CsI_Chinese) return "CsI SICCAS";
-	else return "Unknown crystal";
-}
+std::string getCrystalString(const int runNum);
 
 //-----------------------------------------------------------
 //Return source distance string with units
 //-----------------------------------------------------------
-std::string getSourceDistanceString(const int runNum) {	
-	int distance = static_cast<int>(RunDB::instance()[runNum].getSourceDistance()); //Convert to int to get rid of decimal place
-	if(distance < 0 ) return "no ^{60}Co";
-	return "^{60}Co " + std::to_string(distance) + " cm away";
-}
+std::string getSourceDistanceString(const int runNum);
 
-std::string getRunParamsString(const int runNum) {	
+inline std::string getRunParamsString(const int runNum) {	
 	return boost::str(boost::format("Run %1%, %2%, %3%, %4%")% runNum % getCrystalString(runNum) % getNominalMomentumString(runNum) % getSourceDistanceString(runNum)); 
 }
 
@@ -85,6 +68,10 @@ inline std::string getRunNum(const std::string& filename)
 	return trimLeft.substr(0,trimLeft.find("_000"));	
 }
 
+//-----------------------------------------------------------
+//Get all root files in pathToFiles with runNum in their name and ending in '.root'.
+//-----------------------------------------------------------
+std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum);
 
 
 }//testbeam namespace

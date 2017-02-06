@@ -9,10 +9,13 @@
 
 //Mine
 #include "fileFuncs.h"
+#include "testbeam/constants.h"
+#include "testbeam/RunDB.h"
+#include "testbeam/testbeamFuncs.h"
 
 using namespace myFuncs::testbeam;
 
-TOFtiming::TOFtiming(const std::vector<std::string>& filenames):
+TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
   m_eventNumber(-1),
 	m_ch4Time(0.0),
 	m_ch6Time(0.0),
@@ -30,15 +33,15 @@ TOFtiming::TOFtiming(const std::vector<std::string>& filenames):
 	m_pionSimpleTOFsigma(0.0),
 	m_timeErrorScaling(1.0), // ns
 	m_calculatedSimpleTOFmean_sigma(false),
+	m_runNum(runNum),
 	m_treeName("timingAndWaveforms"),
-  m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time", "TOFch12TimeError","TOFch13Time", "TOFch13TimeError"}),
-	m_filenames(filenames)
+  m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time", "TOFch12TimeError","TOFch13Time", "TOFch13TimeError"})
 {
 	//Define vector of pointer addresses
 	m_pointers = {&m_eventNumber, &m_ch4Time, &m_ch4Error, &m_ch6Time, &m_ch6Error, &m_ch12Time, &m_ch12Error, &m_ch13Time, &m_ch13Error};
 	
 	//Create chain of files
-	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(filenames, m_treeName, m_branchNames, m_pointers));
+	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch( getFilesRelatedToRun(pathToFiles, getRunNum()), m_treeName, m_branchNames, m_pointers));
 }
 
 
@@ -67,6 +70,18 @@ TFitResultPtr TOFtiming::fitTOF(const Long64_t entry, const bool boundSpeed)
 {
 	getEntry(entry);
 	return fitTOF(boundSpeed);
+}
+
+double TOFtiming::getX0() const {
+	return -myFuncs::testbeam::c_downstreamTOF2upstreamTOFdistance - RunDB::instance()[getRunNum()].getDownstream2crystalCenterDistance();
+}
+	
+double TOFtiming::getX1() const {
+	return -myFuncs::testbeam::c_downstreamTOF2S0distance - RunDB::instance()[getRunNum()].getDownstream2crystalCenterDistance();
+}
+
+double TOFtiming::getX2() const {
+	return -RunDB::instance()[getRunNum()].getDownstream2crystalCenterDistance();
 }
 	
 bool TOFtiming::isSimpleElectron(const double numSigmas) {
