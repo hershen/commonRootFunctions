@@ -75,9 +75,9 @@ public:
 	inline double getT1() const {return m_ch6Time + m_C21;}
 	inline double getT2() const {return 0.5 * ( m_ch12Time + m_ch13Time );}
 	
-	inline double getT0Error() const {return m_timeErrorScaling * m_ch4Error;}
-	inline double getT1Error() const {return m_timeErrorScaling * m_ch6Error;}
-	inline double getT2Error() const {return m_timeErrorScaling * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
+	inline double getT0Error() const {return getTimeErrorScaling() * m_ch4Error;}
+	inline double getT1Error() const {return getTimeErrorScaling() * m_ch6Error;}
+	inline double getT2Error() const {return getTimeErrorScaling() * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
 	
 	/*constexpr - might be possible with c++14*/ double getX0() const;
 	/*constexpr - might be possible with c++14*/ double getX1() const;
