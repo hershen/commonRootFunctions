@@ -25,6 +25,7 @@ class TOFtiming
 public:
 	
 	//Construct the object from all files in pathToFiles with runNum in file name
+	//Filenames are sorted so that event numbers are contigous
 	TOFtiming(const std::string pathToFiles, const int runNum);
 	
 	std::shared_ptr<TChain> getChain() {return m_chain;}

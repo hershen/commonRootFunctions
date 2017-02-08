@@ -40,8 +40,12 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
 	//Define vector of pointer addresses
 	m_pointers = {&m_eventNumber, &m_ch4Time, &m_ch4Error, &m_ch6Time, &m_ch6Error, &m_ch12Time, &m_ch12Error, &m_ch13Time, &m_ch13Error};
 	
+	//Sort filenames so that event numbers are contiguous
+	auto runFilenames = getFilesRelatedToRun(pathToFiles, getRunNum());
+	std::sort(runFilenames.begin(), runFilenames.end());
+	
 	//Create chain of files
-	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch( getFilesRelatedToRun(pathToFiles, getRunNum()), m_treeName, m_branchNames, m_pointers));
+	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(runFilenames , m_treeName, m_branchNames, m_pointers));
 }
 
 
