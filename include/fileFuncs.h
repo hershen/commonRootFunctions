@@ -111,6 +111,7 @@ namespace myFuncs
   //********************************************************************************************
   //Read paramter file.
 	//return string of pairs <paramName, paramValue>
+	//File is formated: paramName<whitespace>paramValue
 	std::map<std::string, std::string> getParams(const std::string& filename);
   
 }

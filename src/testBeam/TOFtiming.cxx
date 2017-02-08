@@ -50,7 +50,7 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
 
 
 //Do linear fit and return fit result
-TFitResultPtr TOFtiming::fitTOF(const bool boundSpeed) const
+TFitResultPtr TOFtiming::fitTOF(const bool boundBeta) const
 {
 												//x values																								//y values																									 //y values errors
 	TGraphErrors graph(3, (std::array<double,3>{getX0(), getX1(), getX2()}).data(), (std::array<double,3>{getT0(), getT1(), getT2()}).data(), 0, (std::array<double,3>{getT0Error(), getT1Error(), getT2Error()}).data() );
@@ -59,7 +59,7 @@ TFitResultPtr TOFtiming::fitTOF(const bool boundSpeed) const
 	TF1 function("function",m_TOFfunctionString.data(), -4,1); //0 - intercept, 1 - speed
 	
 	std::string fitOptions = "E M EX0 S Q"; //E - better errors, M - Minos, EX0 - Don't use errors on x values, S - return smaprt ptr, Q - queit
-	if(boundSpeed) {
+	if(boundBeta) {
 		fitOptions += " B"; //B - use parameter limits in the fit
 		function.SetParLimits(1, 0.0, 1);
 	}
@@ -70,10 +70,10 @@ TFitResultPtr TOFtiming::fitTOF(const bool boundSpeed) const
 }
 
 //GetEntry entry and perform TOF fit. Return fit result
-TFitResultPtr TOFtiming::fitTOF(const Long64_t entry, const bool boundSpeed)
+TFitResultPtr TOFtiming::fitTOF(const Long64_t entry, const bool boundBeta)
 {
 	getEntry(entry);
-	return fitTOF(boundSpeed);
+	return fitTOF(boundBeta);
 }
 
 double TOFtiming::getX0() const {
