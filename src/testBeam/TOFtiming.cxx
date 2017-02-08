@@ -31,7 +31,7 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
 	m_muonSimpleTOFsigma(0.0),
 	m_pionSimpleTOFmean(0.0),
 	m_pionSimpleTOFsigma(0.0),
-	m_timeErrorScaling(1.0), // ns
+	m_timeErrorScaling(50.0),
 	m_calculatedSimpleTOFmean_sigma(false),
 	m_runNum(runNum),
 	m_treeName("timingAndWaveforms"),
