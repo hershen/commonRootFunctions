@@ -16,15 +16,15 @@
 using namespace myFuncs::testbeam;
 
 TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
-  m_eventNumber(-1),
-	m_ch4Time(0.0),
-	m_ch6Time(0.0),
-	m_ch12Time(0.0),
-	m_ch13Time(0.0),
-	m_ch4Error(0.0),
-	m_ch6Error(0.0),
-	m_ch12Error(0.0),
-	m_ch13Error(0.0),
+  m_eventNumber(std::make_shared<Long64_t>(-1)),
+	m_ch4Time(std::make_shared<double>(0.0)),
+	m_ch6Time(std::make_shared<double>(0.0)),
+	m_ch12Time(std::make_shared<double>(0.0)),
+	m_ch13Time(std::make_shared<double>(0.0)),
+	m_ch4Error(std::make_shared<double>(0.0)),
+	m_ch6Error(std::make_shared<double>(0.0)),
+	m_ch12Error(std::make_shared<double>(0.0)),
+	m_ch13Error(std::make_shared<double>(0.0)),
 	m_electronSimpleTOFmean(0.0),
 	m_electronSimpleTOFsigma(0.0),
 	m_muonSimpleTOFmean(0.0),
@@ -38,7 +38,7 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
   m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time", "TOFch12TimeError","TOFch13Time", "TOFch13TimeError"})
 {
 	//Define vector of pointer addresses
-	m_pointers = {&m_eventNumber, &m_ch4Time, &m_ch4Error, &m_ch6Time, &m_ch6Error, &m_ch12Time, &m_ch12Error, &m_ch13Time, &m_ch13Error};
+	std::vector<void*> m_pointers = {m_eventNumber.get(), m_ch4Time.get(), m_ch4Error.get(), m_ch6Time.get(), m_ch6Error.get(), m_ch12Time.get(), m_ch12Error.get(), m_ch13Time.get(), m_ch13Error.get()};
 	
 	//Sort filenames so that event numbers are contiguous
 	auto runFilenames = getFilesRelatedToRun(pathToFiles, getRunNum());

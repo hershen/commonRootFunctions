@@ -10,6 +10,7 @@
 //Mine
 #include "natureConstants.h"
 
+#include <iostream>
 
 class TFitResultPtr;
 class TH1D;
@@ -30,15 +31,15 @@ public:
 	
 	std::shared_ptr<TChain> getChain() {return m_chain;}
 
-	inline double eventNumber() const {return m_eventNumber;}
-	inline double ch4Time() const {return m_ch4Time;}
-	inline double ch6Time() const {return m_ch6Time;}
-	inline double ch12Time() const {return m_ch12Time;}
-	inline double ch13Time() const {return m_ch13Time;}
-	inline double ch4TimeError() const {return m_ch4Error;}
-	inline double ch6TimeError() const {return m_ch6Error;}
-	inline double ch12TimeError() const {return m_ch12Error;}
-	inline double ch13TimeError() const {return m_ch13Error;}
+	inline double eventNumber() const {return *m_eventNumber;}
+	inline double ch4Time() const {return *m_ch4Time;}
+	inline double ch6Time() const {return *m_ch6Time;}
+	inline double ch12Time() const {return *m_ch12Time;}
+	inline double ch13Time() const {return *m_ch13Time;}
+	inline double ch4TimeError() const {return *m_ch4Error;}
+	inline double ch6TimeError() const {return *m_ch6Error;}
+	inline double ch12TimeError() const {return *m_ch12Error;}
+	inline double ch13TimeError() const {return *m_ch13Error;}
 	
 	
 	inline Long64_t getEntries() const {
@@ -60,7 +61,7 @@ public:
 	
 	//Downstream time - upstream time (ignores S0)
 	//Assumes all channel times and errors are filled
-	inline double getSimpleTOF() const { return (m_ch12Time + m_ch13Time)/2. - m_ch4Time; }
+	inline double getSimpleTOF() const { return (*m_ch12Time + *m_ch13Time)/2. - *m_ch4Time; }
 	
 	//Downstream time - upstream time (ignores S0)
 	//Does getEntry before the calculation
@@ -72,13 +73,13 @@ public:
 	inline double getC20() const {return m_C20;}
 	inline double getC21() const {return m_C21;}
 	
-	inline double getT0() const {return m_ch4Time + m_C20;}
-	inline double getT1() const {return m_ch6Time + m_C21;}
-	inline double getT2() const {return 0.5 * ( m_ch12Time + m_ch13Time );}
+	inline double getT0() const {return *m_ch4Time + m_C20;}
+	inline double getT1() const {return *m_ch6Time + m_C21;}
+	inline double getT2() const {return 0.5 * ( *m_ch12Time + *m_ch13Time );}
 	
-	inline double getT0Error() const {return getTimeErrorScaling() * m_ch4Error;}
-	inline double getT1Error() const {return getTimeErrorScaling() * m_ch6Error;}
-	inline double getT2Error() const {return getTimeErrorScaling() * 0.5 * std::sqrt( m_ch12Error*m_ch12Error + m_ch13Error*m_ch13Error ); }
+	inline double getT0Error() const {return getTimeErrorScaling() * (*m_ch4Error);}
+	inline double getT1Error() const {return getTimeErrorScaling() * (*m_ch6Error);}
+	inline double getT2Error() const {return getTimeErrorScaling() * 0.5 * std::sqrt( (*m_ch12Error)*(*m_ch12Error) + (*m_ch13Error)*(*m_ch13Error) ); }
 	
 	/*constexpr - might be possible with c++14*/ double getX0() const;
 	/*constexpr - might be possible with c++14*/ double getX1() const;
@@ -118,16 +119,20 @@ private:
 	const double m_minElectronSimpleTOF = -11.0; // ns
 	const double m_maxElectronSimpleTOF = -9.75; // ns
 	
-	Long64_t m_eventNumber; 
-	double m_ch4Time;
-	double m_ch6Time;
-	double m_ch12Time;
-	double m_ch13Time;
+	
+	//These have to be shared pointers, otherwise copying the object doesn't work - 
+	//The chain leaves are pointing to the original's member variables, not the copy's member variables.
+	//Then, if you do getEntry, the copy's member's aren't updated, the original's are updated (I think).
+	std::shared_ptr<Long64_t> m_eventNumber; 
+	std::shared_ptr<double> m_ch4Time;
+	std::shared_ptr<double> m_ch6Time;
+	std::shared_ptr<double> m_ch12Time;
+	std::shared_ptr<double> m_ch13Time;
 
-	double m_ch4Error;
-	double m_ch6Error;
-	double m_ch12Error;
-	double m_ch13Error;
+	std::shared_ptr<double> m_ch4Error;
+	std::shared_ptr<double> m_ch6Error;
+	std::shared_ptr<double> m_ch12Error;
+	std::shared_ptr<double> m_ch13Error;
 	
 	double m_electronSimpleTOFmean;
 	double m_electronSimpleTOFsigma;
@@ -145,7 +150,6 @@ private:
 	const std::string m_treeName;
 	const std::vector<std::string> m_branchNames;
 	const std::string m_TOFfunctionString = "[0] + x / [1] / " + myFuncs::c_lightSpeed_mPerNs_string;
-	std::vector<void*> m_pointers;
 	std::shared_ptr<TChain> m_chain;
 	
 	//-----------------------------------------------------------
