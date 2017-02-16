@@ -18,8 +18,13 @@ inline double gamma2beta(const double gamma) {
 }
 
 //P = beta * gamma * mass
-double beta_mass2momentum(const double beta, const double mass) {
+inline double beta_mass2momentum(const double beta, const double mass) {
 	return beta * beta2gamma(beta) * mass;
+}
+
+inline double momentum_mass2beta(const double momentum, const double mass) {
+	const double energy = std::sqrt(momentum*momentum + mass*mass);
+	return gamma2beta( energy / mass);
 }
 
 }
