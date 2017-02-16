@@ -38,14 +38,14 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
   m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time", "TOFch12TimeError","TOFch13Time", "TOFch13TimeError"})
 {
 	//Define vector of pointer addresses
-	std::vector<void*> m_pointers = {m_eventNumber.get(), m_ch4Time.get(), m_ch4Error.get(), m_ch6Time.get(), m_ch6Error.get(), m_ch12Time.get(), m_ch12Error.get(), m_ch13Time.get(), m_ch13Error.get()};
+	std::vector<void*> pointers = {m_eventNumber.get(), m_ch4Time.get(), m_ch4Error.get(), m_ch6Time.get(), m_ch6Error.get(), m_ch12Time.get(), m_ch12Error.get(), m_ch13Time.get(), m_ch13Error.get()};
 	
 	//Sort filenames so that event numbers are contiguous
 	auto runFilenames = getFilesRelatedToRun(pathToFiles, getRunNum());
 	std::sort(runFilenames.begin(), runFilenames.end());
 	
 	//Create chain of files
-	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(runFilenames , m_treeName, m_branchNames, m_pointers));
+	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(runFilenames , m_treeName, m_branchNames, pointers));
 }
 
 
