@@ -82,11 +82,6 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	//If not required to skip, processes this event
 	if( !skipMissingTimeEvents() ) return true;	
 	
-	
-	std::cout << "m_TOFeventNumber = " << *m_TOFeventNumber << ", midasEventNum = " << midasEventNum << std::endl;
-	
-	
-	
  	return *m_TOFeventNumber == midasEventNum;
 	
 }
