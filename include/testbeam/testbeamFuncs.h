@@ -69,9 +69,9 @@ inline std::string getRunNum(const std::string& filename)
 }
 
 //-----------------------------------------------------------
-//Get all root files in pathToFiles with runNum in their name and ending in '.root'.
+//Get all root files in pathToFiles with runNum in their name and ending in extension.
 //-----------------------------------------------------------
-std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum);
+std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum, const std::string = ".root");
 
 
 }//testbeam namespace

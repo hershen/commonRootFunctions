@@ -37,9 +37,9 @@ std::string getSourceDistanceString(const int runNum) {
 	return "^{60}Co " + std::to_string(distance) + " cm away";
 }
 
-std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum)
+std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum, const std::string extension)
 {
-	const std::vector<std::string> allFilenames = myFuncs::getFilesEndingWith( pathToFiles, ".root" );
+	const std::vector<std::string> allFilenames = myFuncs::getFilesEndingWith( pathToFiles, extension );
 	std::vector<std::string> filenames;
 	//Find relevant files
 	const std::string runString = std::to_string( runNum );
