@@ -48,7 +48,6 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum):
 	m_chain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(runFilenames , m_treeName, m_branchNames, pointers));
 }
 
-
 //Do linear fit and return fit result
 TFitResultPtr TOFtiming::fitTOF(const bool boundBeta) const
 {

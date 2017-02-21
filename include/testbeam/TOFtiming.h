@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <memory> //For unique ptr
+#include <memory>
 
 //Root
 #include "Rtypes.h"

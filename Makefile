@@ -12,9 +12,25 @@ INC_DIR=include
 SHARED_DIR=lib
 TB_DIR=testbeam
 
-INC=-I$(INC_DIR)
+#rootana
+ifdef ROOTANASYS
+ROOTANAINC = -I$(ROOTANASYS)/include
+ROOTANALIBS = $(ROOTANASYS)/lib/librootana.a
+else
+ROOTANAINC = -I../include
+ROOTANALIBS = ../lib/librootana.a
+endif
+
+INC=-I$(INC_DIR) $(ROOTANAINC)
 
 ROOT_HEADERS=-I`root-config --incdir`
+
+ROOTANAOBJS = $(ROOTANASYS)/obj/TRootanaEventLoop.o
+ROOTANAOBJS += $(ROOTANASYS)/obj/TDataContainer.o
+ROOTANAOBJS += $(ROOTANASYS)/obj/TMidasEvent.o
+ROOTANAOBJS += $(ROOTANASYS)/obj/xmlServer.o
+ROOTANAOBJS += $(ROOTANASYS)/obj/TMidasFile.o
+ROOTANAOBJS += $(ROOTANASYS)/obj/XmlOdb.o
 
 #make the text red - used to distinguish cppcheck from g++
 TEXT_RED=tput setaf 1;
@@ -42,6 +58,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 	
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/stringFuncs.o    #$(OBJ_DIR)/rootDictionalry.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs`
-	
-$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o 
-	$(CCT) -shared -o $@ $^ -lbasf2Tools `root-config --glibs`
+	#
+$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o
+	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
