@@ -25,13 +25,6 @@ INC=-I$(INC_DIR) $(ROOTANAINC)
 
 ROOT_HEADERS=-I`root-config --incdir`
 
-ROOTANAOBJS = $(ROOTANASYS)/obj/TRootanaEventLoop.o
-ROOTANAOBJS += $(ROOTANASYS)/obj/TDataContainer.o
-ROOTANAOBJS += $(ROOTANASYS)/obj/TMidasEvent.o
-ROOTANAOBJS += $(ROOTANASYS)/obj/xmlServer.o
-ROOTANAOBJS += $(ROOTANASYS)/obj/TMidasFile.o
-ROOTANAOBJS += $(ROOTANASYS)/obj/XmlOdb.o
-
 #make the text red - used to distinguish cppcheck from g++
 TEXT_RED=tput setaf 1;
 TEXT_RESET=tput sgr0;
@@ -40,7 +33,7 @@ OBJ_FILES=$(patsubst $(SRC_DIR)/%.cxx,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cxx
 TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wildcard $(SRC_DIR)/$(TB_DIR)/*.cxx))
 
 all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
-
+	
 clean:
 	-@rm $(OBJ_DIR)/*
 	-@rm $(SHARED_DIR)/*
