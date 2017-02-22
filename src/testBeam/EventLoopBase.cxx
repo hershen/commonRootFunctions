@@ -61,7 +61,8 @@ void EventLoopBase::setupTOFchain(const std::string TOFfilesPath) {
 }
 
 void EventLoopBase::Initialize(void) {
-	if(m_maxEntries > 0) m_timingChain->GetEntry(0);
+	if(m_maxEntries > 0) m_timingChain->GetEntry(m_timingEntry);
+	std::cout << "In EventLoopBase::Initialize" << std::endl;
 }
 
 bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
@@ -77,7 +78,7 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	}
 	
 	///TODO get rid of assert
-	assert(*m_TOFeventNumber < m_maxEntries);
+	assert(m_timingEntry < m_maxEntries);
 	
 	//If not required to skip, processes this event
 	if( !skipMissingTimeEvents() ) return true;	
@@ -95,7 +96,10 @@ void EventLoopBase::run() {
 	
 	//Reserve array of filenames
 	std::array<char*, 100> argv;
-	argv.fill(new char[200]);
+	
+	//Populate array. array.fill is not good because all elements will point to the same place.
+	for(uint iElement = 0; iElement < argv.size(); ++iElement)
+		argv[iElement] = new char[200];
 	
 	//Fill first entry with dummy - because ExecuteLoop expects the filename to be there
 	strcpy(argv[0], "dummy");
@@ -115,13 +119,9 @@ void EventLoopBase::run() {
 	if(m_midasFilenames.size() > 0) {
 		ExecuteLoop(m_midasFilenames.size() + 1, argv.data());
 	}
+
 	//Release memory
-// 	//TODO - find out why this gives a double free or corruption
-// 	for (uint iElement = 0; iElement < m_midasFilenames.size() + 1; ++iElement) 
-// 	{
-// 		std::cout << iElement << std::endl;
-// 		std::cout << "line = " << __LINE__ << std::endl;
-// 		delete argv[iElement];
-// 		std::cout << "line = " << __LINE__ << std::endl;
-// 	}
+	for (uint iElement = 0; iElement < argv.size(); ++iElement) 
+		delete argv[iElement];
+
 }
