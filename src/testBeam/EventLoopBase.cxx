@@ -17,6 +17,7 @@ TRootanaEventLoop(),
 m_runNum(0),
 m_timingEntry(0),
 m_maxEntries(0),
+m_maxNumberOfFiles(0),
 m_TOFeventNumber(std::make_shared<Long64_t>(-1)),
 m_beta(std::make_shared<double>(0.0)),
 m_betaError(std::make_shared<double>(0.0)),
@@ -62,7 +63,6 @@ void EventLoopBase::setupTOFchain(const std::string TOFfilesPath) {
 
 void EventLoopBase::Initialize(void) {
 	if(m_maxEntries > 0) m_timingChain->GetEntry(m_timingEntry);
-	std::cout << "In EventLoopBase::Initialize" << std::endl;
 }
 
 bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
@@ -87,7 +87,7 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	
 }
 
-void EventLoopBase::run() {
+void EventLoopBase::run(const std::string options) {
 	
 	if(m_midasFilenames.size() > 99) {
 		std::cout << "Can't process more than 99 files. Exisitng" << std::endl;
@@ -95,29 +95,47 @@ void EventLoopBase::run() {
 	}
 	
 	//Reserve array of filenames
-	std::array<char*, 100> argv;
+	constexpr int maxArgs = 100;	
+	std::array<char*, maxArgs> argv;
+	
 	
 	//Populate array. array.fill is not good because all elements will point to the same place.
+	constexpr int maxCharPerFile = 200;
 	for(uint iElement = 0; iElement < argv.size(); ++iElement)
-		argv[iElement] = new char[200];
+		argv[iElement] = new char[maxCharPerFile];
 	
 	//Fill first entry with dummy - because ExecuteLoop expects the filename to be there
 	strcpy(argv[0], "dummy");
 	
+	const bool isOptions = !options.empty();
+	
+	//Fill options
+	if(isOptions)
+		strcpy(argv[1],const_cast<char*>( options.c_str() ));
+	
+	//Max file to process
+	const unsigned int maxFiles = ( m_maxNumberOfFiles != 0 and m_maxNumberOfFiles <= m_midasFilenames.size() ) ? m_maxNumberOfFiles : m_midasFilenames.size() ;
+	
+	//Warn if processing less files than found
+	if(maxFiles < m_midasFilenames.size())
+		std::cout << "\nWarning::: EventLoopBase::run: Processing " << maxFiles << " even though found " << m_midasFilenames.size() << " in given path\n" << std::endl;
+	
 	//Fill array with filenames from m_midasFilenames
-	for(uint iFile = 0; iFile < m_midasFilenames.size(); ++iFile) {
-		if(m_midasFilenames[iFile].size() > 200) {
-			std::cout << "m_midasFilenames[" << iFile << "] = " << m_midasFilenames[iFile] << " > 200. Ignoring file" << std::endl;
-			continue;
+	for(uint iFile = 0; iFile < maxFiles; ++iFile) {
+		if(m_midasFilenames[iFile].size() > maxCharPerFile) {
+			std::cout << "m_midasFilenames[" << iFile << "] = " << m_midasFilenames[iFile] << " > maxCharPerFile. Ignoring file" << std::endl;
+			throw;
 		}
-		strcpy(argv[iFile+1], const_cast<char*>( m_midasFilenames[iFile].c_str() ) );
+		strcpy(argv[iFile+isOptions+1], const_cast<char*>( m_midasFilenames[iFile].c_str() ) );
 	}
 	
-	std::cout << "Executing loop with " << m_midasFilenames.size() << " files." << std::endl;
+// 	for(auto s : argv) std::cout << s << std::endl;
+	
+	std::cout << "Executing loop with " << maxFiles << " files." << std::endl;
 	
 	//Eecute event loop
-	if(m_midasFilenames.size() > 0) {
-		ExecuteLoop(m_midasFilenames.size() + 1, argv.data());
+	if(maxFiles > 0) {
+		ExecuteLoop(maxFiles + isOptions + 1, argv.data());
 	}
 
 	//Release memory

@@ -47,12 +47,20 @@ public:
 	//Dangerous - no bounds checking that m_timingChain does not overflow!!!
 	bool PreFilter(TDataContainer& dataContainer) override final;
 
-	
 	//Once before running. 
 	//Reads first entry in TOF chain.
 	void Initialize(void) override final;
 	
-	void run();
+	void run(const std::string options = "");
+	
+	//Set maximum files to process.
+	inline void setMaxFiles(const unsigned int maxFiles) {m_maxNumberOfFiles = maxFiles; }
+	
+	inline double beta() const {return *m_beta;}
+	inline double betaError() const {return *m_betaError;}
+	inline double timeAtCrystal_ns() const {return *m_timeAtCrystal_ns;}
+	inline double timeAtCrystalError_ns() const {return *m_timeAtCrystalError_ns;}
+	
 	
 private:
 	int m_runNum;
@@ -62,6 +70,8 @@ private:
 	
 	//Max entries in the m_timingChain chain.
 	Long64_t m_maxEntries;
+	
+	unsigned int m_maxNumberOfFiles;
 	
 	//Midas files related to m_runNum
 	std::vector<std::string> m_midasFilenames;

@@ -73,6 +73,9 @@ inline std::string getRunNum(const std::string& filename)
 //-----------------------------------------------------------
 std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum, const std::string = ".root");
 
+inline bool isCrystalChannel(const int channel) {
+		return (channel == 1 or channel == 15);
+	}
 
 }//testbeam namespace
 }//myFuncs namespace
