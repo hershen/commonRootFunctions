@@ -58,8 +58,8 @@ public:
 	
 	inline double beta() const {return *m_beta;}
 	inline double betaError() const {return *m_betaError;}
-	inline double timeAtCrystal_ns() const {return *m_timeAtCrystal_ns;}
-	inline double timeAtCrystalError_ns() const {return *m_timeAtCrystalError_ns;}
+	inline double timeCrystalFromTOF_ns() const {return *m_timeAtCrystal_ns;}
+	inline double timeCrystalFromTOFerror_ns() const {return *m_timeAtCrystalError_ns;}
 	
 	
 private:

@@ -38,7 +38,7 @@ namespace myFuncs
   TF1 analytical_RC_CRn(int n, double tau, double amplitude, double startTime, double maxTime)
   {
     
-    if( abs(maxTime) < 1e-9) 
+    if( std::abs(maxTime) < 1e-9) 
     {
       double expCoefficient = 5.;
       maxTime = -tau*(TMath::Log( (amplitude<0?(-amplitude):amplitude) ) + expCoefficient-n*TMath::Log(tau)+TMath::Log(TMath::Factorial(n)) );
@@ -159,7 +159,7 @@ namespace myFuncs
       xMin = CFDfunc.GetMinimumX(xStart,CFDfunc.GetXmax(),minMaxPrecision);
       xMax = CFDfunc.GetMaximumX(xStart,CFDfunc.GetXmax(),minMaxPrecision);
       xStart = xMax;
-    } while (xMin < xMax && abs(xMin-xMax) > 1e-9 );
+    } while (xMin < xMax && std::abs(xMin-xMax) > 1e-9 );
 //     std::cout << "xMin = " << xMin << ", xMax = " << xMax << std::endl;
     
     
@@ -229,7 +229,7 @@ namespace myFuncs
     // ------------------------------------------------------------------
     //Re-run fit in the range (mean - sigma*xMinFracOfSigma, mean + sigma*xMaxFracOfSigma)
     // ------------------------------------------------------------------
-    if( abs(xMinFracOfSigma) > 1e-9 || abs(xMaxFracOfSigma) > 1e-9 )
+    if( std::abs(xMinFracOfSigma) > 1e-9 || std::abs(xMaxFracOfSigma) > 1e-9 )
     {
       double mean = fitResult->Parameter(1);
       double std = fitResult->Parameter(2);

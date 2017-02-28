@@ -226,19 +226,19 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
     if(rDebugLevel > 10) std::cout << "MVectorTemplate::addVector : fittedAmplitude = " << fittedAmplitude << ", fittedPedestal = " << fittedPedestal << ", fittedXshift = " << fittedXshift << ", chi2 / NDF = " << chi2_NDF << std::endl;
     
     
-    if( (abs(fittedAmplitude - rMinAmplitudeLimit) < rDoubleNumbersEqualThershold || abs(fittedAmplitude - rMaxAmplitudeLimit) < rDoubleNumbersEqualThershold)  && rUseAmplitudeLimits)
+    if( (std::abs(fittedAmplitude - rMinAmplitudeLimit) < rDoubleNumbersEqualThershold || std::abs(fittedAmplitude - rMaxAmplitudeLimit) < rDoubleNumbersEqualThershold)  && rUseAmplitudeLimits)
     {
       if(rDebugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached amplitude limit. fittedAmplitude = " << fittedAmplitude << ". limits are (" << rMinAmplitudeLimit << "," << rMaxAmplitudeLimit << "). Not adding vector!" << std::endl;
       return -11;
     }
     
-    if( (abs(fittedXshift - rMinXshiftLimit) < rDoubleNumbersEqualThershold || abs(fittedXshift - rMaxXshiftLimit) < rDoubleNumbersEqualThershold) && rUseXshiftLimits)
+    if( (std::abs(fittedXshift - rMinXshiftLimit) < rDoubleNumbersEqualThershold || std::abs(fittedXshift - rMaxXshiftLimit) < rDoubleNumbersEqualThershold) && rUseXshiftLimits)
     {
       if(rDebugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached xShift limit. fittedXshift = " << fittedXshift << ". limits are (" << rMinXshiftLimit << "," << rMaxXshiftLimit << "). Not adding vector!" << std::endl;
       return -12;
     }
     
-    if( (abs(fittedPedestal - rMinPedestalLimit) < rDoubleNumbersEqualThershold || abs(fittedPedestal - rMaxPedestalLimit) < rDoubleNumbersEqualThershold) && rUsePedestalLimits)
+    if( (std::abs(fittedPedestal - rMinPedestalLimit) < rDoubleNumbersEqualThershold || std::abs(fittedPedestal - rMaxPedestalLimit) < rDoubleNumbersEqualThershold) && rUsePedestalLimits)
     {
       if(rDebugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached pedestal limit. fittedPedestal = " << fittedPedestal << ". limits are (" << rMinPedestalLimit << "," << rMaxPedestalLimit << "). Not adding vector!" << std::endl;
       return -13;
@@ -438,7 +438,7 @@ void MVectorTemplate::setTF1Parameters()
 
 void MVectorTemplate::setAmplitudeLimits(const double &newMinAmplitudeLimit, const double &newMaxAmplitudeLimit)
 {
-  if( abs(newMinAmplitudeLimit - newMaxAmplitudeLimit) > rDoubleNumbersEqualThershold) rUseAmplitudeLimits = true;
+  if( std::abs(newMinAmplitudeLimit - newMaxAmplitudeLimit) > rDoubleNumbersEqualThershold) rUseAmplitudeLimits = true;
   else rUseAmplitudeLimits = false;
   rMinAmplitudeLimit = newMinAmplitudeLimit; 
   rMaxAmplitudeLimit = newMaxAmplitudeLimit;
@@ -447,7 +447,7 @@ void MVectorTemplate::setAmplitudeLimits(const double &newMinAmplitudeLimit, con
 
 void MVectorTemplate::setXshiftLimits(const double &newMinXshiftLimit, const double &newMaxXshiftLimit)
 {
-  if( abs(newMinXshiftLimit - newMaxXshiftLimit) > rDoubleNumbersEqualThershold) rUseXshiftLimits = true;
+  if( std::abs(newMinXshiftLimit - newMaxXshiftLimit) > rDoubleNumbersEqualThershold) rUseXshiftLimits = true;
   else rUseXshiftLimits = false;
   rMinXshiftLimit = newMinXshiftLimit; 
   rMaxXshiftLimit = newMaxXshiftLimit;
@@ -456,7 +456,7 @@ void MVectorTemplate::setXshiftLimits(const double &newMinXshiftLimit, const dou
 
 void MVectorTemplate::setPedestalLimits(const double &newMinPedestalLimit, const double &newMaxPedestalLimit)
 {
-  if( abs(newMinPedestalLimit - newMaxPedestalLimit) > rDoubleNumbersEqualThershold) rUsePedestalLimits = true;
+  if( std::abs(newMinPedestalLimit - newMaxPedestalLimit) > rDoubleNumbersEqualThershold) rUsePedestalLimits = true;
   else rUsePedestalLimits = false;
   rMinPedestalLimit = newMinPedestalLimit; 
   rMaxPedestalLimit = newMaxPedestalLimit;
@@ -530,8 +530,11 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string &fullFileName)
 
   inputChain->GetEntry(0);
   
+	//Prevent clang static analyzer from thinking this derefrences null pointer - makes this line invisible to the analyzer
+	#ifndef __clang_analyzer__
   rTemplateValues = *rTemplateValuesPointer;
-
+	#endif
+	
   delete rTemplateValuesPointer;
   delete inputChain;
 

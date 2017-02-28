@@ -22,7 +22,7 @@ namespace filterFuncs
       return yV;
     }
     double effT = T;
-    if( abs(effT) < 1e-9) effT = 2./500.*tau;
+    if( std::abs(effT) < 1e-9) effT = 2./500.*tau;
     
     double a = 1./tau;
     double alpha = TMath::Exp(-effT/tau);
@@ -82,7 +82,7 @@ namespace filterFuncs
       std::cout << "DfilterCR_RC4: empty input vector xV. Aborting." << std::endl;
       return yV;
     }
-    if( abs(T) < 1e-9) T = 2./500.*tau;
+    if( std::abs(T) < 1e-9) T = 2./500.*tau;
     double a = 1./tau;
     double alpha = TMath::Exp(-T/tau);
     
@@ -147,7 +147,7 @@ namespace filterFuncs
       std::cout << "DfilterCR_RC: empty input vector xV. Aborting." << std::endl;
       return yV;
     }
-    if( abs(T) < 1e-9) T = 2./500.*tau;
+    if( std::abs(T) < 1e-9) T = 2./500.*tau;
     double a = 1./tau;
     double alpha = TMath::Exp(-T/tau);
     

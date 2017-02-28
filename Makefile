@@ -1,4 +1,5 @@
 CC=g++ 
+CLANG_TIDY=clang-tidy
 DEBUG=-Wall -Wextra -Wpedantic -Wunused-variable
 CXX11=-std=c++1y
 OPTIM=-O3
@@ -35,12 +36,15 @@ TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wi
 all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
 	
 clean:
-	-@rm $(OBJ_DIR)/*
-	-@rm $(SHARED_DIR)/*
+	-@rm $(OBJ_DIR)/* || true
+	-@rm $(OBJ_DIR)/TB_DIR/* || true
+	-@rm $(SHARED_DIR)/* || true
+	
 	
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
+	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 	$(CCT) -c $(INC) $(ROOT_HEADERS) -fPIC -o $@ $<
-
+	
 # $(OBJ_DIR)/rootDictionalry.o: 
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h 
 # 	mv $(patsubst %.o,%.cxx_tmp,$@) $(patsubst %.o,%.cxx,$(@F))   #Hack because rootcint doesnt change file name
@@ -52,5 +56,5 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/stringFuncs.o    #$(OBJ_DIR)/rootDictionalry.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs`
 	#
-$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o
+$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o  
 	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana

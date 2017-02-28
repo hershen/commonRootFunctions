@@ -74,7 +74,7 @@ void putLabelAboveBin(const TH1* hist, const size_t bin, const std::string& text
   if( gPad->GetLogy() && yMin > 0) yMin = TMath::Log10(yMin - yOffset) + yOffset;
 
   double yMax = 0.0;
-  if( abs(textHeight) > 1e-9 )
+  if( std::abs(textHeight) > 1e-9 )
     yMax = yMin + yOffset + textHeight;
   else //height = top border - max bin height
   {
