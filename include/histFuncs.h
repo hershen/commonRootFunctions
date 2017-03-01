@@ -151,5 +151,7 @@ TCanvas& drawWithResiduals(TCanvas& canvas, rootObject object, const TF1& functi
 	return canvas;
 }
 
+double FWHM(const TH1& hist);
 
+inline double FWHM_2355(const TH1& hist) { return FWHM(hist) / 2.355; }
 } //namespace
