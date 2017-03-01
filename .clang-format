@@ -1,0 +1,7 @@
+#based on
+BasedOnStyle: LLVM
+
+ColumnLimit: 130
+AlwaysBreakTemplateDeclarations: true
+
+CommentPragmas: '^diagnostic'
