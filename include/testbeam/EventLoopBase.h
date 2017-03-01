@@ -36,7 +36,11 @@ public:
 	inline int getRunNum() const {return m_runNum;}
 	
 	void setSkipMissingTimeEvents(const bool skipMissingTimeEvents) {m_skipMissingTimeEvents = skipMissingTimeEvents;}
-	bool skipMissingTimeEvents() const {return m_skipMissingTimeEvents;}
+	bool getSkipMissingTimeEvents() const {return m_skipMissingTimeEvents;}
+	
+	//Used in case only noise events are necessary
+	void setSkipPresentTimeEvents(const bool skipPresentTimeEvents) {m_skipPresentTimeEvents = skipPresentTimeEvents;}
+	bool getSkipPresentTimeEvents() const {return m_skipPresenqTimeEvents;}
 			
 	//Proccess only certain events
 	//Actions:
@@ -85,9 +89,10 @@ private:
 	std::shared_ptr<double> m_timeAtCrystal_ns;
 	std::shared_ptr<double> m_timeAtCrystalError_ns;
 	
-	//Use or ignore crystal events that don't have a corresponding TOF time.
+	//Use or ignore crystal events that DON'T have a corresponding TOF time.
 	bool m_skipMissingTimeEvents; 
-	
+	//Use or ignore crystal events that HAVE a corresponding TOF time. Used in case empty waveforms are necessary.
+	bool m_skipPresentTimeEvents;
 
 	
 private:

@@ -234,4 +234,11 @@ TGraphErrors histToGraph(const TH1& hist)
 	
 }
 
+double FWHM(const TH1& hist) {
+	const double halfMaximum = hist.GetMaximum() / 2.;
+  const auto firstBin = hist.FindFirstBinAbove(halfMaximum);
+  const auto lastBin = hist.FindLastBinAbove(halfMaximum);
+  return hist.GetBinCenter(lastBin) - hist.GetBinCenter(firstBin);
+}
+
 } //namespace histFuncs

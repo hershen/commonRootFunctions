@@ -23,8 +23,12 @@ m_beta(std::make_shared<double>(0.0)),
 m_betaError(std::make_shared<double>(0.0)),
 m_timeAtCrystal_ns(std::make_shared<double>(0.0)),
 m_timeAtCrystalError_ns(std::make_shared<double>(0.0)),
-m_skipMissingTimeEvents(true)
+m_skipMissingTimeEvents(true),
+m_skipPresentTimeEvents(false)
 {
+	//Disable root file output
+	DisableRootOutput();
+		
 	setRunNum(runNum);
 	
 	//Setup the TOF chain
@@ -81,7 +85,7 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	assert(m_timingEntry < m_maxEntries);
 	
 	//If not required to skip, processes this event
-	if( !skipMissingTimeEvents() ) return true;	
+	if( !getSkipMissingTimeEvents() ) return true;	
 	
  	return *m_TOFeventNumber == midasEventNum;
 	
