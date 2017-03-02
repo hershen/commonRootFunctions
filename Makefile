@@ -42,8 +42,8 @@ clean:
 	
 	
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
-	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 	$(CCT) -c $(INC) $(ROOT_HEADERS) -fPIC -o $@ $<
+	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 	
 # $(OBJ_DIR)/rootDictionalry.o: 
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h 
