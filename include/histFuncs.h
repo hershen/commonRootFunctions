@@ -14,6 +14,7 @@
 #include "TGraphErrors.h"
 #include "TPaveText.h"
 #include "TSystem.h"
+#include "TLegend.h"
 
 namespace myFuncs
 {
@@ -124,6 +125,17 @@ public:
 	//TODO - think if might be accessed with gPad
 	paveText (const Double_t x2, Option_t *option="NDCNB"):
 	paveText (0.16, 0.95, x2, 1, option) {}
+};
+
+class myLegend : public TLegend
+{
+public:
+	myLegend (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2):
+	TLegend(x1, y1, x2, y2)
+	{
+		this->SetTextFont(22);
+		this->SetBorderSize(1); //No shadow
+	}
 };
 
 
