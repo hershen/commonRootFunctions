@@ -2,6 +2,7 @@
 
 //std
 #include <iostream>
+#include <numeric> //For std::accumulate
 
 //Root
 #include "TF1.h"
@@ -198,6 +199,33 @@ namespace myFuncs
   //zMin, zMax - used to set z axis limits
   //--------------------------------------------------------------------------------------------
   TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string>& xAxisHeadings, const std::vector<std::string>& yAxisHeadings, const double zMin = 0.0, const double zMax = 0.0, const std::string& precision = ".3g" );
+	
+	
+	//--------------------------------------------------------------------------------------------
+  //sumVector
+  //********************************************************************************************
+	//Returns sum(x[i])
+  //wrapper around std::accumulate with inital value of 0.0 so not to confuse it with 0 in which case everything is converted to an int.
+  //--------------------------------------------------------------------------------------------
+	template <typename T>
+	T sumVector(const std::vector<T>& vector, const T& initialValue = 0.0) {
+		return std::accumulate(vector.begin(), vector.end(), initialValue);
+	}
+	
+	//--------------------------------------------------------------------------------------------
+  //sumVectorSquared
+  //********************************************************************************************
+  //Returns sum(x[i]*x[i])
+  //--------------------------------------------------------------------------------------------
+	template <typename T>
+	T sumVectorSquared(const std::vector<T>& vector, const T& initialValue = 0.0) {
+		auto sum = initialValue;
+		
+		for(auto& element : vector)
+			sum += element*element;
+		
+		return sum;
+	}
 
 } //namespace myMathFunctions
 
