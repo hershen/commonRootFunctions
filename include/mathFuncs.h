@@ -226,6 +226,26 @@ namespace myFuncs
 		
 		return sum;
 	}
+	
+	
+	template <class T1, class T2, class outputT>
+	std::vector<outputT> sumVectors(const std::vector<T1>& v1, const std::vector<T2>& v2) {
+		
+		const size_t outputSize = std::min(v1.size(), v2.size());
+		
+		std::vector<outputT> output;
+		output.reserve( outputSize );
+		
+		for(size_t i = 0; i < outputSize; ++i)
+			output.push_back(v1[i] + v2[i]);
+		
+		return output;
+	}
+	
+	template <class T>
+	std::vector<T> sumVectors(const std::vector<T>& v1, const std::vector<T>& v2) {
+		return sumVectors<T, T, T>(v1, v2);
+	}
 
 } //namespace myMathFunctions
 
