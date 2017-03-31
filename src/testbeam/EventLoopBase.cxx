@@ -14,17 +14,20 @@ using namespace myFuncs::testbeam;
 
 EventLoopBase::EventLoopBase(const std::string midasFilesPath, const std::string TOFfilesPath, const int runNum):
 TRootanaEventLoop(),
-m_runNum(0),
-m_timingEntry(0),
-m_maxEntries(0),
-m_maxNumberOfFiles(0),
 m_TOFeventNumber(std::make_shared<Long64_t>(-1)),
 m_beta(std::make_shared<double>(0.0)),
 m_betaError(std::make_shared<double>(0.0)),
 m_timeAtCrystal_ns(std::make_shared<double>(0.0)),
 m_timeAtCrystalError_ns(std::make_shared<double>(0.0)),
-m_skipMissingTimeEvents(true),
-m_skipPresentTimeEvents(false)
+m_maxAmplitude(25.0),
+m_timingEntry(0),
+m_maxEntries(0),
+m_runNum(0),
+m_maxNumberOfFiles(0),
+m_skipSignalEvents(false),
+m_skipNoiseEvents(true),
+m_timingValid(false),
+m_analyizeOnlyCrystalChannels(true)
 {
 	//Disable root file output
 	DisableRootOutput();
@@ -76,7 +79,7 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	
 	//Advance timing chain until timing event number >= midas event number
 	//Dangerous - no bounds checking!!! chain might overflow
-	uint32_t midasEventNum = dataContainer.GetMidasEvent().GetSerialNumber();
+	const uint32_t midasEventNum = dataContainer.GetMidasEvent().GetSerialNumber();
 	while(*m_TOFeventNumber < midasEventNum) {
 		m_timingChain->GetEntry(++m_timingEntry);
 	}
@@ -84,10 +87,13 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	///TODO get rid of assert
 	assert(m_timingEntry < m_maxEntries);
 	
-	//If not required to skip, processes this event
-	if( !getSkipMissingTimeEvents() ) return true;	
+	const bool signalEvent = (*m_TOFeventNumber == midasEventNum);
 	
- 	return *m_TOFeventNumber == midasEventNum;
+	if(signalEvent and isSkipSignalEvents()) return false;
+	if(!signalEvent and isSkipNoiseEvents()) return false;
+	
+	setTimingValid(signalEvent);
+	return true;
 	
 }
 
