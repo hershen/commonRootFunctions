@@ -108,10 +108,10 @@ inline void mySaveCanvas(const TCanvas* canvas) {
 	mySaveCanvas(canvas, canvas->GetName());	
 }
 
-class paveText : public TPaveText
+class PaveText : public TPaveText
 {
 public:
-	paveText (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2, Option_t *option="NDCNB"):
+	PaveText (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2, Option_t *option="NDCNB"):
 	TPaveText(x1, y1, x2, y2, option)
 	{
 		this->SetTextFont(22);
@@ -123,8 +123,8 @@ public:
 	//Constructor which puts text at the top of a histogram. Just need to set x2
 	//Numbers for x1,y1,y2 assume bottom and left pad margin = 0.16, top pad margin = 0.05.
 	//TODO - think if might be accessed with gPad
-	paveText (const Double_t x2, Option_t *option="NDCNB"):
-	paveText (0.16, 0.95, x2, 1, option) {}
+	PaveText (const Double_t x2, Option_t *option="NDCNB"):
+	PaveText (0.16, 0.95, x2, 1, option) {}
 };
 
 class myLegend : public TLegend
