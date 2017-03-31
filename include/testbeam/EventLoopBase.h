@@ -71,7 +71,10 @@ public:
 	inline double betaError() const {return *m_betaError;}
 	inline double timeCrystalFromTOF_ns() const {return *m_timeAtCrystal_ns;}
 	inline double timeCrystalFromTOFerror_ns() const {return *m_timeAtCrystalError_ns;}
-		
+	
+	//Get Midas event number
+	inline uint32_t getEventNum(const TDataContainer& dataContainer) const {return dataContainer.GetMidasEvent().GetSerialNumber();}
+	
 private:
 	//Midas files related to m_runNum
 	std::vector<std::string> m_midasFilenames;

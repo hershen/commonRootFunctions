@@ -78,7 +78,7 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	
 	//Advance timing chain until timing event number >= midas event number
 	//Dangerous - no bounds checking!!! chain might overflow
-	const uint32_t midasEventNum = dataContainer.GetMidasEvent().GetSerialNumber();
+	const uint32_t midasEventNum = getEventNum(dataContainer);
 	while(*m_TOFeventNumber < midasEventNum) {
 		m_timingChain->GetEntry(++m_timingEntry);
 	}
@@ -90,8 +90,6 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	
 	if(signalEvent and isSkipSignalEvents()) return false;
 	if(!signalEvent and isSkipNoiseEvents()) return false;
-	
-	
 	
 	setTimingValid(signalEvent);
 	return true;
