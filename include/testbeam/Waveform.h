@@ -39,6 +39,10 @@ public:
 	inline std::pair<double,double> getMaxPoly2() const { return getMaxPoly2( m_samples.size() * 0.6,  m_samples.size() * 0.8 ); }
 	
 	
+	//Get simple amplitude = maximum sample - pedestal
+	//Pedestal is taken to be getMean()
+	//Because of this, it's not the most efficient because it loops on values again.
+	double getSimpleAmplitude() const;
 	
 	
 private:

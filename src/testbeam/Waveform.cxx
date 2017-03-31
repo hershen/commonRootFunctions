@@ -71,5 +71,15 @@ std::pair<double,double> Waveform::getMaxPoly2(const unsigned int first, const u
 // 	
 	
 	return {timeAtMax,maxVal};
+}
+
+
+double Waveform::getSimpleAmplitude() const {
+	double amp = -1.0;
 	
+	const double pedestal = getMean();
+	for(auto sample : m_samples )
+		if( (sample - pedestal) > amp) amp = sample - pedestal;
+		
+	return amp;
 }
