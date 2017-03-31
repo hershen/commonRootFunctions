@@ -35,20 +35,28 @@ public:
 	void setRunNum(const int runNum) {m_runNum = runNum;}
 	inline int getRunNum() const {return m_runNum;}
 	
-	void setSkipMissingTimeEvents(const bool skipMissingTimeEvents) {m_skipMissingTimeEvents = skipMissingTimeEvents;}
-	bool getSkipMissingTimeEvents() const {return m_skipMissingTimeEvents;}
+	inline void setSkipNoiseEvents(const bool skipNoiseEvents) {m_skipNoiseEvents = skipNoiseEvents;}
+	inline bool isSkipNoiseEvents() const {return m_skipNoiseEvents;}
 	
 	//Used in case only noise events are necessary
-	void setSkipPresentTimeEvents(const bool skipPresentTimeEvents) {m_skipPresentTimeEvents = skipPresentTimeEvents;}
-	bool getSkipPresentTimeEvents() const {return m_skipPresenqTimeEvents;}
+	inline void setSkipSignalEvents(const bool skipSignalEvents) {m_skipSignalEvents = skipSignalEvents;}
+	inline bool isSkipSignalEvents() const {return m_skipSignalEvents;}
+	
+	//Keeps track if the current timing information is valid.
+	//It's invalid if this is a noise event with no corresponding timing information and it's still being processed
+	
+	inline bool isTimingValid() const {return m_timingValid;}
 			
 	//Proccess only certain events
 	//Actions:
 	//Return false if GetEventId() != 1 - process only events with data.
+	//If isAnalyizeOnlyCrystalChannels==true check if current channel is of crystal. If not, return false.
 	//Advance timing chain until TOFeventNumber >= midasEventNum.
-	//Returns true (proccess event) if midas event serial number == timing chain serial number or if skipMissingTimeEvents() == false
+	//Returns true (proccess event) if midas event serial number == timing chain serial number or if skipNoiseEvents() == false
 	//Returns else otherwise
 	//Dangerous - no bounds checking that m_timingChain does not overflow!!!
+	
+	
 	bool PreFilter(TDataContainer& dataContainer) override final;
 
 	//Once before running. 
@@ -64,19 +72,8 @@ public:
 	inline double betaError() const {return *m_betaError;}
 	inline double timeCrystalFromTOF_ns() const {return *m_timeAtCrystal_ns;}
 	inline double timeCrystalFromTOFerror_ns() const {return *m_timeAtCrystalError_ns;}
-	
-	
+		
 private:
-	int m_runNum;
-	
-	//Current entry in m_timingChain chain.
-	Long64_t m_timingEntry;
-	
-	//Max entries in the m_timingChain chain.
-	Long64_t m_maxEntries;
-	
-	unsigned int m_maxNumberOfFiles;
-	
 	//Midas files related to m_runNum
 	std::vector<std::string> m_midasFilenames;
 	
@@ -89,11 +86,28 @@ private:
 	std::shared_ptr<double> m_timeAtCrystal_ns;
 	std::shared_ptr<double> m_timeAtCrystalError_ns;
 	
+	//Maximum amplitude used in prefilter
+	double m_maxAmplitude;
+	
+	//Current entry in m_timingChain chain.
+	Long64_t m_timingEntry;
+	
+	//Max entries in the m_timingChain chain.
+	Long64_t m_maxEntries;
+	
+	int m_runNum;
+	
+	unsigned int m_maxNumberOfFiles;
+	
+	
+	
 	//Use or ignore crystal events that DON'T have a corresponding TOF time.
-	bool m_skipMissingTimeEvents; 
+	bool m_skipSignalEvents; 
 	//Use or ignore crystal events that HAVE a corresponding TOF time. Used in case empty waveforms are necessary.
-	bool m_skipPresentTimeEvents;
-
+	bool m_skipNoiseEvents;
+	bool m_timingValid;
+	
+	bool m_analyizeOnlyCrystalChannels;
 	
 private:
 	
@@ -101,6 +115,8 @@ private:
 	//Looks for all .root files in TOFfilesPath containg getRunNum() in their filename.
 	//There should be only one file
 	void setupTOFchain(const std::string TOFfilesPath);
+	
+	inline void setTimingValid(const bool timingValid) {m_timingValid = timingValid;}
 };
 
 
