@@ -26,8 +26,7 @@ m_runNum(0),
 m_maxNumberOfFiles(0),
 m_skipSignalEvents(false),
 m_skipNoiseEvents(true),
-m_timingValid(false),
-m_analyizeOnlyCrystalChannels(true)
+m_timingValid(false)
 {
 	//Disable root file output
 	DisableRootOutput();
@@ -91,6 +90,8 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	
 	if(signalEvent and isSkipSignalEvents()) return false;
 	if(!signalEvent and isSkipNoiseEvents()) return false;
+	
+	
 	
 	setTimingValid(signalEvent);
 	return true;

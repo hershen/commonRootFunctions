@@ -50,7 +50,6 @@ public:
 	//Proccess only certain events
 	//Actions:
 	//Return false if GetEventId() != 1 - process only events with data.
-	//If isAnalyizeOnlyCrystalChannels==true check if current channel is of crystal. If not, return false.
 	//Advance timing chain until TOFeventNumber >= midasEventNum.
 	//Returns true (proccess event) if midas event serial number == timing chain serial number or if skipNoiseEvents() == false
 	//Returns else otherwise
@@ -107,7 +106,6 @@ private:
 	bool m_skipNoiseEvents;
 	bool m_timingValid;
 	
-	bool m_analyizeOnlyCrystalChannels;
 	
 private:
 	
