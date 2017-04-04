@@ -246,6 +246,20 @@ namespace myFuncs
 	std::vector<T> sumVectors(const std::vector<T>& v1, const std::vector<T>& v2) {
 		return sumVectors<T, T, T>(v1, v2);
 	}
+	
+	template <class T>
+	std::vector<T> scaleVector(const std::vector<T>& input, const T factor) {
+		
+		//output vector
+		std::vector<T> output;
+		output.reserve(input.size());
+		
+		//Scale vector
+		for(auto it = input.begin(); it != input.end(); ++it)
+			output.push_back(*it * factor);
+		
+		return output;
+	}
 
 } //namespace myMathFunctions
 
