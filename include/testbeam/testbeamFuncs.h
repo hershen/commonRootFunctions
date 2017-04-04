@@ -1,13 +1,15 @@
 #pragma once
 
-#ifndef TESTBEAMFUNCS_H
-#define TESTBEAMFUNCS_H
+//STL
+#include <memory> //for unique_ptr
 
 //Boost
 #include "boost/format.hpp"
 
+class TGraphErrors;
 
 namespace myFuncs {
+	class PaveText;
 namespace testbeam{
 
 constexpr std::array<int, 20> representitiveRuns =  {591, 
@@ -74,10 +76,17 @@ inline std::string getRunNum(const std::string& filename)
 std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, const int runNum, const std::string = ".root");
 
 inline bool isCrystalChannel(const int channel) {
-		return (channel == 1 or channel == 15);
-	}
+	return (channel == 1 or channel == 15);
+}
+
+//Return TGraphErrors with voltage as function of time
+std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltage, const std::vector<double>& errors = std::vector<double>()); 
+
+
+//Get PaveText of run parameters, channel and event num
+std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum);
+
+void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum);
 
 }//testbeam namespace
 }//myFuncs namespace
-
-#endif
