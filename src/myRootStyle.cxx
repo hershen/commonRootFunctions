@@ -82,8 +82,8 @@ TStyle* MyRootStyle()
 	
 	myRootStyle->SetMarkerColor(kBlue);
 	
-	
-	myRootStyle->SetLineColor(kBlue);
+	//This may change the statistics box frame line color
+// 	myRootStyle->SetLineColor(kBlue);
 	
   return myRootStyle;
 
