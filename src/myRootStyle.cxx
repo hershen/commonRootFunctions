@@ -79,6 +79,12 @@ TStyle* MyRootStyle()
 	//Set default color of fitted functions
 	myRootStyle->SetFuncColor(kRed);
 	
+	
+	myRootStyle->SetMarkerColor(kBlue);
+	
+	
+	myRootStyle->SetLineColor(kBlue);
+	
   return myRootStyle;
 
 }
