@@ -36,7 +36,11 @@ namespace myFuncs
 	
 	//Taken fromDiscrete time signal processing Oppenheim and Schafer, 3rd edition, page 536
 	double Hamming::eval(const long index) const {
+		
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wsign-compare"
 		if( index < 0 or index > getWindowLength()) return 0.0;
+		#pragma GCC diagnostic pop
 		
 		return 0.54-0.46*TMath::Cos(2.0*TMath::Pi()*index/getWindowLength());
 	}
@@ -53,7 +57,11 @@ namespace myFuncs
 	
 	//Taken fromDiscrete time signal processing Oppenheim and Schafer, 3rd edition, page 536
 	double Hann::eval(const long index) const {
+		
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wsign-compare"
 		if( index < 0 or index > getWindowLength()) return 0.0;
+		#pragma GCC diagnostic pop
 		
 		return 0.5-0.5*TMath::Cos(2.0*TMath::Pi()*index/getWindowLength());
 	}
