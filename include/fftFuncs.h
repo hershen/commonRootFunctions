@@ -12,11 +12,22 @@ namespace myFuncs {
 	//Does the real to complex FFT.
 	//Normalizes output by 1/sqrt(input.size) - output has units of (input units) ~= sqrt(power). 
 	//The 1/sqrt(input.size)  makes fft and inverse fft are more symetric.
-		
+	//
+	//Return pair of vectors - first is real part, second is imaginary part.
+	//Done like this because fftC2R doesn't use TComplex, but needs 2 input vectors - real and imaginary part.
+	
 	//Insperation taken from CDMS's PulseTools::RealToComplexFFT
 	//Which in turn was taken from MATLAB's "Power Spectral Density Estimates Using FFT" example (I think)
 	//--------------------------------------------
-	std::vector<TComplex> fftR2C(const std::vector<double>& input, const std::string& options = "ES");
+	std::pair<std::vector<double>,std::vector<double>> fftR2C(const std::vector<double>& input, const std::string& options = "ES");
+	
+	//--------------------------------------------
+	//Does the complex to real FFT.
+	//Normalizes output by 1/sqrt(input.size) 
+	
+	//Requires the number of points in the time domain (they are unrecoverable because of the rounding down of N/2 +1 freq domain points)
+	//--------------------------------------------
+	std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double>& realParts, const std::vector<double>& imagParts, const std::string& options = "ES");
 	
 	
 	//--------------------------------------------
