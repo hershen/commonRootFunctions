@@ -27,7 +27,8 @@ namespace myFuncs
 		//NOTE - the size of the vector is getWindowLength() + 1, so that the last value is 0
 		std::vector<double> getWindowValues() const;
 		
-				
+		//Take inputs and multiply by window value. 
+		// output[n] = input[n] * window[n]
 		template <typename T>
 		std::vector<double> windowAnInput(const std::vector<T>& inputs) const {
 			std::vector<double> outputs;
@@ -35,6 +36,21 @@ namespace myFuncs
 			
 			for(size_t index = 0; index < inputs.size(); ++index)
 				outputs.push_back(inputs[index] * eval(index) );
+			
+			return outputs;
+		}
+		
+		//Take inputs and divide by window value. 
+		// output[n] = input[n] / window[n]
+		//If window[n] == 0, output[n] = 0.
+		template <typename T>
+		std::vector<double> unwindowAnInput(const std::vector<T>& inputs) const {
+			std::vector<double> outputs;
+			outputs.reserve(inputs.size());
+			
+			for(size_t index = 0; index < inputs.size(); ++index)
+				if(eval(index) == 0.0) outputs.push_back(0.0);
+				else outputs.push_back(inputs[index] / eval(index) );
 			
 			return outputs;
 		}
