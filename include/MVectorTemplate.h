@@ -3,6 +3,8 @@
 #include <vector>
 #include "TF1.h"
 
+namespace myFuncs{
+	
 class MVectorTemplate
 {
 
@@ -50,8 +52,8 @@ class MVectorTemplate
     inline void getAmplitudeLimits(double& minAmplitude, double& maxAmplitude) const {minAmplitude = m_minAmplitudeLimit; maxAmplitude = m_maxAmplitudeLimit;}
     void setAmplitudeLimits(const double newMinAmplitudeLimit, const double newMaxAmplitudeLimit);
     
-    inline void getChi2Limits(double& minChi2, double& maxChi2) const {minChi2 = m_minChi2Limit; maxChi2 = m_maxChi2Limit;}
-    void setChi2Limits(const double newMinChi2Limit, const double newMaxChi2Limit) { m_minChi2Limit = newMinChi2Limit; m_maxChi2Limit = newMaxChi2Limit;}
+    inline void getChi2_NdfLimits(double& minChi2_Ndf, double& maxChi2_Ndf) const {minChi2_Ndf = m_minChi2_NdfLimit; maxChi2_Ndf = m_maxChi2_NdfLimit;}
+    void setChi2_NdfLimits(const double newMinChi2_NdfLimit, const double newMaxChi2_NdfLimit) { m_minChi2_NdfLimit = newMinChi2_NdfLimit; m_maxChi2_NdfLimit = newMaxChi2_NdfLimit;}
     
     inline void getXshiftLimits(double& minXshift, double& maxXshift) const {minXshift = m_minXshiftLimit; maxXshift = m_maxXshiftLimit;}
     void setXshiftLimits(const double newMinXshiftLimit, const double newMaxXshiftLimit);
@@ -65,7 +67,7 @@ class MVectorTemplate
        
     int loadTemplateFromTFile(const std::string& fullFileName);
     
-  private:
+private:
 		
 		void setTF1ParNames();
     void resetTemplateRange();
@@ -77,6 +79,8 @@ class MVectorTemplate
 		
 		//Evaluate function that will be called by TF1 objects
     double TF1Eval(double *var, double *params);
+		
+		double calcSimplePedestal(const std::vector<double>& vector, const double percentage = 0.05) const;
 		
     //TF1 based on the template
     //This is a bit dangerous as we provide the pointer to this TF1. This means that the user can change its properties (range, parameters, etc)
@@ -103,8 +107,8 @@ class MVectorTemplate
     double m_minAmplitudeLimit;    
     double m_maxAmplitudeLimit;
     
-    double m_minChi2Limit;
-    double m_maxChi2Limit;
+    double m_minChi2_NdfLimit;
+    double m_maxChi2_NdfLimit;
     
     
     double m_minXshiftLimit;
@@ -123,12 +127,7 @@ class MVectorTemplate
 		mutable bool m_useAmplitudeLimits;
 		mutable bool m_useXshiftLimits;
 		mutable bool m_usePedestalLimits;
-		
-		
-    
-		
-		
-    
-    
-    
+	  
 };
+
+} //namespace myFuncs
