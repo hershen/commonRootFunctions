@@ -13,7 +13,7 @@ namespace myFuncs {
 namespace testbeam{
 
 //The rightmost x position of the run + channel + event string
-const double runChannelEventXpos = 0.64;
+const double runChannelEventXpos = 0.6;
 
 //-----------------------------------------------------------
 //getNominalMomentumString
@@ -80,7 +80,7 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltag
 
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum) {
 	std::unique_ptr<myFuncs::PaveText> pt(new myFuncs::PaveText(runChannelEventXpos) );
-	pt->AddText( (getRunParamsString(runNum) + ", channelNum " + std::to_string(channelNum) + ", event "  + std::to_string(eventNum) ).data() );
+	pt->AddText( (getRunParamsString(runNum) + ", channel " + std::to_string(channelNum) + ", event "  + std::to_string(eventNum) ).data() );
 	
  	return pt;
 }
