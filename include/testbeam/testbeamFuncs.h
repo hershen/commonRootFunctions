@@ -86,7 +86,7 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltag
 //Get PaveText of run parameters, channel and event num
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum);
 
-void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum);
+void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum, const bool waitPrimitive = true);
 
 }//testbeam namespace
 }//myFuncs namespace

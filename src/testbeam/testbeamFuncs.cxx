@@ -86,7 +86,7 @@ std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, 
 }
 
 
-void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum) {
+void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum, const bool waitPrimitive) {
 		TCanvas c("c","c",0,0,1200,900);
 		auto waveformGraph = myFuncs::testbeam::getWaveformGraph(voltages);
 		waveformGraph->Draw("AP");
@@ -94,7 +94,8 @@ void drawWaveform(const std::vector<double>& voltages, const int runNum, const i
 		auto eventInfoText = myFuncs::testbeam::getRunChannelEventPaveText(runNum, channelNum, eventNum);
 		eventInfoText->DrawClone();
 		
-		gPad->WaitPrimitive();
+		if(waitPrimitive)
+			gPad->WaitPrimitive();
 }
 			
 }//testbeam namespace
