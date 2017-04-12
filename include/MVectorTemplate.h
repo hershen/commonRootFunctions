@@ -3,6 +3,10 @@
 #include <vector>
 #include "TF1.h"
 
+class TFitResultPtr;
+class TFitResult;
+class TH1D;
+
 namespace myFuncs{
 	
 class MVectorTemplate
@@ -14,6 +18,8 @@ class MVectorTemplate
     
     
     inline unsigned int getNumAveragedFuncs() const {return m_numAveragedFuncs;}
+    //Should be used with care
+    inline void setNumAveragedFuncs(const unsigned int numAveraged) {m_numAveragedFuncs = numAveraged;}
     
     inline double getDx() const {return m_dx;}
     void setDx(const double newDx);
@@ -37,12 +43,16 @@ class MVectorTemplate
     void enablePedestalFit(const bool enablePedestalFit);
     inline bool isPedestalFitEnabled() const {return m_pedestalFitEnabled;}
     
+    void enableXshiftFit(const bool enableXshiftFit);
+    inline bool isXshiftFitEnabled() const {return m_xShiftFitEnabled;}
+    
+    
     inline unsigned int getTemplateSize() const {return m_templateValues.size();}
     
     
     //Adds a new vector to the template. The values are averaged (taking into account the relative wight of the new vector according to the number of previous vectors added.
     //m_tF1 parameters reset at the end (otherwise they keep values of last vector added.
-    int addVector(const std::vector<double>& newVector, const double std);
+    TFitResult addVector(const std::vector<double>& newVector, const double std);
     
     inline TF1* getTF1() {return &m_tF1;}
     
@@ -67,12 +77,14 @@ class MVectorTemplate
        
     int loadTemplateFromTFile(const std::string& fullFileName);
     
+		void setTF1Parameters(const double amplitude, const double pedestal, const double xShift);
+		
 private:
 		
 		void setTF1ParNames();
     void resetTemplateRange();
     
-    void setTF1Parameters(const double amplitude, const double pedestal, const double xShift);
+    
     
     //Overloaded
     void setTF1Parameters();
@@ -81,6 +93,15 @@ private:
     double TF1Eval(double *var, double *params);
 		
 		double calcSimplePedestal(const std::vector<double>& vector, const double percentage = 0.05) const;
+		
+		//Check if fit of template to new vector is successful
+		bool fitGood(const TFitResultPtr& fitResult) const;
+		
+		//Fit the template to fitHist. If fit fails, retry by moving xShift to a few different values around 0.
+		TFitResultPtr fitTemplate(TH1D& fitHist);
+			
+		//Add first vector to template (i.e. make template out of this vector)
+		void addFirstVector(const std::vector<double>& newVector);
 		
     //TF1 based on the template
     //This is a bit dangerous as we provide the pointer to this TF1. This means that the user can change its properties (range, parameters, etc)
@@ -124,6 +145,7 @@ private:
 		
 		bool m_amplitudeFitEnabled;
 		bool m_pedestalFitEnabled;
+		bool m_xShiftFitEnabled;
 		mutable bool m_useAmplitudeLimits;
 		mutable bool m_useXshiftLimits;
 		mutable bool m_usePedestalLimits;

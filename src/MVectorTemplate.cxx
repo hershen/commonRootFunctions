@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
+#include "TVirtualFitter.h"
 
 #include "mathFuncs.h"
 #include "fileFuncs.h"
@@ -35,7 +36,7 @@ MVectorTemplate::MVectorTemplate():
   m_minAmplitudeLimit(0),    
   m_maxAmplitudeLimit(-1),
   m_minChi2_NdfLimit(-1),
-  m_maxChi2_NdfLimit(DBL_MAX),
+  m_maxChi2_NdfLimit(3),
   m_minXshiftLimit(0),
   m_maxXshiftLimit(0), 
   m_minPedestalLimit(0),
@@ -44,6 +45,7 @@ MVectorTemplate::MVectorTemplate():
   m_debugLevel(0), 
 	m_amplitudeFitEnabled(true),
   m_pedestalFitEnabled(true),
+  m_xShiftFitEnabled(true),
   m_useAmplitudeLimits(false),
   m_useXshiftLimits(false),
   m_usePedestalLimits(false)
@@ -58,28 +60,24 @@ MVectorTemplate::MVectorTemplate(const std::vector<double>& newVec, const double
   addVector(newVec,0);
 }
 
-void MVectorTemplate::setTF1ParNames()
-{
+void MVectorTemplate::setTF1ParNames() {
   m_tF1.SetParName(0,"Amplitude");
   m_tF1.SetParName(1,"Pedestal");
-  m_tF1.SetParName(2,"TimeShift");
+  m_tF1.SetParName(2,"xShift");
 }
 
 
-void MVectorTemplate::resetTemplateValues()
-{
+void MVectorTemplate::resetTemplateValues() {
   m_templateValues.clear(); 
   m_numAveragedFuncs = 0;
   m_tF1 = TF1();
 }
 
-void MVectorTemplate::resetTemplateRange()
-{
+void MVectorTemplate::resetTemplateRange() {
   if(m_tF1.IsValid()) m_tF1.SetRange(0,m_dx*(m_templateValues.size()-1) );
 }
 
-void MVectorTemplate::setDx(const double newDx)
-{
+void MVectorTemplate::setDx(const double newDx) {
   m_dx = newDx;
   resetTemplateRange();
 }
@@ -89,14 +87,53 @@ double MVectorTemplate::calcSimplePedestal(const std::vector<double>& vector, co
 	
 	const long numElementsToAverage = std::distance(vector.begin(), vector.begin() + (vector.size() * percentage) );
 	
-	if( numElementsToAverage == 0 ) return vector[0];
+	if( numElementsToAverage <= 1 ) return vector[0];
 	
-	return std::accumulate(vector.begin(), vector.begin() + (vector.size() * percentage), 0.0) / numElementsToAverage;
+	return std::accumulate(vector.begin(), vector.begin() + numElementsToAverage, 0.0) / numElementsToAverage;
 }
 
 
-int MVectorTemplate::addVector(const std::vector<double>& newVector, const double std)
-{
+void MVectorTemplate::addFirstVector(const std::vector<double>& newVector) {
+	// ------------------------------------------------------------------
+	//Take pedestal as first 5% of entries
+	// ------------------------------------------------------------------
+	const double pedestal = calcSimplePedestal(newVector);
+
+	// ------------------------------------------------------------------
+	//Search for maximum (and what idx it is at - for later guessing the time shift) of newVector so peak can be normalized
+	// ------------------------------------------------------------------
+	const auto maxElementIt = std::max_element(newVector.begin(), newVector.end());
+	const double maximum = *maxElementIt;
+	m_peakIdx = std::distance(newVector.begin(), maxElementIt);
+	
+	const double maxMinusPedestal = maximum - pedestal;
+	// ------------------------------------------------------------------
+	//Populate m_templateValues, normalizing and subtracting pedestal
+	// ------------------------------------------------------------------
+	m_templateValues.clear();
+	m_templateValues.reserve(newVector.size());
+	
+	const double ov_maxMinusPedestal = 1.0 / maxMinusPedestal;
+	
+	for(size_t idx = 0; idx < newVector.size(); ++idx)
+		m_templateValues.push_back( (newVector[idx] - pedestal) * ov_maxMinusPedestal );
+	
+	if (m_debugLevel > 20)
+	{
+		std::cout << "MVectorTemplate::addVector : pedestal = " << pedestal << ", maximum = " << maximum << ", maxMinusPedestal = " << maxMinusPedestal << std::endl;
+		for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+			std::cout << "MVectorTemplate::addVector : temp[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << std::endl;
+	}
+	
+	// ------------------------------------------------------------------
+	//Create TF1
+	// ------------------------------------------------------------------
+	m_tF1 = TF1("templateTF1", this, &MVectorTemplate::TF1Eval, 0, m_dx*(m_templateValues.size()-1), 3, "MVectorTemplate", "TF1Eval");
+	setTF1ParNames();
+	m_tF1.SetParameters(maxMinusPedestal, pedestal, 0.0);
+}
+
+TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, const double std) {
   //TODO implement with TMinuit
   //TODO average using a weighted average
   // ------------------------------------------------------------------
@@ -118,50 +155,17 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
   // ------------------------------------------------------------------
   //Set first vector as template, normalize, etc.
   // ------------------------------------------------------------------
-  if(m_numAveragedFuncs == 0) //First vector added
-  {
-    // ------------------------------------------------------------------
-    //Take pedestal as first 5% of entries
-    // ------------------------------------------------------------------
-    const double pedestal = calcSimplePedestal(newVector);
-
-    // ------------------------------------------------------------------
-    //Search for maximum (and what idx it is at - for later guessing the time shift) of newVector so peak can be normalized
-    // ------------------------------------------------------------------
-    const auto maxElementIt = std::max_element(newVector.begin(), newVector.end());
-		const double maximum = *maxElementIt;
-		m_peakIdx = std::distance(newVector.begin(), maxElementIt);
-    
-    const double maxMinusPedestal = maximum - pedestal;
-    // ------------------------------------------------------------------
-    //Populate m_templateValues, normalizing and subtracting pedestal
-    // ------------------------------------------------------------------
-    m_templateValues.clear();
-		m_templateValues.reserve(newVector.size());
-		
-		const double ov_maxMinusPedestal = 1.0 / maxMinusPedestal;
-		
-    for(size_t idx = 0; idx < newVector.size(); ++idx)
-      m_templateValues.push_back( (newVector[idx] - pedestal) * ov_maxMinusPedestal );
-    
-    if (m_debugLevel > 20)
-    {
-      std::cout << "MVectorTemplate::addVector : pedestal = " << pedestal << ", maximum = " << maximum << std::endl;
-      for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-				std::cout << "MVectorTemplate::addVector : temp[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << std::endl;
-    }
-    
-    // ------------------------------------------------------------------
-    //Create TF1
-    // ------------------------------------------------------------------
-    m_tF1 = TF1("templateTF1", this, &MVectorTemplate::TF1Eval, 0, m_dx*(m_templateValues.size()-1), 3, "MVectorTemplate", "TF1Eval");
-    setTF1ParNames();
+  if(m_numAveragedFuncs == 0) { 
+  
+    addFirstVector(newVector);
+		++m_numAveragedFuncs;
+		return TFitResult();			
   }//First vector added
   
-  else //from second vector
-  {
+  else { //from second vector
+  
     //Standard deviation vector
-    std::vector<double> stdVector(newVector.size(),std);
+    std::vector<double> stdVector(newVector.size(), std);
     
     //Histrogram with entries of newVector - used to fit the template
     //Center of each bin corresponds to correct x value (that's why there's a -m_dx/2. term)
@@ -175,9 +179,22 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
     // ------------------------------------------------------------------
     //Initial guesses for fit
     // ------------------------------------------------------------------
-    //Amplitude initial guess is the value of newVector where the template maximum is. This will not work for fast varying functions, or if the xShift is large
-    double amplitudeGuess = newVector[m_peakIdx] / m_templateValues[m_peakIdx]; 
     
+    const double pedestalGuess = calcSimplePedestal(newVector);
+		
+		//Search for maximum around m_peakIdx
+		const int elementsBeforeAfter = newVector.size() * 0.1;
+		
+		long firstElement = m_peakIdx - elementsBeforeAfter;
+		if(firstElement < 0) firstElement = 0;
+		
+		long lastElement = m_peakIdx + elementsBeforeAfter;
+		if(lastElement > static_cast<long>(newVector.size()) - 1) lastElement = newVector.size() - 1;
+		
+		const double maxElement = *std::max_element(newVector.begin() + firstElement, newVector.begin() + lastElement);
+    //Amplitude initial guess is the value of newVector where the template maximum is. This will not work for fast varying functions, or if the xShift is large
+    double amplitudeGuess = (maxElement - pedestalGuess);
+		    
     //Make sure amplitude guess is not out of limits
     if(m_useAmplitudeLimits) 
     {
@@ -185,7 +202,11 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
       amplitudeGuess = std::max(amplitudeGuess, m_minAmplitudeLimit);
     }
     
-    setTF1Parameters(amplitudeGuess, newVector[0], 0.0); //Amplitude, pedestal, xShift
+    if(m_debugLevel > 15)
+			std::cout << "amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << std::endl;
+    
+		
+    setTF1Parameters(amplitudeGuess, pedestalGuess, 0.0); //Amplitude, pedestal, xShift
     
 //     std::cout << "amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << ", xShiftGuess = " <<  xShiftGuess << std::endl;
     
@@ -193,66 +214,57 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
     // ------------------------------------------------------------------
     //Fit!
     // ------------------------------------------------------------------
-    TFitResultPtr fitResult = fitHist.Fit(&m_tF1,"QSNM");
-    //"Q" Quiet mode (minimum printing)
-    //"M" More. Improve fit results. It uses the IMPROVE command of TMinuit (see TMinuit::mnimpr). This algorithm attempts to improve the found local minimum by searching for a better one.
-    //"N" Do not store the graphics function, do not draw
-    //"S" The result of the fit is returned in the TFitResultPtr (see below Access to the Fit Result)
-    // ------------------------------------------------------------------
-    //Fit result checks
-    // ------------------------------------------------------------------
-    
-    //TODO implement!
-    //How to check if first vector added is corrupt (i.e. flat). Maybe have a cut on maximum - pedestal.
-    //Amplitude, pedestal, xShift limits/cuts
-    //Chi2 cut?
-    
-    
-    const int fitStatus = fitResult;
-    if( static_cast<int>(fitStatus) ) {
-      if(fitStatus != 4000) {
-				if (m_debugLevel > 0) std::cerr << "MVectorTemplate::addVector : fit failed, fit status = " << fitStatus << ". Not adding vector!" << std::endl;
-				return -10;
-      }
-      else if(m_debugLevel > 0) std::cout << "MVectorTemplate::addVector : MINOS falied, fit status = " << fitStatus << ". Vector MIGHT still be added!!!" << std::endl;
-    }
-      
-    // ------------------------------------------------------------------
-    //Positive fittedXshift means newVector is forward in time relative to m_templateValues, i.e. newVector[idx] = m_templateValues[idx-fittedXshift/m_dx]
-    // ------------------------------------------------------------------
-    const double fittedAmplitude = fitResult->Parameter(0);
+		TFitResultPtr fitResult = fitTemplate(fitHist);
+		
+		
+		// ------------------------------------------------------------------
+		//Positive fittedXshift means newVector is forward in time relative to m_templateValues, i.e. newVector[idx] = m_templateValues[idx-fittedXshift/m_dx]
+		// ------------------------------------------------------------------
+		//TODO implement!
+		//How to check if first vector added is corrupt (i.e. flat). Maybe have a cut on maximum - pedestal.
+		//Amplitude, pedestal, xShift limits/cuts
+		//Chi2 cut?
+		const double fittedAmplitude = fitResult->Parameter(0);
     const double fittedPedestal = fitResult->Parameter(1);
     const double fittedXshift = fitResult->Parameter(2);
 		
+		const int fitStatus = fitResult;
+		if( fitStatus ) {
+			if(fitStatus != 4000) {
+				if (m_debugLevel > 0) std::cerr << "MVectorTemplate::addVector : fit failed, fit status = " << fitStatus << ". Not adding vector!" << std::endl;
+				return -10;
+			}
+			else if(m_debugLevel > 0) std::cout << "MVectorTemplate::addVector : MINOS falied, fit status = " << fitStatus << ". Vector MIGHT still be added!!!" << std::endl;
+		}
+		
 		const double chi2_ndf = fitResult->Chi2() / fitResult->Ndf();
 		
+		if( chi2_ndf < m_minChi2_NdfLimit || chi2_ndf > m_maxChi2_NdfLimit ) 
+    {
+      if(m_debugLevel > 0) std::cerr << "MVectorTemplate::addVector : fit failed, Chi2/NDF of fit = " << chi2_ndf << " is our of limits. limits are (" << m_minChi2_NdfLimit << "," << m_maxChi2_NdfLimit << "). Not adding vector!" << std::endl;
+      return -30; 
+    }
+    
     if(m_debugLevel > 10) std::cout << "MVectorTemplate::addVector : fittedAmplitude = " << fittedAmplitude << ", fittedPedestal = " << fittedPedestal << ", fittedXshift = " << fittedXshift << ", chi2 / NDF = " << chi2_ndf << std::endl;
     
     
-    if( (std::abs(fittedAmplitude - m_minAmplitudeLimit) < m_doubleNumbersEqualThershold || std::abs(fittedAmplitude - m_maxAmplitudeLimit) < m_doubleNumbersEqualThershold)  && m_useAmplitudeLimits)
+    if( m_useAmplitudeLimits and (std::abs(fittedAmplitude - m_minAmplitudeLimit) < m_doubleNumbersEqualThershold || std::abs(fittedAmplitude - m_maxAmplitudeLimit) < m_doubleNumbersEqualThershold) )
     {
       if(m_debugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached amplitude limit. fittedAmplitude = " << fittedAmplitude << ". limits are (" << m_minAmplitudeLimit << "," << m_maxAmplitudeLimit << "). Not adding vector!" << std::endl;
       return -11;
     }
     
-    if( (std::abs(fittedXshift - m_minXshiftLimit) < m_doubleNumbersEqualThershold || std::abs(fittedXshift - m_maxXshiftLimit) < m_doubleNumbersEqualThershold) && m_useXshiftLimits)
+    if( m_useXshiftLimits and (std::abs(fittedXshift - m_minXshiftLimit) < m_doubleNumbersEqualThershold || std::abs(fittedXshift - m_maxXshiftLimit) < m_doubleNumbersEqualThershold) )
     {
       if(m_debugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached xShift limit. fittedXshift = " << fittedXshift << ". limits are (" << m_minXshiftLimit << "," << m_maxXshiftLimit << "). Not adding vector!" << std::endl;
       return -12;
     }
     
-    if( (std::abs(fittedPedestal - m_minPedestalLimit) < m_doubleNumbersEqualThershold || std::abs(fittedPedestal - m_maxPedestalLimit) < m_doubleNumbersEqualThershold) && m_usePedestalLimits)
+    if(m_usePedestalLimits and (std::abs(fittedPedestal - m_minPedestalLimit) < m_doubleNumbersEqualThershold || std::abs(fittedPedestal - m_maxPedestalLimit) < m_doubleNumbersEqualThershold) )
     {
       if(m_debugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, reached pedestal limit. fittedPedestal = " << fittedPedestal << ". limits are (" << m_minPedestalLimit << "," << m_maxPedestalLimit << "). Not adding vector!" << std::endl;
       return -13;
     }
-    
-    if( chi2_ndf < m_minChi2_NdfLimit || chi2_ndf > m_maxChi2_NdfLimit ) 
-    {
-      if(m_debugLevel > 10) std::cerr << "MVectorTemplate::addVector : fit failed, Chi2/NDF of fit = " << chi2_ndf << " is too large. limits are (" << m_minChi2_NdfLimit << "," << m_maxChi2_NdfLimit << "). Not adding vector!" << std::endl;
-      return -30; 
-    }
-    
 
     // ------------------------------------------------------------------
     //Average template with new waveform
@@ -290,20 +302,34 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
     //Create template of newVector
     MVectorTemplate newVectorTemplate(newVector, m_dx);
     TF1* newVector_tF1 = newVectorTemplate.getTF1();
-    
-		calcSimplePedestal(newVector);
 		
-    const double originalNewVectorMax = newVector[newVectorTemplate.getPeakIdx()];
-    const double newVectorPedestal = (newVector[0] - fittedPedestal)/(originalNewVectorMax - newVector[0]);
-    
-    const double newVectorAmplitude = (originalNewVectorMax - newVector[0]) / fittedAmplitude;
-    
-    newVector_tF1->SetParameters(newVectorAmplitude, newVectorPedestal, -fittedXshift);
-    
-		const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
+		
+		//We now want to average the template with the TF1 created from the new vector.
+		//We first set the pedestal to zero, because the template has pedestal of zero.
+		newVector_tF1->SetParameter(1, 0.0); //set pedestal to 0.
+		
+		//We renormalize the new TF1. The newVector_tF1->GetParameter(0) term "brings back" the tf1 to it's original height.
+		//The / fittedAmplitude term scales it by how much it's similar to the template.
+		//I.e. if tF1->GetParameter(0) > fittedAmplitude, this means the new vector is higher than the current template. This will put the peak of the new vector above the current template, as it should.
+		if(newVector_tF1->GetParameter(0) != 0.0 ) 
+			newVector_tF1->SetParameter(0, newVector_tF1->GetParameter(0) / fittedAmplitude );
+		
+		TCanvas c("c","c",0,0,1200,900);
+		fitHist->Draw();
+		newVector_tF1->SetParameter(2, -fittedXshift); 
+
+		
+		newVector_tF1->SetNpx(1000);
+		
+		newVector_tF1->Draw("SAME");
+		
+		gPad->WaitPrimitive();
+		
+    const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
 		
     //Average
     double peakVal = -DBL_MAX;
+		
     for(size_t iTemplateIdx = firstTemplateIdx; iTemplateIdx <= lastTemplateIdx; ++iTemplateIdx)
     {
       const double newVectorValue = newVector_tF1->Eval(iTemplateIdx * m_dx);
@@ -327,58 +353,132 @@ int MVectorTemplate::addVector(const std::vector<double>& newVector, const doubl
     //x corresponding to newVector[0] is - fittedXshift (with minus!!)
     //x corresponding to newVector[size] is size*m_dx - fittedXshift
     // ------------------------------------------------------------------
-    if(fittedXshift > 0)
-    {
-      m_templateValues.resize( lastTemplateIdx + 1); //lastTemplateIdx + 1 == size of new template vector;
-      resetTemplateRange();
-    }
+    if(fittedXshift > 0){
+			if(m_templateValues.size() > lastTemplateIdx + 1) {
+				m_templateValues.resize( lastTemplateIdx + 1); //lastTemplateIdx + 1 == size of new template vector;
+				resetTemplateRange();
+			}			
+		}
     else
     {
+			
       if(firstTemplateIdx> 0 ) m_templateValues.erase( m_templateValues.begin() , m_templateValues.begin() + firstTemplateIdx - 1 );
+			
       resetTemplateRange();
+			
     }
     
     // ------------------------------------------------------------------
     //re-Normalize vector - keep peak == 1
     //Make sure first entry is zero
     // ------------------------------------------------------------------
-    double pedestal = m_templateValues[0];
+    const double pedestal = calcSimplePedestal(m_templateValues);
     for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-    {
       m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal )/ (peakVal-pedestal);
-    }
-    
+        
+//     m_tF1.SetParameters(1,0,0);
+		
+		++m_numAveragedFuncs;
+		
+		return *fitResult;
   }//add, from second vector
   
-  ++m_numAveragedFuncs;
-  m_tF1.SetParameters(1,0,0);
-  return 0;
+  
+  
+  return TFitResult();
 }
 
-void MVectorTemplate::enableAmplitudeFit(const bool enableAmplitudeFit)
-{
+TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
+	
+	//Attempt to fit at current x.
+	
+	TFitResultPtr fitResult = fitHist.Fit(&m_tF1,"QSN");
+	//"Q" Quiet mode (minimum printing)
+	//"M" More. Improve fit results. It uses the IMPROVE command of TMinuit (see TMinuit::mnimpr). This algorithm attempts to improve the found local minimum by searching for a better one.
+	//"N" Do not store the graphics function, do not draw
+	//"S" The result of the fit is returned in the TFitResultPtr (see below Access to the Fit Result)
+	
+	if ( fitGood(fitResult) )
+		return fitResult;
+	
+	//Fit failed. Move xShift and retry
+	double xShiftGuess = m_dx * m_templateValues.size() * 0.05;
+	if(m_debugLevel >=20) 
+		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
+	m_tF1.SetParameter(2, xShiftGuess);
+	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	if ( fitGood(fitResult) )
+		return fitResult;
+	
+	//move xShift and retry
+	xShiftGuess = -m_dx * m_templateValues.size() * 0.05 ;
+	if(m_debugLevel >=20) 
+		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
+	m_tF1.SetParameter(2, xShiftGuess);
+	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	if ( fitGood(fitResult) )
+		return fitResult;
+	
+	xShiftGuess = m_dx * m_templateValues.size() * 0.1;
+	if(m_debugLevel >=20) 
+		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
+	m_tF1.SetParameter(2, xShiftGuess);
+	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	if ( fitGood(fitResult) )
+		return fitResult;
+	
+	//move xShift and retry
+	xShiftGuess = -m_dx * m_templateValues.size() * 0.1;
+	if(m_debugLevel >=20) 
+		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
+	m_tF1.SetParameter(2, xShiftGuess);
+	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	
+	//Return fitResult in any case
+	return fitResult;
+}
+
+bool MVectorTemplate::fitGood(const TFitResultPtr& fitResult) const {
+	
+	const int fitStatus = fitResult;
+	
+	//Fit status
+	if( fitStatus != 0 and fitStatus != 4000) //4000 is MINOS problem
+			return false;
+	
+	// chi2/ndf 
+	const double chi2_ndf = fitResult->Chi2() / fitResult->Ndf();
+	if(chi2_ndf < m_minChi2_NdfLimit or chi2_ndf > m_maxChi2_NdfLimit)
+		return false;
+
+	return true;
+}
+
+void MVectorTemplate::enableAmplitudeFit(const bool enableAmplitudeFit) {
   m_amplitudeFitEnabled = enableAmplitudeFit;
   setTF1Parameters();
 }
 
-void MVectorTemplate::enablePedestalFit(const bool enablePedestalFit) 
-{
+void MVectorTemplate::enablePedestalFit(const bool enablePedestalFit) {
   m_pedestalFitEnabled = enablePedestalFit;
   setTF1Parameters();
 }
 
-double MVectorTemplate::TF1Eval(double *var, double *params) 
-{
+void MVectorTemplate::enableXshiftFit(const bool enableXshiftFit) {
+  m_xShiftFitEnabled = enableXshiftFit;
+  setTF1Parameters();
+}
+
+double MVectorTemplate::TF1Eval(double *var, double *params) {
 //   double amplitude = params[0];
 //   double pedestal = params[1];
 //   double xShift = params[2];
+	
   const double effectiveX = var[0] - params[2]; 
   
-//         cout << "amplitude = " << amplitude << ", pedestal = " << pedestal << ", xShift = " << xShift << ", x = " << var[0] << ", effectiveX = " << effectiveX << ". ";
-  
-  if(effectiveX <= 0) return params[1] + params[0]*m_templateValues[0];
+  if(effectiveX <= 0) return params[1];// + params[0]*m_templateValues[0];
   if(effectiveX >= m_dx * static_cast<double>(m_templateValues.size() - 1)) return params[1] + params[0]*m_templateValues.back();
-  
+
   const int idx = static_cast<int>(effectiveX / m_dx);
 
   //Linear interpolation
@@ -387,43 +487,38 @@ double MVectorTemplate::TF1Eval(double *var, double *params)
 //     cout << "vec[idx + 1] = " << vec[idx + 1];
   const double y1 = m_templateValues[idx];
 	const double y2 = m_templateValues[idx + 1];
-  
-//     std::cout << "idx = " << idx << ", x1 = " << x1 << ", y1 = " << y1 << ". x2 = " << x2 << ", y2 = " << y2 << std::endl;
-//   double effY = (y2 - y1)/(x2-x1)*(effectiveX-x1) + y1;
 
-  return params[1] + params[0]*((y2 - y1)/(x2-x1)*(effectiveX-x1) + y1);
+	return params[1] + params[0]*((y2 - y1)/(x2-x1)*(effectiveX-x1) + y1);
 }
 
-void MVectorTemplate::setTF1Parameters(const double amplitude, const double pedestal, const double xShift)
-{
+void MVectorTemplate::setTF1Parameters(const double amplitude, const double pedestal, const double xShift) {
   if( !m_tF1.IsValid() ) return;
   
-  if(m_amplitudeFitEnabled) 
-  {
+  if(m_amplitudeFitEnabled) {
     m_tF1.SetParameter(0, amplitude);
     m_tF1.SetParLimits(0, m_minAmplitudeLimit,m_maxAmplitudeLimit);
   }
   else m_tF1.FixParameter(0, amplitude);
   
-  if(m_pedestalFitEnabled)
-  {
+  if(m_pedestalFitEnabled) {
     m_tF1.SetParameter(1, pedestal);
     m_tF1.SetParLimits(1, m_minPedestalLimit,m_maxPedestalLimit);
   }
   else m_tF1.FixParameter(1, pedestal);
   
-  m_tF1.SetParameter(2, xShift);
-  m_tF1.SetParLimits(2,m_minXshiftLimit, m_maxXshiftLimit);
+	if(m_xShiftFitEnabled) {
+		m_tF1.SetParameter(2, xShift);
+		m_tF1.SetParLimits(2, m_minXshiftLimit, m_maxXshiftLimit);
+	}
+	else m_tF1.FixParameter(2, xShift);
 }
 
-void MVectorTemplate::setTF1Parameters()
-{
+void MVectorTemplate::setTF1Parameters() {
   if( !m_tF1.IsValid() ) return;
   setTF1Parameters(m_tF1.GetParameter(0), m_tF1.GetParameter(1), m_tF1.GetParameter(2));
 }
 
-void MVectorTemplate::setAmplitudeLimits(const double newMinAmplitudeLimit, const double newMaxAmplitudeLimit)
-{
+void MVectorTemplate::setAmplitudeLimits(const double newMinAmplitudeLimit, const double newMaxAmplitudeLimit) {
   if( std::abs(newMinAmplitudeLimit - newMaxAmplitudeLimit) > m_doubleNumbersEqualThershold) m_useAmplitudeLimits = true;
   else m_useAmplitudeLimits = false;
   m_minAmplitudeLimit = newMinAmplitudeLimit; 
@@ -431,8 +526,7 @@ void MVectorTemplate::setAmplitudeLimits(const double newMinAmplitudeLimit, cons
   setTF1Parameters();
 }
 
-void MVectorTemplate::setXshiftLimits(const double newMinXshiftLimit, const double newMaxXshiftLimit)
-{
+void MVectorTemplate::setXshiftLimits(const double newMinXshiftLimit, const double newMaxXshiftLimit) {
   if( std::abs(newMinXshiftLimit - newMaxXshiftLimit) > m_doubleNumbersEqualThershold) m_useXshiftLimits = true;
   else m_useXshiftLimits = false;
   m_minXshiftLimit = newMinXshiftLimit; 
@@ -440,8 +534,7 @@ void MVectorTemplate::setXshiftLimits(const double newMinXshiftLimit, const doub
   setTF1Parameters();
 }
 
-void MVectorTemplate::setPedestalLimits(const double newMinPedestalLimit, const double newMaxPedestalLimit)
-{
+void MVectorTemplate::setPedestalLimits(const double newMinPedestalLimit, const double newMaxPedestalLimit) {
   if( std::abs(newMinPedestalLimit - newMaxPedestalLimit) > m_doubleNumbersEqualThershold) m_usePedestalLimits = true;
   else m_usePedestalLimits = false;
   m_minPedestalLimit = newMinPedestalLimit; 
@@ -449,8 +542,7 @@ void MVectorTemplate::setPedestalLimits(const double newMinPedestalLimit, const 
   setTF1Parameters();  
 }
 
-int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const std::string& treeDescription)
-{
+int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const std::string& treeDescription) {
   
   // ------------------------------------------------------------------
   //Create TFile
@@ -492,15 +584,14 @@ int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const 
 }
 
 
-int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName)
-{
+int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
   
   std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(), m_numAveragedFuncsBranchName.data()};
   std::vector<double>* m_templateValuesPointer = 0;  
 
   std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs};
 
-  TChain* inputChain = myFuncs::openChain_setBranch(fullFileName.data(), m_treeName.data(), branchNamesV, pointerV);
+  std::unique_ptr<TChain> inputChain (myFuncs::openChain_setBranch(fullFileName.data(), m_treeName.data(), branchNamesV, pointerV));
   
   if ( !inputChain)
   {
@@ -522,7 +613,6 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName)
 	#endif
 	
   delete m_templateValuesPointer;
-  delete inputChain;
 
 	m_tF1 = TF1("templateTF1", this, &MVectorTemplate::TF1Eval, 0, m_dx*(m_templateValues.size()-1), 3, "MVectorTemplate", "TF1Eval");
 // 	m_tF1 = TF1("templateTF1",
