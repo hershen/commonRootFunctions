@@ -23,6 +23,7 @@ m_maxAmplitude(25.0),
 m_timingEntry(0),
 m_maxEntries(0),
 m_runNum(0),
+m_filesToSkip(0),
 m_maxNumberOfFiles(0),
 m_skipSignalEvents(false),
 m_skipNoiseEvents(true),
@@ -129,14 +130,18 @@ void EventLoopBase::run(const std::string options) {
 	if(maxFiles < m_midasFilenames.size())
 		std::cout << "\nWarning::: EventLoopBase::run: Processing " << maxFiles << " even though found " << m_midasFilenames.size() << " in given path\n" << std::endl;
 	
+	std::cout << "\nINFO: Files to process : ";
 	//Fill array with filenames from m_midasFilenames
-	for(uint iFile = 0; iFile < maxFiles; ++iFile) {
+	for(uint iFile = m_filesToSkip; iFile < maxFiles; ++iFile) {
+		std::cout << m_midasFilenames[iFile] << " : ";
 		if(m_midasFilenames[iFile].size() > maxCharPerFile) {
 			std::cout << "m_midasFilenames[" << iFile << "] = " << m_midasFilenames[iFile] << " > maxCharPerFile. Ignoring file" << std::endl;
 			throw;
 		}
 		strcpy(argv[iFile+isOptions+1], const_cast<char*>( m_midasFilenames[iFile].c_str() ) );
 	}
+	
+	std::cout << std::endl;
 	
 // 	for(auto s : argv) std::cout << s << std::endl;
 	

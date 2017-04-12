@@ -75,6 +75,10 @@ public:
 	//Get Midas event number
 	inline uint32_t getEventNum(const TDataContainer& dataContainer) const {return dataContainer.GetMidasEvent().GetSerialNumber();}
 	
+	//Files to skip before processing
+	inline int getNumFilesToSkip() const {return m_filesToSkip;}
+	inline void setNumFilesToSkip(const int filesToSkip) {m_filesToSkip = filesToSkip;}
+	
 private:
 	//Midas files related to m_runNum
 	std::vector<std::string> m_midasFilenames;
@@ -98,6 +102,9 @@ private:
 	Long64_t m_maxEntries;
 	
 	int m_runNum;
+	
+	//Number of files to skip when running
+	int m_filesToSkip;
 	
 	unsigned int m_maxNumberOfFiles;
 	
