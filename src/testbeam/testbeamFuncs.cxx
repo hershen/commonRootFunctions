@@ -8,6 +8,7 @@
 #include "fileFuncs.h"
 #include "testbeam/RunDB.h"
 #include "histFuncs.h" //for PaveText
+#include "testbeam/constants.h"
 
 namespace myFuncs {
 namespace testbeam{
@@ -97,6 +98,33 @@ void drawWaveform(const std::vector<double>& voltages, const int runNum, const i
 		if(waitPrimitive)
 			gPad->WaitPrimitive();
 }
-			
+
+bool inElectronRange(const double beta, const int runNum, const double sigmasAway) {
+	const double sigma  = electronBetaSigma.at(std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()));
+	return std::abs(1.0 - beta) < sigmasAway * sigma;
+}
+
+bool inMuonRange(const double beta, const int runNum, const double sigmasAway) {
+	const double mean  = muonBetaMean.at(std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()));
+	const double sigma  = muonBetaSigma.at(std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()));
+	return std::abs(mean - beta) < sigmasAway * sigma;
+}
+
+bool inPionRange(const double beta, const int runNum, const double sigmasAway) {
+	const double mean  = pionBetaMean.at(std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()));
+	const double sigma  = pionBetaSigma.at(std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()));
+	return std::abs(mean - beta) < sigmasAway * sigma;
+}
+
+bool isElectron(const double beta, const int runNum) {
+	return inElectronRange(beta, runNum, 5.0) and not inMuonRange(beta, runNum, 4.0);	
+}
+bool isMuon(const double beta, const int runNum) {
+		return inMuonRange(beta, runNum, 4.0) and not inPionRange(beta, runNum, 4.0) and not inElectronRange(beta, runNum, 5.0);	
+}
+bool isPion(const double beta, const int runNum) {
+	return inPionRange(beta, runNum, 4.0) and not inMuonRange(beta, runNum, 4.0);	
+}
+
 }//testbeam namespace
 }//myFuncs namespace

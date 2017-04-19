@@ -2,6 +2,7 @@
 
 //STL
 #include <memory> //for unique_ptr
+#include <unordered_map>
 
 //Boost
 #include "boost/format.hpp"
@@ -38,6 +39,11 @@ constexpr std::array<int, 20> representitiveRuns =  {591,
 																								 717,
 																								 730,
 																								 731};
+
+																								 
+// struct 																								 
+// const std::unordered_map<int,
+
 
 //-----------------------------------------------------------
 //Return Nominal beam momentum string with units
@@ -87,6 +93,19 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltag
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum);
 
 void drawWaveform(const std::vector<double>& voltages, const int runNum, const int channelNum, const size_t eventNum, const bool waitPrimitive = true);
+
+//===
+//Check if beta is inside the range for the particle and not in range of a different particle
+bool isElectron(const double beta, const int runNum);
+bool isMuon(const double beta, const int runNum);
+bool isPion(const double beta, const int runNum);
+
+//====
+//Check if beta is inside a 3sigma range around the beta mean assuming gaussian distribtuion
+bool inElectronRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
+bool inMuonRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
+bool inPionRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
+//==	=
 
 }//testbeam namespace
 }//myFuncs namespace
