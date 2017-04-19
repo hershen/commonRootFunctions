@@ -46,7 +46,6 @@ class MVectorTemplate
     void enableXshiftFit(const bool enableXshiftFit);
     inline bool isXshiftFitEnabled() const {return m_xShiftFitEnabled;}
     
-    
     inline unsigned int getTemplateSize() const {return m_templateValues.size();}
     
     
@@ -79,6 +78,11 @@ class MVectorTemplate
     
 		void setTF1Parameters(const double amplitude, const double pedestal, const double xShift);
 		
+		//This is used to keep track where the x axis 0 is.
+		//It can change if items are removed from the beggining of the template, for example.
+		inline double getXshiftToZero() const {return m_xShiftToZero;}
+		void setXshiftToZero(const double xShiftToZero);
+		
 private:
 		
 		void setTF1ParNames();
@@ -102,6 +106,11 @@ private:
 			
 		//Add first vector to template (i.e. make template out of this vector)
 		void addFirstVector(const std::vector<double>& newVector);
+		
+		//Calculate a guess for the amplitude
+		double getAmplitudeGuess(const std::vector<double>& vector, const double pedestal) const;
+		
+		size_t getEffPeakIdx() const;
 		
     //TF1 based on the template
     //This is a bit dangerous as we provide the pointer to this TF1. This means that the user can change its properties (range, parameters, etc)
@@ -138,6 +147,10 @@ private:
     
     double m_minPedestalLimit;
     double m_maxPedestalLimit;
+		
+		//This is used to keep track where the x axis 0 is.
+		//It can change if items are removed from the beggining of the template, for example.
+		double m_xShiftToZero;
     
     const double m_doubleNumbersEqualThershold;
 		

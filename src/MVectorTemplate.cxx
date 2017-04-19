@@ -41,6 +41,7 @@ MVectorTemplate::MVectorTemplate():
   m_maxXshiftLimit(0), 
   m_minPedestalLimit(0),
   m_maxPedestalLimit(0),
+  m_xShiftToZero(0),
   m_doubleNumbersEqualThershold(1e-20),
   m_debugLevel(0), 
 	m_amplitudeFitEnabled(true),
@@ -74,7 +75,7 @@ void MVectorTemplate::resetTemplateValues() {
 }
 
 void MVectorTemplate::resetTemplateRange() {
-  if(m_tF1.IsValid()) m_tF1.SetRange(0,m_dx*(m_templateValues.size()-1) );
+  if(m_tF1.IsValid()) m_tF1.SetRange(getXshiftToZero(),m_dx * (m_templateValues.size()-1) + getXshiftToZero() );
 }
 
 void MVectorTemplate::setDx(const double newDx) {
@@ -82,6 +83,10 @@ void MVectorTemplate::setDx(const double newDx) {
   resetTemplateRange();
 }
 
+void MVectorTemplate::setXshiftToZero(const double xShiftToZero) {
+	m_xShiftToZero = xShiftToZero;
+	resetTemplateRange();
+}
 
 double MVectorTemplate::calcSimplePedestal(const std::vector<double>& vector, const double percentage) const {
 	
@@ -92,6 +97,45 @@ double MVectorTemplate::calcSimplePedestal(const std::vector<double>& vector, co
 	return std::accumulate(vector.begin(), vector.begin() + numElementsToAverage, 0.0) / numElementsToAverage;
 }
 
+double MVectorTemplate::getAmplitudeGuess(const std::vector<double>& vector, const double pedestal) const {
+			//Search for maximum around m_peakIdx
+			const int elementsBeforeAfter = vector.size() * 0.1;
+			
+			auto peakIdx = getEffPeakIdx();
+			if(peakIdx > vector.size() - 1)
+				peakIdx = vector.size() - 1;
+			
+			std::cout << " peakIdx = " << peakIdx << ", " << vector[peakIdx] << std::endl;
+			
+			long firstElement = peakIdx - elementsBeforeAfter;
+			if(firstElement < 0) firstElement = 0;
+			
+			long lastElement = peakIdx + elementsBeforeAfter;
+			if(lastElement > static_cast<long>(vector.size()) - 1) lastElement = vector.size() - 1;
+			
+			const double maxElement = *std::max_element(vector.begin() + firstElement, vector.begin() + lastElement);
+			
+			if(getDebugLevel() > 15)
+				std::cout << "MVectorTemplate::getAmplitudeGuess: maxElement = " << maxElement << std::endl;
+			
+			//Amplitude initial guess is the value of vector where the template maximum is. This will not work for fast varying functions, or if the xShift is large
+			double amplitudeGuess = (maxElement - pedestal);
+					
+			//Make sure amplitude guess is not out of limits
+			if(m_useAmplitudeLimits) 
+			{
+				amplitudeGuess = std::min(amplitudeGuess, m_maxAmplitudeLimit);
+				amplitudeGuess = std::max(amplitudeGuess, m_minAmplitudeLimit);
+			}
+			
+			return amplitudeGuess;
+}
+
+size_t MVectorTemplate::getEffPeakIdx() const {
+	long effPeakIdx = m_peakIdx + getXshiftToZero() / m_dx;
+	if(effPeakIdx < 0) return 0;
+	return effPeakIdx;
+}
 
 void MVectorTemplate::addFirstVector(const std::vector<double>& newVector) {
 	// ------------------------------------------------------------------
@@ -120,9 +164,9 @@ void MVectorTemplate::addFirstVector(const std::vector<double>& newVector) {
 	
 	if (m_debugLevel > 20)
 	{
-		std::cout << "MVectorTemplate::addVector : pedestal = " << pedestal << ", maximum = " << maximum << ", maxMinusPedestal = " << maxMinusPedestal << std::endl;
+		std::cout << "MVectorTemplate::addFirstVector : pedestal = " << pedestal << ", maximum = " << maximum << ", maxMinusPedestal = " << maxMinusPedestal << std::endl;
 		for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-			std::cout << "MVectorTemplate::addVector : temp[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << std::endl;
+			std::cout << "MVectorTemplate::addFirstVector : temp[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << std::endl;
 	}
 	
 	// ------------------------------------------------------------------
@@ -151,7 +195,6 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
     return -2;    
   }
   
-  
   // ------------------------------------------------------------------
   //Set first vector as template, normalize, etc.
   // ------------------------------------------------------------------
@@ -179,51 +222,25 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
     // ------------------------------------------------------------------
     //Initial guesses for fit
     // ------------------------------------------------------------------
+    const double pedestalGuess = isPedestalFitEnabled() ? calcSimplePedestal(newVector) : m_tF1.GetParameter(1);
+		
+		const double amplitudeGuess = isAmplitudeFitEnabled() ? getAmplitudeGuess(newVector, pedestalGuess) : m_tF1.GetParameter(0);
     
-    const double pedestalGuess = calcSimplePedestal(newVector);
+		const double xShiftGuess = isXshiftFitEnabled() ? 0.0 : m_tF1.GetParameter(2);
 		
-		//Search for maximum around m_peakIdx
-		const int elementsBeforeAfter = newVector.size() * 0.1;
-		
-		long firstElement = m_peakIdx - elementsBeforeAfter;
-		if(firstElement < 0) firstElement = 0;
-		
-		long lastElement = m_peakIdx + elementsBeforeAfter;
-		if(lastElement > static_cast<long>(newVector.size()) - 1) lastElement = newVector.size() - 1;
-		
-		const double maxElement = *std::max_element(newVector.begin() + firstElement, newVector.begin() + lastElement);
-    //Amplitude initial guess is the value of newVector where the template maximum is. This will not work for fast varying functions, or if the xShift is large
-    double amplitudeGuess = (maxElement - pedestalGuess);
-		    
-    //Make sure amplitude guess is not out of limits
-    if(m_useAmplitudeLimits) 
-    {
-      amplitudeGuess = std::min(amplitudeGuess, m_maxAmplitudeLimit);
-      amplitudeGuess = std::max(amplitudeGuess, m_minAmplitudeLimit);
-    }
-    
     if(m_debugLevel > 15)
-			std::cout << "amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << std::endl;
+			std::cout << "amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << ", xShiftGuess = " << xShiftGuess << std::endl;
     
-		
-    setTF1Parameters(amplitudeGuess, pedestalGuess, 0.0); //Amplitude, pedestal, xShift
-    
-//     std::cout << "amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << ", xShiftGuess = " <<  xShiftGuess << std::endl;
-    
+    setTF1Parameters(amplitudeGuess, pedestalGuess, xShiftGuess); //Amplitude, pedestal, xShift
     
     // ------------------------------------------------------------------
     //Fit!
     // ------------------------------------------------------------------
 		TFitResultPtr fitResult = fitTemplate(fitHist);
 		
-		
 		// ------------------------------------------------------------------
-		//Positive fittedXshift means newVector is forward in time relative to m_templateValues, i.e. newVector[idx] = m_templateValues[idx-fittedXshift/m_dx]
+		//Positive fittedXshift means newVector is forward in time relative to m_templateValues, i.e. newVector[idx] = m_templateValues[idx - fittedXshift/m_dx]
 		// ------------------------------------------------------------------
-		//TODO implement!
-		//How to check if first vector added is corrupt (i.e. flat). Maybe have a cut on maximum - pedestal.
-		//Amplitude, pedestal, xShift limits/cuts
-		//Chi2 cut?
 		const double fittedAmplitude = fitResult->Parameter(0);
     const double fittedPedestal = fitResult->Parameter(1);
     const double fittedXshift = fitResult->Parameter(2);
@@ -241,7 +258,7 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		
 		if( chi2_ndf < m_minChi2_NdfLimit || chi2_ndf > m_maxChi2_NdfLimit ) 
     {
-      if(m_debugLevel > 0) std::cerr << "MVectorTemplate::addVector : fit failed, Chi2/NDF of fit = " << chi2_ndf << " is our of limits. limits are (" << m_minChi2_NdfLimit << "," << m_maxChi2_NdfLimit << "). Not adding vector!" << std::endl;
+      if(m_debugLevel > 0) std::cerr << "MVectorTemplate::addVector : fit failed, Chi2/NDF of fit = " << chi2_ndf << " is out of limits. limits are (" << m_minChi2_NdfLimit << "," << m_maxChi2_NdfLimit << "). Not adding vector!" << std::endl;
       return -30; 
     }
     
@@ -266,32 +283,34 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
       return -13;
     }
 
+    const double effectiveXshift = getXshiftToZero() + fittedXshift;
     // ------------------------------------------------------------------
     //Average template with new waveform
-    //x corresponding to newVector[0] is: - fittedXshift (with minus!!)
-    //x corresponding to newVector[size] is size*m_dx - fittedXshift
+    //x corresponding to newVector[0] is: -effectiveXshift (with minus!!)
+    //x corresponding to newVector[size] is size*m_dx - effectiveXshift
     // ------------------------------------------------------------------
     
     //Find which are the first and last indexes in the template which needs to be averaged.
     //firstTemplateIdx,lastTemplatedIdx will be averaged with the interpolated value from newVector
     size_t firstTemplateIdx = 0;
 		size_t lastTemplateIdx = 0;
-    if(fittedXshift > 0)
+		
+    if(effectiveXshift >= 0)
     {
       //template:                      Idx0---------Idx1---------Idx2          Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)--
       //newVector: Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
-      //In this example both vectors are same length and fittedXshift = 1.5m_dx
+      //In this example both vectors are same length and effectiveXshift = 1.5m_dx
       //firstTemplateIdx = 0, lastTemplateIdx = newVector.size()-3
       firstTemplateIdx = 0; 
-      lastTemplateIdx = newVector.size() - 1 - static_cast<size_t>(fittedXshift / m_dx) - 1; 
+      lastTemplateIdx = newVector.size() - 1 - static_cast<size_t>(effectiveXshift / m_dx) - 1; 
     }
     else
     {
       //template:  Idx0--------Idx1--------Idx2          Idx(size-2)-------------Idx(size-1)
       //newVector:                   Idx0--------Idx1                Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
-      //In this example both vectors are same length and fittedXshift = 1.5m_dx
+      //In this example both vectors are same length and effectiveXshift = 1.5m_dx
       //firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
-      firstTemplateIdx = static_cast<size_t>(-fittedXshift / m_dx) + 1;
+      firstTemplateIdx = static_cast<size_t>(-effectiveXshift / m_dx) + 1;
       lastTemplateIdx = m_templateValues.size() - 1; //last element
     }
 
@@ -314,16 +333,16 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		if(newVector_tF1->GetParameter(0) != 0.0 ) 
 			newVector_tF1->SetParameter(0, newVector_tF1->GetParameter(0) / fittedAmplitude );
 		
-		TCanvas c("c","c",0,0,1200,900);
-		fitHist->Draw();
-		newVector_tF1->SetParameter(2, -fittedXshift); 
+		newVector_tF1->SetParameter(2, -effectiveXshift); 
+		
+// 		TCanvas c("c","c",0,0,1200,900);
+// 		fitHist->Draw();
 
-		
-		newVector_tF1->SetNpx(1000);
-		
-		newVector_tF1->Draw("SAME");
-		
-		gPad->WaitPrimitive();
+// 		newVector_tF1->SetNpx(1000);
+// 		
+// 		newVector_tF1->Draw("SAME");
+// 		
+// 		gPad->WaitPrimitive();
 		
     const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
 		
@@ -392,13 +411,13 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
 	
 	//Attempt to fit at current x.
 	
-	TFitResultPtr fitResult = fitHist.Fit(&m_tF1,"QSN");
+	TFitResultPtr fitResult = fitHist.Fit(&m_tF1,"QSNR");
 	//"Q" Quiet mode (minimum printing)
 	//"M" More. Improve fit results. It uses the IMPROVE command of TMinuit (see TMinuit::mnimpr). This algorithm attempts to improve the found local minimum by searching for a better one.
 	//"N" Do not store the graphics function, do not draw
 	//"S" The result of the fit is returned in the TFitResultPtr (see below Access to the Fit Result)
 	
-	if ( fitGood(fitResult) )
+	if ( fitGood(fitResult) or !isXshiftFitEnabled() )
 		return fitResult;
 	
 	//Fit failed. Move xShift and retry
@@ -406,7 +425,7 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
 	if(m_debugLevel >=20) 
 		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
 	m_tF1.SetParameter(2, xShiftGuess);
-	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	fitResult = fitHist.Fit(&m_tF1,"QSNR");
 	if ( fitGood(fitResult) )
 		return fitResult;
 	
@@ -415,7 +434,7 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
 	if(m_debugLevel >=20) 
 		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
 	m_tF1.SetParameter(2, xShiftGuess);
-	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	fitResult = fitHist.Fit(&m_tF1,"QSNR");
 	if ( fitGood(fitResult) )
 		return fitResult;
 	
@@ -423,7 +442,7 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
 	if(m_debugLevel >=20) 
 		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
 	m_tF1.SetParameter(2, xShiftGuess);
-	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	fitResult = fitHist.Fit(&m_tF1,"QSNR");
 	if ( fitGood(fitResult) )
 		return fitResult;
 	
@@ -432,7 +451,7 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist) {
 	if(m_debugLevel >=20) 
 		std::cout << "setting xShift Guess to " << xShiftGuess << std::endl;
 	m_tF1.SetParameter(2, xShiftGuess);
-	fitResult = fitHist.Fit(&m_tF1,"QSN");
+	fitResult = fitHist.Fit(&m_tF1,"QSNR");
 	
 	//Return fitResult in any case
 	return fitResult;
@@ -474,7 +493,7 @@ double MVectorTemplate::TF1Eval(double *var, double *params) {
 //   double pedestal = params[1];
 //   double xShift = params[2];
 	
-  const double effectiveX = var[0] - params[2]; 
+  const double effectiveX = var[0] - params[2] - getXshiftToZero(); 
   
   if(effectiveX <= 0) return params[1];// + params[0]*m_templateValues[0];
   if(effectiveX >= m_dx * static_cast<double>(m_templateValues.size() - 1)) return params[1] + params[0]*m_templateValues.back();
@@ -615,28 +634,6 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
   delete m_templateValuesPointer;
 
 	m_tF1 = TF1("templateTF1", this, &MVectorTemplate::TF1Eval, 0, m_dx*(m_templateValues.size()-1), 3, "MVectorTemplate", "TF1Eval");
-// 	m_tF1 = TF1("templateTF1",
-// 				[&](double*var, double *p)
-// 				{   
-// 					const double effectiveX = var[0] - p[2]; 
-// 					if(effectiveX <= 0) return p[1] + p[0]*m_templateValues[0];
-// 					if(effectiveX >= m_dx * double(m_templateValues.size() - 1)) return p[1] + p[0]*m_templateValues.back();
-// 					const int idx = int(effectiveX / m_dx);
-// 
-// 					//Linear interpolation
-// 					const double x1 = double(idx)*m_dx;
-// 					const double x2 = double(idx + 1) * m_dx;
-// 					const double y1 = m_templateValues[idx];
-// 					const double y2 = m_templateValues[idx + 1];
-// 					double returnVal = p[1] + p[0]*((y2 - y1)/(x2-x1)*(effectiveX-x1) + y1);
-// 					
-// 					return returnVal;    
-// 				}//Lambda
-// 				
-// 				, 0, m_dx*(m_templateValues.size()-1), 3);
-// 	setTF1Parameters(1.,0.,0.);
-// 	setTF1ParNames();
-// 		
 		
 	return 0;
 }
