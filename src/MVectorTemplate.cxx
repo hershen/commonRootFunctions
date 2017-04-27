@@ -626,6 +626,7 @@ int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const 
   tree.Branch(m_dxBranchName.data(), &m_dx);
   tree.Branch(m_peakIdxBranchName.data(), &m_peakIdx,"m_peakIdx/l");
   tree.Branch(m_numAveragedFuncsBranchName.data(), &m_numAveragedFuncs,"m_numAveragedFuncs/l");
+	tree.Branch("xValueOfFirstTemplateEntry", &m_xValueOfFirstTemplateEntry,"m_xValueOfFirstTemplateEntry/D");
 
   // ------------------------------------------------------------------
   //Save
@@ -640,10 +641,10 @@ int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const 
 
 int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
   
-  std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(), m_numAveragedFuncsBranchName.data()};
+  std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(), m_numAveragedFuncsBranchName.data(), "xValueOfFirstTemplateEntry"};
   std::vector<double>* m_templateValuesPointer = 0;  
 
-  std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs};
+  std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs, &m_xValueOfFirstTemplateEntry};
 
   std::unique_ptr<TChain> inputChain (myFuncs::openChain_setBranch(fullFileName.data(), m_treeName.data(), branchNamesV, pointerV));
   
