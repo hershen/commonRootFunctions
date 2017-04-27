@@ -104,9 +104,7 @@ double MVectorTemplate::getAmplitudeGuess(const std::vector<double>& vector, con
 			auto peakIdx = getEffPeakIdx();
 			if(peakIdx > vector.size() - 1)
 				peakIdx = vector.size() - 1;
-			
-			std::cout << " peakIdx = " << peakIdx << ", " << vector[peakIdx] << std::endl;
-			
+						
 			long firstElement = peakIdx - elementsBeforeAfter;
 			if(firstElement < 0) firstElement = 0;
 			
@@ -319,10 +317,9 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		const double timeOfLastTemplateEntry =  (m_templateValues.size() - 1) * m_dx + effXofFirstTemplateEntry;
 		const double timeOfLastNewVectorValue = (newVector.size() - 1) * m_dx;
 		
-		std::cout << "timeOfLastTemplateEntry = " << timeOfLastTemplateEntry << ", timeOfLastNewVectorValue = " << timeOfLastNewVectorValue << std::endl;
+// 		std::cout << "timeOfLastTemplateEntry = " << timeOfLastTemplateEntry << ", timeOfLastNewVectorValue = " << timeOfLastNewVectorValue << std::endl;
 		
 		const size_t lastTemplateIdx = std::min(m_templateValues.size() - 1,  static_cast<size_t>(m_templateValues.size() - 1 -  (timeOfLastTemplateEntry - timeOfLastNewVectorValue) / m_dx)  );
-// 		const size_t lastTemplateIdx = std::min(m_templateValues.size() - 1,  static_cast<size_t>(newVector.size() - 1 - (effXofFirstTemplateEntry + m_dx )/ m_dx )  );
 		
 		
 		/*
