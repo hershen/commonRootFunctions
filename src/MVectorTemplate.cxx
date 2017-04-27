@@ -41,7 +41,7 @@ MVectorTemplate::MVectorTemplate():
   m_maxXshiftLimit(0), 
   m_minPedestalLimit(0),
   m_maxPedestalLimit(0),
-  m_xShiftToZero(0),
+  m_xValueOfFirstTemplateEntry(0),
   m_doubleNumbersEqualThershold(1e-20),
   m_debugLevel(0), 
 	m_amplitudeFitEnabled(true),
@@ -75,7 +75,7 @@ void MVectorTemplate::resetTemplateValues() {
 }
 
 void MVectorTemplate::resetTemplateRange() {
-  if(m_tF1.IsValid()) m_tF1.SetRange(getXshiftToZero(),m_dx * (m_templateValues.size()-1) + getXshiftToZero() );
+  if(m_tF1.IsValid()) m_tF1.SetRange(getXvalueOfFirstTemplateEntry(),m_dx * (m_templateValues.size()-1) + getXvalueOfFirstTemplateEntry() );
 }
 
 void MVectorTemplate::setDx(const double newDx) {
@@ -83,8 +83,8 @@ void MVectorTemplate::setDx(const double newDx) {
   resetTemplateRange();
 }
 
-void MVectorTemplate::setXshiftToZero(const double xShiftToZero) {
-	m_xShiftToZero = xShiftToZero;
+void MVectorTemplate::setXvalueOfFirstTemplateEntry(const double xValueOfFirstTemplateEntry) {
+	m_xValueOfFirstTemplateEntry = xValueOfFirstTemplateEntry;
 	resetTemplateRange();
 }
 
@@ -132,7 +132,7 @@ double MVectorTemplate::getAmplitudeGuess(const std::vector<double>& vector, con
 }
 
 size_t MVectorTemplate::getEffPeakIdx() const {
-	long effPeakIdx = m_peakIdx + getXshiftToZero() / m_dx;
+	long effPeakIdx = m_peakIdx + getXvalueOfFirstTemplateEntry() / m_dx;
 	if(effPeakIdx < 0) return 0;
 	return effPeakIdx;
 }
@@ -207,6 +207,15 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
   
   else { //from second vector
   
+		if(getDebugLevel() > 50) {
+			std::cout << "template values before adding vector:" << std::endl;
+			
+			for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+				std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
+			
+			std::cout << std::endl;
+		}
+		
     //Standard deviation vector
     std::vector<double> stdVector(newVector.size(), std);
     
@@ -283,67 +292,61 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
       return -13;
     }
 
-    const double effectiveXshift = getXshiftToZero() + fittedXshift;
+    //Now the first template entry corresponds to time effXofFirstTemplateEntry!
+    const double effXofFirstTemplateEntry = getXvalueOfFirstTemplateEntry() + fittedXshift;
+		
+		if(getDebugLevel() > 15)
+			std::cout << "MVectorTemplate::addVector : effXofFirstTemplateEntry = " << effXofFirstTemplateEntry << std::endl;
     // ------------------------------------------------------------------
     //Average template with new waveform
-    //x corresponding to newVector[0] is: -effectiveXshift (with minus!!)
-    //x corresponding to newVector[size] is size*m_dx - effectiveXshift
+		//------------------------------------------
+		//Not sure this is true any more. x corresponding to newVector[0] is 0.
+    //x corresponding to newVector[0] is: -effXofFirstTemplateEntry (with minus!!)
+    //x corresponding to newVector[size-1] is (size-1)*m_dx - effXofFirstTemplateEntry
     // ------------------------------------------------------------------
     
     //Find which are the first and last indexes in the template which needs to be averaged.
     //firstTemplateIdx,lastTemplatedIdx will be averaged with the interpolated value from newVector
-    size_t firstTemplateIdx = 0;
-		size_t lastTemplateIdx = 0;
 		
-    if(effectiveXshift >= 0)
+		//Effictive time of m_templateValues.last = m_templateValues.size*m_dx + effXofFirstTemplateEntry
+		//Time of newVector.last = newVector.size*m_dx
+		
+		
+		//First Idx
+		const size_t firstTemplateIdx = std::max(0, static_cast<int>( (-effXofFirstTemplateEntry + m_dx)/m_dx) );
+		
+		//Last idx
+		const double timeOfLastTemplateEntry =  (m_templateValues.size() - 1) * m_dx + effXofFirstTemplateEntry;
+		const double timeOfLastNewVectorValue = (newVector.size() - 1) * m_dx;
+		
+		std::cout << "timeOfLastTemplateEntry = " << timeOfLastTemplateEntry << ", timeOfLastNewVectorValue = " << timeOfLastNewVectorValue << std::endl;
+		
+		const size_t lastTemplateIdx = std::min(m_templateValues.size() - 1,  static_cast<size_t>(m_templateValues.size() - 1 -  (timeOfLastTemplateEntry - timeOfLastNewVectorValue) / m_dx)  );
+// 		const size_t lastTemplateIdx = std::min(m_templateValues.size() - 1,  static_cast<size_t>(newVector.size() - 1 - (effXofFirstTemplateEntry + m_dx )/ m_dx )  );
+		
+		
+		/*
+    if(fittedXshift >= 0)
     {
-      //template:                      Idx0---------Idx1---------Idx2          Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)--
-      //newVector: Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
-      //In this example both vectors are same length and effectiveXshift = 1.5m_dx
-      //firstTemplateIdx = 0, lastTemplateIdx = newVector.size()-3
-      firstTemplateIdx = 0; 
-      lastTemplateIdx = newVector.size() - 1 - static_cast<size_t>(effectiveXshift / m_dx) - 1; 
-    }
+      template:                      Idx0---------Idx1---------Idx2          Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
+      newVector: Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
+      In this example both vectors are same length and effXofFirstTemplateEntry = 1.5m_dx
+      firstTemplateIdx = 0, lastTemplateIdx = newVector.size()-3
+		}	
     else
     {
-      //template:  Idx0--------Idx1--------Idx2          Idx(size-2)-------------Idx(size-1)
-      //newVector:                   Idx0--------Idx1                Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
-      //In this example both vectors are same length and effectiveXshift = 1.5m_dx
-      //firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
-      firstTemplateIdx = static_cast<size_t>(-effectiveXshift / m_dx) + 1;
-      lastTemplateIdx = m_templateValues.size() - 1; //last element
-    }
+      template:  Idx0--------Idx1--------Idx2          Idx(size-2)-------------Idx(size-1)
+      newVector:                   Idx0--------Idx1                Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
+      In this example both vectors are same length and effXofFirstTemplateEntry = -1.5m_dx
+      firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
+    }*/
 
+    if(getDebugLevel() > 20)
+			std::cout << "MVectorTemplate::addVector : firstTemplateIdx = " << firstTemplateIdx << ", lastTemplateIdx = " << lastTemplateIdx << std::endl;
     // ------------------------------------------------------------------
     //Average newVector with template
     // ------------------------------------------------------------------
     
-    //Create template of newVector
-    MVectorTemplate newVectorTemplate(newVector, m_dx);
-    TF1* newVector_tF1 = newVectorTemplate.getTF1();
-		
-		
-		//We now want to average the template with the TF1 created from the new vector.
-		//We first set the pedestal to zero, because the template has pedestal of zero.
-		newVector_tF1->SetParameter(1, 0.0); //set pedestal to 0.
-		
-		//We renormalize the new TF1. The newVector_tF1->GetParameter(0) term "brings back" the tf1 to it's original height.
-		//The / fittedAmplitude term scales it by how much it's similar to the template.
-		//I.e. if tF1->GetParameter(0) > fittedAmplitude, this means the new vector is higher than the current template. This will put the peak of the new vector above the current template, as it should.
-		if(newVector_tF1->GetParameter(0) != 0.0 ) 
-			newVector_tF1->SetParameter(0, newVector_tF1->GetParameter(0) / fittedAmplitude );
-		
-		newVector_tF1->SetParameter(2, -effectiveXshift); 
-		
-// 		TCanvas c("c","c",0,0,1200,900);
-// 		fitHist->Draw();
-
-// 		newVector_tF1->SetNpx(1000);
-// 		
-// 		newVector_tF1->Draw("SAME");
-// 		
-// 		gPad->WaitPrimitive();
-		
     const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
 		
     //Average
@@ -351,10 +354,27 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		
     for(size_t iTemplateIdx = firstTemplateIdx; iTemplateIdx <= lastTemplateIdx; ++iTemplateIdx)
     {
-      const double newVectorValue = newVector_tF1->Eval(iTemplateIdx * m_dx);
+			const int idx = static_cast<int>(iTemplateIdx + (effXofFirstTemplateEntry / m_dx) );
+
+			assert(idx >= 0);
+			assert(idx + 2 <= newVector.size() );
+			//Linear interpolation
+			const double x1 = static_cast<double>(idx) * m_dx;
+			const double x2 = static_cast<double>(idx + 1) * m_dx;
+			const double y1 = newVector[idx];
+			const double y2 = newVector[idx + 1];
+
+			const double x = effXofFirstTemplateEntry + (iTemplateIdx * m_dx);
+			
+      const double newVectorValue = linearInterpolate(x1, x2, y1, y2, x);
       
+			
+			if(getDebugLevel() > 30) {
+				std::cout << "MVectorTemplate::addVector : Averaging template iTemplateIdx " << iTemplateIdx << ", idx = " << idx << ". x1 = " << x1 << ", x2 = " << x2 << ", y1 = " << y1 << ", y2 = " << y2 << ", x = " << x << ", newVectorValue = " << newVectorValue << ", m_tF1.Eval(x) = " << m_tF1.Eval(x) << std::endl;
+			}
+			
       //average vectors
-      m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] * static_cast<double>(m_numAveragedFuncs) + newVectorValue) * ov_numAveragedFuncsP1;
+      m_templateValues[iTemplateIdx] = (m_tF1.Eval(x) * static_cast<double>(m_numAveragedFuncs) + newVectorValue) * ov_numAveragedFuncsP1;
       
       //Store maximum value (used to normalize later) and its index
       if(m_templateValues[iTemplateIdx] > peakVal)
@@ -363,27 +383,34 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 				m_peakIdx = iTemplateIdx;
       }
       
-      if (m_debugLevel > 20)
-				std::cout << "MVectorTemplate::addVector : temp[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << std::endl;
-    }
-    
-    // ------------------------------------------------------------------
-    //Clip ends of template
-    //x corresponding to newVector[0] is - fittedXshift (with minus!!)
-    //x corresponding to newVector[size] is size*m_dx - fittedXshift
-    // ------------------------------------------------------------------
-    if(fittedXshift > 0){
-			if(m_templateValues.size() > lastTemplateIdx + 1) {
-				m_templateValues.resize( lastTemplateIdx + 1); //lastTemplateIdx + 1 == size of new template vector;
-				resetTemplateRange();
-			}			
 		}
-    else
-    {
+    
+    
+    //Clip ends of m_templateValues, if needed
+    if(lastTemplateIdx + 1 < m_templateValues.size() ) {
+			m_templateValues.resize( lastTemplateIdx + 1); //lastTemplateIdx + 1 == size of new template vector;
 			
-      if(firstTemplateIdx> 0 ) m_templateValues.erase( m_templateValues.begin() , m_templateValues.begin() + firstTemplateIdx - 1 );
+			//PeakIdx can't be larger than m_templateValues
+			if(m_peakIdx > lastTemplateIdx)
+				m_peakIdx = std::distance(m_templateValues.begin(), std::max_element(m_templateValues.begin(), m_templateValues.end()) );
+		
+			resetTemplateRange();
+		}
+		
+    if(firstTemplateIdx > 0 ) {
+			if(firstTemplateIdx == 0)
+				std::cout << "I don't think this can happen!!! If it doesn't, can remove next conditional, it's always true" << std::endl;
+
+			m_templateValues.erase( m_templateValues.begin() , m_templateValues.begin() + firstTemplateIdx ); //erase first int(firstTemplateIdx) elements in m_templateValues.
+			m_xValueOfFirstTemplateEntry += firstTemplateIdx * m_dx;
 			
-      resetTemplateRange();
+			//If m_peakIdx is after firstTemplateIdx, just subtract them to find new peakIdx
+			if(m_peakIdx >= firstTemplateIdx)
+				m_peakIdx -= firstTemplateIdx;
+			else //Loop on vector and find new peakIdx
+				m_peakIdx = std::distance(m_templateValues.begin(), std::max_element(m_templateValues.begin(), m_templateValues.end()) );
+			
+			resetTemplateRange();
 			
     }
     
@@ -392,10 +419,20 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
     //Make sure first entry is zero
     // ------------------------------------------------------------------
     const double pedestal = calcSimplePedestal(m_templateValues);
+		peakVal = m_templateValues[m_peakIdx];
     for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
       m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal )/ (peakVal-pedestal);
         
 //     m_tF1.SetParameters(1,0,0);
+		
+		if(getDebugLevel() > 20) {
+			std::cout << "template values after adding vector:" << std::endl;
+			for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+				std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
+			
+			std::cout << std::endl;
+		}
+			
 		
 		++m_numAveragedFuncs;
 		
@@ -493,7 +530,7 @@ double MVectorTemplate::TF1Eval(double *var, double *params) {
 //   double pedestal = params[1];
 //   double xShift = params[2];
 	
-  const double effectiveX = var[0] - params[2] - getXshiftToZero(); 
+  const double effectiveX = var[0] - params[2] - getXvalueOfFirstTemplateEntry(); 
   
   if(effectiveX <= 0) return params[1];// + params[0]*m_templateValues[0];
   if(effectiveX >= m_dx * static_cast<double>(m_templateValues.size() - 1)) return params[1] + params[0]*m_templateValues.back();
@@ -503,11 +540,12 @@ double MVectorTemplate::TF1Eval(double *var, double *params) {
   //Linear interpolation
   const double x1 = static_cast<double>(idx) * m_dx;
 	const double x2 = static_cast<double>(idx + 1) * m_dx;
-//     cout << "vec[idx + 1] = " << vec[idx + 1];
   const double y1 = m_templateValues[idx];
 	const double y2 = m_templateValues[idx + 1];
 
-	return params[1] + params[0]*((y2 - y1)/(x2-x1)*(effectiveX-x1) + y1);
+// 	std::cout << "MVectorTemplate::TF1Eval :var[0] = " << var[0] << ",  x1 = " << x1 << ", x2 = " << x2 << ", y1 = " << y1 << ", y2 = " << y2 << ", effectiveX = " << effectiveX << ", TF1Eval = " << params[1] + params[0]*linearInterpolate(x1, x2, y1, y2, effectiveX) <<  std::endl;
+	
+	return params[1] + params[0]*linearInterpolate(x1, x2, y1, y2, effectiveX);
 }
 
 void MVectorTemplate::setTF1Parameters(const double amplitude, const double pedestal, const double xShift) {

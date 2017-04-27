@@ -80,8 +80,8 @@ class MVectorTemplate
 		
 		//This is used to keep track where the x axis 0 is.
 		//It can change if items are removed from the beggining of the template, for example.
-		inline double getXshiftToZero() const {return m_xShiftToZero;}
-		void setXshiftToZero(const double xShiftToZero);
+		inline double getXvalueOfFirstTemplateEntry() const {return m_xValueOfFirstTemplateEntry;}
+		void setXvalueOfFirstTemplateEntry(const double xValueOfFirstTemplateEntry);
 		
 private:
 		
@@ -150,7 +150,7 @@ private:
 		
 		//This is used to keep track where the x axis 0 is.
 		//It can change if items are removed from the beggining of the template, for example.
-		double m_xShiftToZero;
+		double m_xValueOfFirstTemplateEntry;
     
     const double m_doubleNumbersEqualThershold;
 		
