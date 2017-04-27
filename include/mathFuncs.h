@@ -261,5 +261,11 @@ namespace myFuncs
 		return output;
 	}
 
+	//Linearly interploate the y value at x given (x0,y0), (x1,y1)
+	template <class T>
+	double linearInterpolate(const T x0, const T x1, const T y0, const T y1, const double x) {
+		return static_cast<double>(y1 - y0)/static_cast<double>(x1-x0)*(x-x0) + y0;
+	}
+	
 } //namespace myMathFunctions
 
