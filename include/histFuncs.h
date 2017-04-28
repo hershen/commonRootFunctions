@@ -127,13 +127,16 @@ public:
 	PaveText (0.16, 0.95, x2, 1, option) {}
 };
 
-class myLegend : public TLegend
+
+//Nice legend
+class legend : public TLegend
 {
 public:
-	myLegend (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2):
+	legend (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2):
 	TLegend(x1, y1, x2, y2)
 	{
 		this->SetTextFont(22);
+		this->SetFillStyle(0); //Transpartent fill color
 		this->SetBorderSize(1); //No shadow
 	}
 };
