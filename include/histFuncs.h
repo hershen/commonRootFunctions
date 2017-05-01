@@ -91,16 +91,20 @@ TGraphErrors histToGraph(const TH1& hist);
 // 	
 // }
 
-
-// Overwrites files if they already exis
-inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename)
-{
+//Save canvas as fileType, inside figureDump folder.
+//Overwrites files if they exist
+inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename, const std::string& fileType) {
 	//Create figure dump dir. If already exists, or there's a problem, it returns -1.
 	gSystem->mkdir("figureDump");
-	
-	canvas->SaveAs(("figureDump/" + filename + ".png").data());
-	canvas->SaveAs(("figureDump/" + filename + ".pdf").data());
-	canvas->SaveAs(("figureDump/" + filename + ".C").data());
+	canvas->SaveAs(("figureDump/" + filename + "." + fileType).data());
+}
+
+//Save canvas as png, pdf, C, inside figureDump folder.
+//Overwrites files if they exist
+inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename) {
+	mySaveCanvas(canvas, filename, "png");
+	mySaveCanvas(canvas, filename, "pdf");
+	mySaveCanvas(canvas, filename, "C");
 }
 
 
