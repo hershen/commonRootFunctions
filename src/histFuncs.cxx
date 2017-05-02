@@ -241,4 +241,28 @@ double FWHM(const TH1& hist) {
   return hist.GetBinCenter(lastBin) - hist.GetBinCenter(firstBin);
 }
 
+void prepareCanvasResiduals(TCanvas& canvas) {
+	const double topBottomSpace = 0.045;
+	
+	canvas.cd();
+	TPad* topPad = new TPad( (canvas.GetName() + std::string("_topPad")).data(), "", 0, 0.25, 1, 1);
+	topPad->SetNumber(1);
+	topPad->SetTopMargin(0.03);
+	topPad->SetBottomMargin(0.01); //For some reason 0.0 doesn't look good
+	topPad->Draw();
+	topPad->cd();
+	topPad->Update();
+	
+	//Change to canvas before creating second pad
+	canvas.cd();
+	
+	TPad* bottomPad = new TPad( (canvas.GetName() + std::string("_bottomPad")).data(), "", 0, 0, 1, 0.25);
+	bottomPad->SetNumber(2);
+	bottomPad->SetTopMargin(topBottomSpace);
+	bottomPad->SetBottomMargin(0.25); //So that title isn't cut out
+	bottomPad->SetGridy();
+	bottomPad->Draw();
+	canvas.cd();
+}
+
 } //namespace histFuncs

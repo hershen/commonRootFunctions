@@ -146,28 +146,58 @@ public:
 };
 
 
-template <typename rootObject>
-TCanvas& drawWithResiduals(TCanvas& canvas, rootObject object, const TF1& function)
-{
-	canvas.cd();
-	TPad* topPad = new TPad( (canvas.GetName() + std::string("_topPad")).data(), "", 0, 0.2, 1, 1);
-	topPad->SetTopMargin(0.03);
-	topPad->SetBottomMargin(0.);
-	topPad->Draw();
-	topPad->cd();
-	object.Draw();
-	topPad->Update();
+//Creates 2 TPads and doesn't delete them!!!
+void prepareCanvasResiduals(TCanvas& canvas);
+
+template<class T1, class T2>
+void prettyCanvasResiduals(TCanvas& canvas, T1& rootObjectTop, T2& rootObjectBottom) {
+	rootObjectTop.GetXaxis()->SetLabelSize(0.0); //Don't draw x labels on top object
 	
-	//Change to canvas before creating second pad
-	canvas.cd();
+	//Set axis label and Title size to absolute
+	rootObjectTop.GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+	rootObjectBottom.GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+	rootObjectBottom.GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+	//Title
+	rootObjectTop.GetYaxis()->SetTitleFont(43); // Absolute font size in pixel (precision 3)
+	rootObjectBottom.GetXaxis()->SetTitleFont(43); // Absolute font size in pixel (precision 3)
+	rootObjectBottom.GetYaxis()->SetTitleFont(43); // Absolute font size in pixel (precision 3)
+		
+	//Set x + y axis label size
+	const double labelSize = std::min( 0.03 * canvas.cd(1)->GetWh(), 0.03 * canvas.cd(1)->GetWw());
+	rootObjectTop.GetYaxis()->SetLabelSize(labelSize);
+	rootObjectBottom.GetYaxis()->SetLabelSize(labelSize);
+	//x axis
+	rootObjectBottom.GetXaxis()->SetLabelSize(labelSize);
 	
-	TPad* bottomPad = new TPad( (canvas.GetName() + std::string("_bottomPad")).data(), "", 0, 0, 1, 0.2);
-	topPad->SetBottomMargin(0);
-	bottomPad->Draw();
-	bottomPad->cd();
-	//Draw TGraph
+	//Set axis title sizes
+	const double titleSize = std::min( 0.03 * canvas.cd(1)->GetWh(), 0.03 * canvas.cd(1)->GetWw());
+	rootObjectBottom.GetXaxis()->SetTitleSize(titleSize);
+	rootObjectBottom.GetYaxis()->SetTitleSize(titleSize);
+	rootObjectTop.GetYaxis()->SetTitleSize(titleSize);
+
+	//Set title offsets
+	rootObjectBottom.GetXaxis()->SetTitleOffset(3.25);
 	
-	return canvas;
+	rootObjectBottom.GetYaxis()->SetTitleOffset(1);
+	rootObjectTop.GetYaxis()->SetTitleOffset(1);
+	
+	//Set y title
+	rootObjectBottom.GetYaxis()->SetTitle("Residual");
+}
+
+template <class T>
+TGraph getResidualsGraph(const std::vector<T>& xValues, const std::vector<double> residuals) {
+	if(xValues.size() != residuals.size())
+		throw;
+	
+	TGraph residualsGraph(xValues.size(), xValues.data(), residuals.data());
+	
+	const auto maxResidual = std::abs(*std::max_element(residuals.begin(), residuals.end(), [](const T residual1, const T residual2){return std::abs(residual1)<std::abs(residual2);}));
+	residualsGraph.SetMaximum(std::ceil(maxResidual));
+	residualsGraph.SetMinimum(-std::ceil(maxResidual));	
+	residualsGraph.GetYaxis()->SetNdivisions(std::ceil(maxResidual),false); //false - no optimization - forces current value
+	
+	return residualsGraph;
 }
 
 double FWHM(const TH1& hist);
