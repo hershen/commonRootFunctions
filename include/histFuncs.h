@@ -177,12 +177,9 @@ void prettyCanvasResiduals(TCanvas& canvas, T1& rootObjectTop, T2& rootObjectBot
 
 	//Set title offsets
 	rootObjectBottom.GetXaxis()->SetTitleOffset(3.25);
-	
-	rootObjectBottom.GetYaxis()->SetTitleOffset(1);
-	rootObjectTop.GetYaxis()->SetTitleOffset(1);
-	
+
 	//Set y title
-	rootObjectBottom.GetYaxis()->SetTitle("Residual");
+	rootObjectBottom.GetYaxis()->SetTitle("Residual (#sigma)");
 }
 
 template <class T>
