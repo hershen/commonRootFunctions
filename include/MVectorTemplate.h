@@ -83,11 +83,13 @@ class MVectorTemplate
 		inline double getXvalueOfFirstTemplateEntry() const {return m_xValueOfFirstTemplateEntry;}
 		void setXvalueOfFirstTemplateEntry(const double xValueOfFirstTemplateEntry);
 		
-private:
 		
+		
+private:
+		void resetTemplateRange();
 		void setTF1ParNames();
-    void resetTemplateRange();
     
+    bool goodFit(const TFitResultPtr& fitResult) const;
     
     
     //Overloaded
