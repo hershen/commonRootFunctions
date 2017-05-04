@@ -126,5 +126,13 @@ bool isPion(const double beta, const int runNum) {
 	return inPionRange(beta, runNum, 4.0) and not inMuonRange(beta, runNum, 4.0);	
 }
 
+size_t getV1730waveformLength(const int runNum) {
+	const auto crystal = RunDB::instance()[runNum].getCrystal();
+	if(crystal == Crystal::CsI_Ukrainian or crystal == Crystal::CsI_Chinese)
+		return 5000;
+	else 
+		return 17500;
+}
+
 }//testbeam namespace
 }//myFuncs namespace
