@@ -127,12 +127,18 @@ bool isPion(const double beta, const int runNum) {
 }
 
 int getV1730waveformLength(const int runNum) {
-	const auto crystal = RunDB::instance()[runNum].getCrystal();
-	if(crystal == Crystal::CsI_Ukrainian or crystal == Crystal::CsI_Chinese)
+	if(isCsI(runNum))
 		return 5000;
 	else 
 		return 17500;
 }
 
+bool isCsI(const int runNum) {
+	const auto crystal = RunDB::instance()[runNum].getCrystal();
+	if(crystal == Crystal::CsI_Ukrainian or crystal == Crystal::CsI_Chinese)
+		return true;
+	else 
+		return false;
+}
 }//testbeam namespace
 }//myFuncs namespace

@@ -107,6 +107,8 @@ bool inMuonRange(const double beta, const int runNum, const double sigmasAway = 
 bool inPionRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
 //==	=
 
+bool isCsI(const int runNum);
+
 int getV1730waveformLength(const int runNum);
 
 }//testbeam namespace
