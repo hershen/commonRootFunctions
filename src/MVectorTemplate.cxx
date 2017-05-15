@@ -282,7 +282,7 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		
 		const double amplitudeGuess = isAmplitudeFitEnabled() ? getAmplitudeGuess(newVector, pedestalGuess) : m_tF1.GetParameter(0);
     
-		const double xShiftGuess = isXshiftFitEnabled() ? 0.0 : m_tF1.GetParameter(2);
+		const double xShiftGuess = isXshiftFitEnabled() ? 0.0 : m_tF1.GetParameter(2);		
 		
     if(m_debugLevel > 15)
 			std::cout << "MVectorTemplate::addVector : amplitudeGuess = " << amplitudeGuess << ", pedestalGuess = " << pedestalGuess << ", xShiftGuess = " << xShiftGuess << std::endl;
@@ -310,11 +310,13 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		//Redo the fit
 		fitResult = fitTemplate(fitHist);
 		
+		//Set back the correct function range
+		resetTemplateRange();
+		
 		if(!goodFit(fitResult))
 			return TFitResult();
 		
-		//Set back the correct function range
-		resetTemplateRange();
+		
 		
 		// ------------------------------------------------------------------
 		//Positive fittedXshift means newVector is forward in time relative to m_templateValues, i.e. newVector[idx] = m_templateValues[idx - fittedXshift/m_dx]
@@ -682,10 +684,10 @@ int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const 
 
 int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
   
-  std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(), m_numAveragedFuncsBranchName.data(), "xValueOfFirstTemplateEntry"};
+  std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(), m_numAveragedFuncsBranchName.data()};
   std::vector<double>* m_templateValuesPointer = 0;  
 
-  std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs, &m_xValueOfFirstTemplateEntry};
+  std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs};
 
   std::unique_ptr<TChain> inputChain (myFuncs::openChain_setBranch(fullFileName.data(), m_treeName.data(), branchNamesV, pointerV));
   
@@ -701,6 +703,10 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
     return -2;
   }
 
+  //Add xValueOfFirstTemplateEntry branch. Earlier versions of MVectorTemplate didn't have it so it's addition is not automatic.
+  myFuncs::setChainBranch( inputChain.get(), "xValueOfFirstTemplateEntry", &m_xValueOfFirstTemplateEntry);
+
+	
   inputChain->GetEntry(0);
   
 	//Prevent clang static analyzer from thinking this derefrences null pointer - makes this line invisible to the analyzer

@@ -70,6 +70,9 @@ class MVectorTemplate
     inline void getPedestalLimits(double& minPedestal, double& maxPedestal) const {minPedestal = m_minPedestalLimit; maxPedestal = m_maxPedestalLimit;}
     void setPedestalLimits(const double newMinPedestalLimit, const double newMaxPedestalLimit);
     
+		//Shouldn't really be used. 
+		inline void setPeakIdx(const size_t peakIdx) {m_peakIdx = peakIdx;}
+		
     inline size_t getPeakIdx() const {return m_peakIdx;}
     
     int saveTemplateToTFile(const std::string& fullFileName, const std::string& treeDescription);
