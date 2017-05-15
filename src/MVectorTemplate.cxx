@@ -263,9 +263,6 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 			std::cout << std::endl;
 		}
 		
-    //Standard deviation vector
-    std::vector<double> stdVector(newVector.size(), std);
-    
     //Histrogram with entries of newVector - used to fit the template
     //Center of each bin corresponds to correct x value (that's why there's a -m_dx/2. term)
     TH1D fitHist("fitHist","fitHist", newVector.size(), -m_dx/2.0 , newVector.size() * m_dx - m_dx/2.0);
