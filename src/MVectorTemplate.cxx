@@ -320,8 +320,10 @@ void MVectorTemplate::clipTemplateEnds(const double xOfNewVector_0, const size_t
 	//Find first and last relevant template indices
 	
 	//First Idx
-	const size_t firstTemplateIdx = std::max(static_cast<size_t>(0), static_cast<size_t>( (xOfNewVector_0 - getXvalueOfFirstTemplateEntry() ) / m_dx + 1 ) );
-		
+	
+	//Has to be max(double, double) because if both are size_t, and xOfNewVector_0 - getXvalueOfFirstTemplateEntry() < 0, it becomes ~infinity
+	const size_t firstTemplateIdx = std::max(0.0,  (xOfNewVector_0 - getXvalueOfFirstTemplateEntry() ) / m_dx + 1 );
+	
 	//Last idx
 	const double timeOfLastTemplateEntry = getXvalueOfFirstTemplateEntry() + (m_templateValues.size() - 1) * m_dx;
 	const double timeOfLastNewVectorValue = xOfNewVector_0 + (newVectorSize - 1) * m_dx ;
@@ -338,7 +340,7 @@ void MVectorTemplate::clipTemplateEnds(const double xOfNewVector_0, const size_t
 	if(lastTemplateIdx + 1 < m_templateValues.size() ) 
 		m_templateValues.resize( lastTemplateIdx + 1); //lastTemplateIdx + 1 == size of new template vector;
 		
-	//clip Start of template
+		//clip Start of template
 	if(firstTemplateIdx > 0 ) {
 		m_templateValues.erase( m_templateValues.begin() , m_templateValues.begin() + firstTemplateIdx ); //erase first int(firstTemplateIdx) elements in m_templateValues.
 		m_xValueOfFirstTemplateEntry += firstTemplateIdx * m_dx;
@@ -499,14 +501,10 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
 		
     // ------------------------------------------------------------------
     //re-Normalize vector - keep peak == 1
-    //Make sure first entry is zero
+    //Make sure pedestal is zero
     // ------------------------------------------------------------------
-    if(getAverageMode() == keepWeight) {
-			const double pedestal = calcSimplePedestal(m_templateValues);
-			peakVal = m_templateValues[m_peakIdx];
-			for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-				m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal )/ (peakVal-pedestal);
-		}
+    if(getAverageMode() == keepWeight) 
+			normalizeAndZeroTemplateValues();
 		
 		if(getDebugLevel() > 20) {
 			std::cout << "template values after adding vector:" << std::endl;
@@ -763,5 +761,13 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
 	setTF1ParNames();
 	return 0;
 }
+
+void MVectorTemplate::normalizeAndZeroTemplateValues() {
+	const double pedestal = calcSimplePedestal(m_templateValues);
+	const double peakVal = m_templateValues[m_peakIdx];
+	for(size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+		m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal )/ (peakVal-pedestal);
+}
+
 
 } //namespace myFuncs

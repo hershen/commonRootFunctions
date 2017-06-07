@@ -94,6 +94,9 @@ class MVectorTemplate
 		AverageMode getAverageMode() const {return m_averageMode;}
 		void setAverageMode(const AverageMode& averageMode) { m_averageMode = averageMode;}
 		
+		//Normalize peak m_templateValues to 1. And make sure pedestal is 0.
+		void normalizeAndZeroTemplateValues();
+		
 private:
 		void resetTemplateRange();
 		void setTF1ParNames();
