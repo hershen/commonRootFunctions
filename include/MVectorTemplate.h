@@ -8,11 +8,14 @@ class TFitResult;
 class TH1D;
 
 namespace myFuncs{
-	
+
 class MVectorTemplate
 {
 
   public:
+		
+		enum AverageMode { keepWeight, noWeight };
+		
     MVectorTemplate();
     MVectorTemplate(const std::vector<double>& newVec, const double newDx);
     
@@ -51,7 +54,7 @@ class MVectorTemplate
     
     //Adds a new vector to the template. The values are averaged (taking into account the relative wight of the new vector according to the number of previous vectors added.
     //m_tF1 parameters reset at the end (otherwise they keep values of last vector added.
-    TFitResult addVector(const std::vector<double>& newVector, const double std);
+    TFitResult addVector(const std::vector<double>& newVector, const double std, TF1& function);
     
     inline TF1* getTF1() {return &m_tF1;}
     
@@ -79,14 +82,17 @@ class MVectorTemplate
        
     int loadTemplateFromTFile(const std::string& fullFileName);
     
-		void setTF1Parameters(const double amplitude, const double pedestal, const double xShift);
+		void setTF1Parameters(TF1& function, const double amplitude, const double pedestal, const double xShift);
 		
 		//This is used to keep track where the x axis 0 is.
 		//It can change if items are removed from the beggining of the template, for example.
 		inline double getXvalueOfFirstTemplateEntry() const {return m_xValueOfFirstTemplateEntry;}
 		void setXvalueOfFirstTemplateEntry(const double xValueOfFirstTemplateEntry);
 		
+		TFitResult fitFunctionToVector(const std::vector<double>& vector, const double std, TF1& function);
 		
+		AverageMode getAverageMode() const {return m_averageMode;}
+		void setAverageMode(const AverageMode& averageMode) { m_averageMode = averageMode;}
 		
 private:
 		void resetTemplateRange();
@@ -107,7 +113,7 @@ private:
 		bool fitGood(const TFitResultPtr& fitResult) const;
 		
 		//Fit the template to fitHist. If fit fails, retry by moving xShift to a few different values around 0.
-		TFitResultPtr fitTemplate(TH1D& fitHist);
+		TFitResultPtr fitTemplate(TH1D& fitHist, TF1& function);
 			
 		//Add first vector to template (i.e. make template out of this vector)
 		void addFirstVector(const std::vector<double>& newVector);
@@ -116,6 +122,13 @@ private:
 		double getAmplitudeGuess(const std::vector<double>& vector, const double pedestal) const;
 		
 		size_t getEffPeakIdx() const;
+		
+		//Clip beginning and end of template vector so that only the parts in overlaping in time between newVector and m_templateValues remain
+		void clipTemplateEnds(const double xOfNewVector_0, const size_t newVectorSize);
+		
+		//Create a new vector, interpolating between values if necessary, in which m_templateValues[0] corresponds to the same time as a value in the returned vector (not necessarily the first).
+		//I.e. m_templateValues[0] is the same time as returnedVector[i], m_templateValues[1] is the same time as returnedVector[i+1], etc.
+		std::vector<double> getTimeAlignedVector(const std::vector<double>& newVector, const double xOfNewVector_0); 
 		
     //TF1 based on the template
     //This is a bit dangerous as we provide the pointer to this TF1. This means that the user can change its properties (range, parameters, etc)
@@ -160,6 +173,8 @@ private:
     const double m_doubleNumbersEqualThershold;
 		
 		int m_debugLevel;
+		
+		AverageMode m_averageMode;
 		
 		bool m_amplitudeFitEnabled;
 		bool m_pedestalFitEnabled;
