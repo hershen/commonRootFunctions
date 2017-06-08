@@ -391,6 +391,9 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
     //Fit function
 		TFitResult fitResult = fitFunctionToVector(newVector, std, function);
 		
+		if(!fitResult.IsValid() )
+			return fitResult;
+		
 		// ------------------------------------------------------------------
 		//Positive fittedXshift means newVector[0] is forward in time relative to m_templateValues[0], i.e. :
 		//In order to align the newVector, newVector[0] should correspond to time (-fittedXshift)
