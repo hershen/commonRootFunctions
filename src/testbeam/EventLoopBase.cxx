@@ -78,15 +78,12 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	if(dataContainer.GetMidasEvent().GetEventId() != 1) return false;
 	
 	//Advance timing chain until timing event number >= midas event number
-	//Dangerous - no bounds checking!!! chain might overflow
 	const uint32_t midasEventNum = getEventNum(dataContainer);
 	while(*m_TOFeventNumber < midasEventNum) {
 		m_timingChain->GetEntry(++m_timingEntry);
+		if(m_timingEntry > m_maxEntries) return false; //We overflowed the chain, no point in processing.
 	}
-	
-	///TODO get rid of assert
-	assert(m_timingEntry < m_maxEntries);
-	
+		
 	const bool signalEvent = (*m_TOFeventNumber == midasEventNum);
 	
 	if(signalEvent and isSkipSignalEvents()) return false;
