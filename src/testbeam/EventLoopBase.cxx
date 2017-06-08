@@ -78,15 +78,12 @@ bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 	if(dataContainer.GetMidasEvent().GetEventId() != 1) return false;
 	
 	//Advance timing chain until timing event number >= midas event number
-	//Dangerous - no bounds checking!!! chain might overflow
 	const uint32_t midasEventNum = getEventNum(dataContainer);
 	while(*m_TOFeventNumber < midasEventNum) {
 		m_timingChain->GetEntry(++m_timingEntry);
+		if(m_timingEntry > m_maxEntries) return false; //We overflowed the chain, no point in processing.
 	}
-	
-	///TODO get rid of assert
-	assert(m_timingEntry < m_maxEntries);
-	
+		
 	const bool signalEvent = (*m_TOFeventNumber == midasEventNum);
 	
 	if(signalEvent and isSkipSignalEvents()) return false;
@@ -123,34 +120,43 @@ void EventLoopBase::run(const std::string options) {
 	if(isOptions)
 		strcpy(argv[1],const_cast<char*>( options.c_str() ));
 	
-	//Max file to process
-	const unsigned int maxFiles = ( m_maxNumberOfFiles != 0 and m_maxNumberOfFiles <= m_midasFilenames.size() ) ? m_maxNumberOfFiles : m_midasFilenames.size() ;
+	//Upper bound on number of files to process
+	const int upperBoundNumFiles = ( m_maxNumberOfFiles != 0 and m_maxNumberOfFiles <= m_midasFilenames.size() ) ? m_maxNumberOfFiles : m_midasFilenames.size() ;
+	
+	const int numFilesToProcess = upperBoundNumFiles - m_filesToSkip;
+	if(numFilesToProcess <= 0) {
+		std::cout << "EventLoopBase::run: Asked to process " << numFilesToProcess << ". Abroting!!\n";
+		std::cout << "upperBoundNumFiles = " << upperBoundNumFiles << ", m_filesToSkip = " << m_filesToSkip << std::endl;
+		return;
+	}
 	
 	//Warn if processing less files than found
-	if(maxFiles < m_midasFilenames.size())
-		std::cout << "\nWarning::: EventLoopBase::run: Processing " << maxFiles << " even though found " << m_midasFilenames.size() << " in given path\n" << std::endl;
+	if(numFilesToProcess < static_cast<int>(m_midasFilenames.size()))
+		std::cout << "\nWarning::: EventLoopBase::run: Asked to process " << numFilesToProcess << " files, even though found " << m_midasFilenames.size() << " in given path\n" << std::endl;
 	
-	std::cout << "\nINFO: Files to process : ";
+	std::cout << "\nINFO: Files to process :\n";
 	//Fill array with filenames from m_midasFilenames
-	for(uint iFile = m_filesToSkip; iFile < maxFiles; ++iFile) {
-		std::cout << m_midasFilenames[iFile] << " : ";
+	int iFileIdx = isOptions + 1; //idx where to hold first filename in argv
+	for(int iFile = m_filesToSkip; iFile < upperBoundNumFiles; ++iFile) {
+		std::cout << m_midasFilenames[iFile] << "\n";
 		if(m_midasFilenames[iFile].size() > maxCharPerFile) {
 			std::cout << "m_midasFilenames[" << iFile << "] = " << m_midasFilenames[iFile] << " > maxCharPerFile. Ignoring file" << std::endl;
 			throw;
 		}
-		strcpy(argv[iFile+isOptions+1], const_cast<char*>( m_midasFilenames[iFile].c_str() ) );
+		strcpy(argv[iFileIdx], const_cast<char*>( m_midasFilenames[iFile].c_str() ) );
+		++iFileIdx;
 	}
 	
 	std::cout << std::endl;
 	
-// 	for(auto s : argv) std::cout << s << std::endl;
-	
-	std::cout << "Executing loop with " << maxFiles << " files." << std::endl;
-	
 	//Eecute event loop
-	if(maxFiles > 0) {
-		ExecuteLoop(maxFiles + isOptions + 1, argv.data());
-	}
+	std::cout << "Executing loop with " << numFilesToProcess << " files." << std::endl;
+	
+// 	for(int i = 0 ; i < 10; ++i)
+// 		std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+	
+	ExecuteLoop(numFilesToProcess + isOptions + 1, argv.data());
+
 
 	//Release memory
 	for (uint iElement = 0; iElement < argv.size(); ++iElement) 
