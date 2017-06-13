@@ -4,6 +4,9 @@
 #include <memory> //for unique_ptr
 #include <unordered_map>
 
+//ROOT
+#include "TColor.h"
+
 //Boost
 #include "boost/format.hpp"
 
@@ -44,6 +47,9 @@ constexpr std::array<int, 20> representitiveRuns =  {591,
 // struct 																								 
 // const std::unordered_map<int,
 
+const int elecColor = kBlue;
+const int muonColor = kRed;
+const int pionColor = kGreen;
 
 //-----------------------------------------------------------
 //Return Nominal beam momentum string with units
