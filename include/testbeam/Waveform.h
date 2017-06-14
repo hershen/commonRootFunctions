@@ -1,7 +1,12 @@
 #pragma once
 
+//STL
 #include <vector>
 #include <cstdint>
+#include <memory>
+
+class TGraphErrors;
+class TH1D;
 
 namespace myFuncs {
 namespace testbeam {
@@ -38,12 +43,20 @@ public:
 	//Overloaded - First and last calculated 60-80%
 	inline std::pair<double,double> getMaxPoly2() const { return getMaxPoly2( m_samples.size() * 0.6,  m_samples.size() * 0.8 ); }
 	
-	
 	//Get simple amplitude = maximum sample - pedestal
 	//Pedestal is taken to be getMean()
 	//Because of this, it's not the most efficient because it loops on values again.
 	double getSimpleAmplitude() const;
 	
+	//Produce a TGraphErros from the wavefrom.
+	//x axis errors are 0.
+	//y axis errors are a constant getStd().
+	TGraphErrors getGraphErrors();
+	
+	//Produce a TH1D from the wavefrom.
+	//All bin errors aer a constant getStd().
+	//Seems to be about 30% - 40% slower than using getGraphErrors().
+	TH1D getHistWithErrors();
 	
 private:
 	std::vector<uint32_t> m_samples;

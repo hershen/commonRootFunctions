@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include "TGraphErrors.h"
 #include "TFitResult.h"
+#include "TH1D.h"
 
 using namespace myFuncs::testbeam;
 
@@ -82,4 +83,32 @@ double Waveform::getSimpleAmplitude() const {
 		if( (sample - pedestal) > amp) amp = sample - pedestal;
 		
 	return amp;
+}
+
+TGraphErrors Waveform::getGraphErrors() {
+	
+	std::vector<double> stds(m_samples.size(), getStd());
+	TGraphErrors graph(m_samples.size(), getTimes().data(), getSamplesDouble().data(), 0, stds.data());
+
+	graph.SetTitle(";Time (ns); Voltage (ADC counts)");
+	graph.SetMarkerSize(0.5);
+	
+	return graph;
+}
+
+TH1D Waveform::getHistWithErrors() {
+	
+	const double std = getStd();
+	
+	TH1D fitHist("fitHist","fitHist", m_samples.size(), -m_dt/2.0 , m_samples.size() * m_dt - m_dt/2.0);
+	for(size_t idx = 1; idx <= m_samples.size(); ++idx)
+	{
+		fitHist.SetBinContent(idx, m_samples[idx-1]);
+		fitHist.SetBinError(idx, std);
+	}
+					
+	fitHist.SetTitle(";Time (ns); Voltage (ADC counts)");
+	
+	return fitHist;
+	
 }
