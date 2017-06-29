@@ -16,6 +16,8 @@ constexpr double c_downstreamTOF2S0distance = c_downstreamTOF2upstreamTOFdistanc
 constexpr double c_incubatorWallSideWidth = 0.0525; // meters
 constexpr double c_downstreamCenter2incubatorWall = 0.0419; // meters
 
+constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters
+
 constexpr double c_crystalLength = 0.3; // meters
 
 
