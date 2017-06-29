@@ -1,11 +1,17 @@
 #pragma once
 
+//STL
+#include <string>
+#include <vector>
+#include <map>
+
 //Root
-#include "TChain.h"
-#include "TFile.h"
 
 //ToDo - Find why I need to do getEntries in order to use the tree
 //ToDo - Change all TChain functions to NOT use pointers
+
+class TChain;
+class TFile;
 
 namespace myFuncs
 {

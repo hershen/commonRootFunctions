@@ -1,14 +1,17 @@
 #include "fileFuncs.h"
 
+//For getParams
+#include <fstream>
+
+//ROOT
 #include "stringFuncs.h"
 #include <iostream>
 #include "TTree.h"
 #include "TROOT.h"
 #include "TObjArray.h"
 #include "dirent.h"
-
-//For getParams
-#include <fstream>
+#include "TChain.h"
+#include "TFile.h"
 
 //ToDo - Find why I need to do getEntries in order to use the tree
 //ToDo - Change all TChain functions to NOT use pointers
