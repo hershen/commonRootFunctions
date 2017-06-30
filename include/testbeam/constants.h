@@ -8,6 +8,7 @@ namespace testbeam{
 constexpr double c_upstreamTOF2S0distance = 0.44; //in meters #(average of 43.43 cm, 44.56 cm)	
 
 //old version - I don't know where the 43.1 is from...
+//It came from a (probably incorrect calculation) done using elog 11 (appears in oneNote note).
 // constexpr double c_upstreamTOF2S0distance = 0.437; //in meters #(average of 43.1 cm, 43.43 cm, 44.56 cm)
 
 constexpr double c_downstreamTOF2upstreamTOFdistance = 3.092; //in meters
