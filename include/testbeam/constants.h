@@ -5,7 +5,7 @@
 namespace myFuncs {
 namespace testbeam{
 	
-constexpr double c_upstreamTOF2S0distance = 0.44; //in meters #(average of 43.43 cm, 44.56 cm)	
+constexpr double c_upstreamTOF2S0centersDistance = 0.44; //in meters #(average of 43.43 cm, 44.56 cm)	
 
 //old version - I don't know where the 43.1 is from...
 //It came from a (probably incorrect calculation) done using elog 11 (appears in oneNote note).
@@ -17,7 +17,9 @@ constexpr double c_downstreamTOF2S0distance = c_downstreamTOF2upstreamTOFdistanc
 constexpr double c_incubatorWallSideWidth = 0.0525; // meters
 constexpr double c_downstreamCenter2incubatorWall = 0.0419; // meters
 
-constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters
+constexpr double c_downstreamFace2incubatorWall = 0.0034; //meters (based on pic 20150811_164604)
+
+constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters. Based on M11distances.pptx
 
 constexpr double c_crystalLength = 0.3; // meters
 
