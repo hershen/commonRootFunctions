@@ -1,6 +1,7 @@
 #include "MVectorTemplate.h"
 
 #include <iostream>
+#include <memory>
 
 #include "TF1.h"
 #include "TMath.h"
@@ -10,6 +11,7 @@
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TVirtualFitter.h"
+#include "TChain.h"
 
 #include "mathFuncs.h"
 #include "fileFuncs.h"
@@ -23,6 +25,7 @@
 // #include "Math/Minimizer.h"
 // #include "Math/Factory.h"
 // #include "Math/Functor.h"
+
 
 namespace myFuncs {
 	
