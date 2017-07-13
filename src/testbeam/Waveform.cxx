@@ -1,4 +1,4 @@
-#include "testbeam/waveform.h"
+#include "testbeam/Waveform.h"
 #include <iostream>
 
 //ROOT
