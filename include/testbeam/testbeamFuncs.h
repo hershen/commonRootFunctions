@@ -3,6 +3,7 @@
 //STL
 #include <memory> //for unique_ptr
 #include <unordered_map>
+#include <map>
 
 //ROOT
 #include "TColor.h"
@@ -116,6 +117,27 @@ bool inPionRange(const double beta, const int runNum, const double sigmasAway = 
 bool isCsI(const int runNum);
 
 int getV1730waveformLength(const int runNum);
+
+std::map<std::string, double> getGeantFileSimParamers(const std::string& filename);
+
+int getGeantFilePdg(const std::string& filename) {
+	return std::lround(getGeantFileSimParamers(filename)["primaryPdg"]);
+}
+
+double getGeantFilePrimaryMeanMomentum(const std::string& filename) {
+	return getGeantFileSimParamers(filename)["primaryMeanMomentum"];
+}
+
+int getRunNumAccordingToMomentum(const double momentum) {
+	if( std::abs(momentum - 167) < 10)
+		return 571;
+	if( std::abs(momentum - 145) < 10)
+		return 599;
+	else if( std::abs(momentum - 124) < 10)
+		return 600;
+
+	else return 1;
+}
 
 }//testbeam namespace
 }//myFuncs namespace

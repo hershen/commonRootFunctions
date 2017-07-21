@@ -3,6 +3,7 @@
 //Root
 #include "TGraphErrors.h"
 #include "TPad.h"
+#include "TChain.h"
 
 //Mine
 #include "fileFuncs.h"
@@ -140,5 +141,25 @@ bool isCsI(const int runNum) {
 	else 
 		return false;
 }
+
+std::map<std::string, double> getGeantFileSimParamers(const std::string& filename) {
+	
+	const std::vector<std::string> branches{"beamParticle_pdgID", "nominalParticleMomentum_Mev_c"};
+	int pdg;
+	double primaryMeanMomentum;
+	const std::vector<void*> pointers{&pdg, &primaryMeanMomentum};
+	
+	std::unique_ptr<TChain> chain(myFuncs::openChain_setBranch(filename, "simParameters", branches, pointers));
+	
+	chain->GetEntry(0);
+	
+	std::map<std::string, double> map;
+	map["primaryPdg"] = pdg;
+	map["primaryMeanMomentum"] = primaryMeanMomentum;
+	
+	return map;
+	
+}
+
 }//testbeam namespace
 }//myFuncs namespace
