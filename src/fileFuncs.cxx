@@ -240,7 +240,7 @@ namespace myFuncs
     return chain;
   }
   
-  std::vector<std::string> getFilesEndingWith( std::string dirString, std::string ending )
+  std::vector<std::string> getFilesEndingWith( const std::string& dirString, const std::string& ending )
   {
 //     #include "dirent.h"
     std::vector<std::string> rootFilesVec;

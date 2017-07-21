@@ -106,7 +106,7 @@ namespace myFuncs
   
   ///Note - relies on dirent.h!!
   //--------------------------------------------------------------------------------------------
-  std::vector<std::string> getFilesEndingWith( std::string dirString, std::string ending );
+  std::vector<std::string> getFilesEndingWith( const std::string& dirString, const std::string& ending );
   
   //Open a file and check that it's exists/ not zombie.
   TFile* openFile(const std::string& filename, const std::string& options);
