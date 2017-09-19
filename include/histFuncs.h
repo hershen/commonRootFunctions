@@ -200,4 +200,16 @@ TGraph getResidualsGraph(const std::vector<T>& xValues, const std::vector<double
 double FWHM(const TH1& hist);
 
 inline double FWHM_2355(const TH1& hist) { return FWHM(hist) / 2.355; }
+
+//Calculate the chi of the overlap between 2 histograms.
+//chi2 = sum (hist0_binVal - hist1_binVal)^2/(hist0_binError^2 + hist1_binError^2).
+//Sum is over the bins in the range that corresponds to the range (minVal, maxVal).
+//minVal, maxVal are not bin numbers - they are the x axis value.
+//Currently supports only histograms with same number of bins in the range.
+double getHistOverlapChi2(TH1D hist0, TH1D hist1, const double minVal, const double maxVal);
+
+//Set novosibirsk parameters, assuming order is normalization, peak, width, eta.
+//Eta is guessed at 0.2
+void setNovosibirskParams(TF1& novosibirskTF1, const TH1& hist);
+
 } //namespace

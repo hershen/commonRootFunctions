@@ -8,7 +8,7 @@
 
 #include "TPaveText.h"
 #include "TFrame.h"
-
+#include "TF1.h"
 
 
 bool compareHistMaximum(const TH1* hist1, const TH1* hist2) { return hist1->GetBinContent(hist1->GetMaximumBin()) < hist2->GetBinContent(hist2->GetMaximumBin()); }
@@ -263,6 +263,41 @@ void prepareCanvasResiduals(TCanvas& canvas) {
 	bottomPad->SetGridy();
 	bottomPad->Draw();
 	canvas.cd();
+}
+
+double getHistOverlapChi2(TH1D hist0, TH1D hist1, const double minVal, const double maxVal) {
+	
+	const int hist0MinBin = hist0.FindBin(minVal);
+	const int hist1MinBin = hist1.FindBin(minVal);
+	const int hist0MaxBin = hist0.FindBin(maxVal);
+	const int hist1MaxBin = hist1.FindBin(maxVal);
+	
+	const int hist0Range = hist0MaxBin - hist0MinBin;
+	const int hist1Range = hist1MaxBin - hist1MinBin;
+	
+	
+	//Check that hists have same number of bins.
+	if(hist0Range != hist1Range) {
+		std::cout << "histFuncs::getHistOverlapChi2 : Currently supports only histograms with same number of bins in the range (" << minVal << "," << maxVal << ".\n Hist0 has " << hist0Range << " bins and hist 1 has " << hist1Range << " bins." << std::endl;
+		return 0.0;
+	}
+	
+	double chi2 = 0.0;
+	for(int iHist0Bin = hist0MinBin, iHist1Bin = hist1MinBin; iHist0Bin <= hist0MaxBin; ++iHist0Bin, ++iHist1Bin) {
+		const double diff = (hist0.GetBinContent(iHist0Bin) - hist1.GetBinContent(iHist1Bin));
+		const double error2 = std::pow(hist0.GetBinError(iHist0Bin),2) + std::pow(hist1.GetBinError(iHist1Bin),2);
+		chi2 += std::pow(diff,2)/error2;
+	}
+	
+	return chi2;
+}
+
+
+void setNovosibirskParams(TF1& novosibirskTF1, const TH1& hist) {
+	const double norm = hist.GetMaximum();
+	const double peak = hist.GetBinCenter( hist.GetMaximumBin() );
+	const double width = myFuncs::FWHM(hist);
+	novosibirskTF1.SetParameters(norm, peak, width, 0.2);
 }
 
 } //namespace histFuncs
