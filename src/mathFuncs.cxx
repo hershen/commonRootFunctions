@@ -390,5 +390,66 @@ namespace myFuncs
     
     return canvas;
   }
-    
+  
+  
+  double novosibirsk(const double x, const double norm, const double peak, const double width, const double eta)	{		
+		// If the tail variable is small enough, this is just a Gaussian.
+		if (std::abs(eta) < 1e-7)
+			return norm*std::exp( -0.5 * (x - peak)*(x - peak) / width / width );
+   
+   double lnArg = 1.0 - ( x - peak ) * eta / width;
+	 
+   //Argument of logarithm negative. Real continuation -> function equals zero
+	 if (lnArg < 1e-7)
+		 return 0.0;
+	 
+   const double log = std::log(lnArg);
+	 
+   static const double sln4 = std::sqrt(std::log(4));
+   
+	 const double etaSln4 = eta*sln4;
+   const double sigmaZero = std::log(etaSln4 + std::sqrt(1.0 + etaSln4*etaSln4)) / sln4;
+	 const double zigmaZero2 = sigmaZero * sigmaZero;
+   double exponent = -0.5 / zigmaZero2 * log * log - 0.5 * zigmaZero2;
+   
+	 return norm * std::exp(exponent) ;
+	}
+
+	std::pair<double, double> solveParabola(const double p0, const double p1, const double p2) {
+		const double delta = p1*p1 - 4.0 * p2 * p0;
+	
+		if(delta < 0) {
+			std::cout << "Error - mathFuncs::solveParabola: delta = " << delta << " < 0" << std::endl;
+			return std::make_pair(0.0,0.0);
+		}
+	
+		return std::make_pair( 0.5 * (-p1+std::sqrt(delta))/p2, 0.5 * (-p1-std::sqrt(delta))/p2);
+	}
+	
+	double getNovosibirskAmplitude(const double normalization, const double eta) {
+		static const double sln4 = std::sqrt(std::log(4));
+		const double etaSln4 = eta*sln4;
+		const double sigmaZero = std::log(etaSln4 + std::sqrt(1.0 + etaSln4*etaSln4)) / sln4;
+		return normalization * std::exp(-0.5 * sigmaZero*sigmaZero);
+	}
+	
+	double error_35Rule(const double error) {
+		if(error >= 1.0 or error <= 0.0) 
+			return error;
+		
+		// 0.0 < error < 1.0
+		double multiplier = 10.0;
+		while(error * multiplier < 1.0)
+			multiplier *= 10.0;
+		
+		auto tmpError = error*multiplier; //tmpError = X.YZWT..., where X >= 1
+
+		auto tmpError10_int = static_cast<long long>(std::floor(tmpError*10)); //i.e. tmpError10_int = XY
+		if( tmpError10_int <= 35)  //XY <= 35 
+			if(tmpError10_int % 10 != 0) // Y != 0
+				return static_cast<double>(tmpError10_int) / 10.0 / multiplier; // return X.Y / multiplier
+		
+		return static_cast<double>(std::floor(tmpError)) / multiplier; // return X / multiplier
+}
+	
 } //namespace myMathFunctions
