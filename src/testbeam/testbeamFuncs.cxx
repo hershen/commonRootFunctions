@@ -144,10 +144,11 @@ bool isCsI(const int runNum) {
 
 std::map<std::string, double> getGeantFileSimParamers(const std::string& filename) {
 	
-	const std::vector<std::string> branches{"beamParticle_pdgID", "nominalParticleMomentum_Mev_c"};
+	const std::vector<std::string> branches{"beamParticle_pdgID", "nominalParticleMomentum_Mev_c", "particleMomentumResolution"};
 	int pdg;
 	double primaryMeanMomentum;
-	const std::vector<void*> pointers{&pdg, &primaryMeanMomentum};
+	double momentumResolution;
+	const std::vector<void*> pointers{&pdg, &primaryMeanMomentum, &momentumResolution};
 	
 	std::unique_ptr<TChain> chain(myFuncs::openChain_setBranch(filename, "simParameters", branches, pointers));
 	
@@ -156,6 +157,7 @@ std::map<std::string, double> getGeantFileSimParamers(const std::string& filenam
 	std::map<std::string, double> map;
 	map["primaryPdg"] = pdg;
 	map["primaryMeanMomentum"] = primaryMeanMomentum;
+	map["momentumResolution"] = momentumResolution;
 	
 	return map;
 	
