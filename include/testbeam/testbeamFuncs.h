@@ -121,12 +121,16 @@ int getV1730waveformLength(const int runNum);
 std::map<std::string, double> getGeantFileSimParamers(const std::string& filename);
 
 int getGeantFilePdg(const std::string& filename) {
-	return std::lround(getGeantFileSimParamers(filename)["primaryPdg"]);
+	return std::lround(getGeantFileSimParamers(filename).at("primaryPdg"));
 }
 
 double getGeantFilePrimaryMeanMomentum(const std::string& filename) {
-	return getGeantFileSimParamers(filename)["primaryMeanMomentum"];
+	return getGeantFileSimParamers(filename).at("primaryMeanMomentum");
 }
+
+double getGeantFileMomentumResolution(const std::string& filename) {
+	return getGeantFileSimParamers(filename).at("momentumResolution");
+}                                          
 
 int getRunNumAccordingToMomentum(const double momentum) {
 	if( std::abs(momentum - 167) < 10)

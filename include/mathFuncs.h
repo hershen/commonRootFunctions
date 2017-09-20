@@ -267,5 +267,33 @@ namespace myFuncs
 		return static_cast<double>(y1 - y0)/static_cast<double>(x1-x0)*(x-x0) + y0;
 	}
 	
+	//Novosibirsk function
+	//See H. Ikeda et al. / Nuclear Instruments and Methods in Physics Research A 441 (2000) 401-426
+	double novosibirsk(const double x, const double norm, const double peak, const double width, const double eta);
+	
+	TF1 getNovosibirskTF1(const double minValue, const double maxValue) {
+		static int iDummpy_getNovosibirskTF1 = 0;
+		++iDummpy_getNovosibirskTF1;
+		
+		TF1 function( ("novosibirsk" + std::to_string(iDummpy_getNovosibirskTF1)).data(),"[&](double *x, double *p){ return myFuncs::novosibirsk(x[0], p[0], p[1], p[2], p[3]); }",minValue, maxValue, 4);
+		function.SetParNames("Normalization", "Peak", "Width", "#eta");
+		return function;
+	}
+	
+	double getNovosibirskAmplitude(const double normalization, const double eta);
+	
+	//Solve parabola f = p0 + p1*x + p2*x^2 = 0
+	//pair = (-b+sqrt(delta) )/2a, (-b-sqrt(delta) )/2a
+	std::pair<double, double> solveParabola(const double p0, const double p1, const double p2);
+	
+	
+	
+	//f = x/y
+	//Return sigma_f = sqrt(errX^2/y^2 + x^2/y^4*errY^2 + )
+	inline double xDivYerror(const double x, const double errX, const double y, const double errY, const double covXY = 0.0) {
+		return std::sqrt( errX*errX/y/y + x*x/y/y/y/y*errY*errY - 2.0*x*covXY/y/y/y );
+	}
+	
+	double error_35Rule(const double error);
 } //namespace myMathFunctions
 
