@@ -4,6 +4,7 @@
 //std
 #include <iostream>
 #include <iomanip>  //for setw
+#include <cmath> //for modf
 
 //Boost
 #include "boost/format.hpp"
@@ -434,21 +435,40 @@ namespace myFuncs
 	}
 	
 	double error_35Rule(const double error) {
-		if(error >= 1.0 or error <= 0.0) 
+		if(error <= 0.0) 
 			return error;
 		
-		// 0.0 < error < 1.0
+		double tmpError; //Uninitialized on purpose
 		double multiplier = 10.0;
-		while(error * multiplier < 1.0)
-			multiplier *= 10.0;
+		if(error < 1.0) {
+			while(error * multiplier < 1.0)
+				multiplier *= 10.0;
+			tmpError = error*multiplier; 
+		}
+		else if(error >= 10.0) {
+			while(error / multiplier >= 10.0)
+				multiplier *= 10.0;
+			tmpError = error / multiplier; 
+			multiplier = 1.0 /  multiplier; //So that later code can be identical for all cases
+		}
+		else {// 1.0 <= error < 10.0
+			multiplier = 1.0;
+			tmpError = error;
+		}
 		
-		auto tmpError = error*multiplier; //tmpError = X.YZWT..., where X >= 1
+		//At this stage tmpError = X.YZWT..., where X >= 1
+		
+		//Round YZWT.. part 
+		double integral, fractional;
+		fractional = std::modf(tmpError, &integral);
+		tmpError = integral + std::round(10*fractional)/10.0;
 
 		auto tmpError10_int = static_cast<long long>(std::floor(tmpError*10)); //i.e. tmpError10_int = XY
 		if( tmpError10_int <= 35)  //XY <= 35 
 			if(tmpError10_int % 10 != 0) // Y != 0
 				return static_cast<double>(tmpError10_int) / 10.0 / multiplier; // return X.Y / multiplier
 		
+
 		return static_cast<double>(std::floor(tmpError)) / multiplier; // return X / multiplier
 }
 	

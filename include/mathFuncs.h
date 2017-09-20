@@ -294,6 +294,13 @@ namespace myFuncs
 		return std::sqrt( errX*errX/y/y + x*x/y/y/y/y*errY*errY - 2.0*x*covXY/y/y/y );
 	}
 	
+	//return a number that has at max 2 significant digits.
+	//If the 2 significant digits are xy, then if xy > 35, return a number with only x as significant digit
+	//If xy <= 35, return a number with xy as significant digits.
+	//y is always rounded using the smaller digits.
+	//If error < 0 returns error
 	double error_35Rule(const double error);
+	
+	
 } //namespace myMathFunctions
 
