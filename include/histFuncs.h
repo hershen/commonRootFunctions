@@ -212,4 +212,23 @@ double getHistOverlapChi2(TH1D hist0, TH1D hist1, const double minVal, const dou
 //Eta is guessed at 0.2
 void setNovosibirskParams(TF1& novosibirskTF1, const TH1& hist);
 
+inline double xUserToNdc(const double x) {
+  gPad->Update();//this is necessary!
+  return (x - gPad->GetX1())/(gPad->GetX2()-gPad->GetX1());
+}
+
+inline double yUserToNdc(const double y) {
+  gPad->Update();//this is necessary!
+  return (y - gPad->GetY1())/(gPad->GetY2()-gPad->GetY1());
+}
+
+inline double xNdcToUser(const double x) {
+  gPad->Update();//this is necessary!
+  return x*(gPad->GetX2()-gPad->GetX1()) + gPad->GetX1();
+}
+
+inline double yNdcToUser(const double y) {
+  gPad->Update();//this is necessary!
+  return y*(gPad->GetY2()-gPad->GetY1()) + gPad->GetY1();
+}
 } //namespace
