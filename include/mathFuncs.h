@@ -299,8 +299,21 @@ namespace myFuncs
 	//If xy <= 35, return a number with xy as significant digits.
 	//y is always rounded using the smaller digits.
 	//If error < 0 returns error
-	double error_35Rule(const double error);
+	double round_35rule(const double error);
 	
+	//Round x and keep the first digitsToKeep digits.
+	//I.e. if x = 5.67890
+	//roundKeepDigits(5.67890, 0) = 6
+	//roundKeepDigits(5.67890, 1) = 5.7
+	//roundKeepDigits(5.67890, 2) = 5.68
+	//roundKeepDigits(5.67890, 3) = 5.679
+	//...
+	//If x == 0.0 or digitsToKeep < 0, return x
+	double roundKeepDigits(const double x, const int digitsToKeep);
 	
+	//If x = w*10^n where 0 < |w| < 10, returns n
+	inline int exponent10(const double x) {
+		return std::floor(std::log10(std::abs(x)));
+	}
 } //namespace myMathFunctions
 

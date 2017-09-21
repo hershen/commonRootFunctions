@@ -434,42 +434,34 @@ namespace myFuncs
 		return normalization * std::exp(-0.5 * sigmaZero*sigmaZero);
 	}
 	
-	double error_35Rule(const double error) {
+	double round_35rule(const double error) {
 		if(error <= 0.0) 
 			return error;
 		
-		double tmpError; //Uninitialized on purpose
-		double multiplier = 10.0;
-		if(error < 1.0) {
-			while(error * multiplier < 1.0)
-				multiplier *= 10.0;
-			tmpError = error*multiplier; 
-		}
-		else if(error >= 10.0) {
-			while(error / multiplier >= 10.0)
-				multiplier *= 10.0;
-			tmpError = error / multiplier; 
-			multiplier = 1.0 /  multiplier; //So that later code can be identical for all cases
-		}
-		else {// 1.0 <= error < 10.0
-			multiplier = 1.0;
-			tmpError = error;
-		}
+		//error = x*10^power10, where 0 < x < 10.
+		const int power10 = myFuncs::exponent10(error);
 		
-		//At this stage tmpError = X.YZWT..., where X >= 1
+		//tmpError = XY.ZWT..., where X >= 1
+		double tmpError = error / std::pow(10.0, power10 - 1);
 		
-		//Round YZWT.. part 
-		double integral, fractional;
-		fractional = std::modf(tmpError, &integral);
-		tmpError = integral + std::round(10*fractional)/10.0;
+		if(tmpError > 35)
+			return myFuncs::roundKeepDigits(error, 0);
+		
+		return myFuncs::roundKeepDigits(error, 1);
+}
 
-		auto tmpError10_int = static_cast<long long>(std::floor(tmpError*10)); //i.e. tmpError10_int = XY
-		if( tmpError10_int <= 35)  //XY <= 35 
-			if(tmpError10_int % 10 != 0) // Y != 0
-				return static_cast<double>(tmpError10_int) / 10.0 / multiplier; // return X.Y / multiplier
-		
-
-		return static_cast<double>(std::floor(tmpError)) / multiplier; // return X / multiplier
+double roundKeepDigits(const double x, const int digitsToKeep) {
+	if (x == 0.0 or digitsToKeep < 0)
+		return x;
+	
+	const int exponent = myFuncs::exponent10(x); // x = w*10^exponent, 0 < |w| < 10.
+	
+	const double divisor = std::pow(10, exponent - digitsToKeep);
+	//If digitsToKeep = 0, w will be rounded.
+	//If digitsToKeep = 1, 10*w will be rounded
+	//...
+	
+	return std::round(x / divisor) * divisor;
 }
 	
 } //namespace myMathFunctions
