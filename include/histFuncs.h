@@ -51,7 +51,7 @@ void normalize(TH1D& hist, const double area = 1.0, const std::string& options =
 
 
 //Get bin width with the specified precision".
-inline const std::string getBinWidth(const TH1& hist, const std::string& precision = ".3g") { return boost::str(boost::format("%1$" + precision)% hist.GetBinWidth(1) ); }
+inline const std::string getBinWidth(const TH1& hist, const std::string& precision = "g") { return boost::str(boost::format("%1$" + precision)% hist.GetBinWidth(1) ); }
 
 /**
 * Extract a root object rootObjName from a root file file. The file is assumed to be not zombie. If rootObjName doesn't exist in file, print error.
