@@ -128,7 +128,7 @@ public:
 	//Numbers for x1,y1,y2 assume bottom and left pad margin = 0.16, top pad margin = 0.05.
 	//TODO - think if might be accessed with gPad
 	PaveText (const Double_t x2, Option_t *option="NDCNB"):
-	PaveText (0.16, 0.95, x2, 1, option) {}
+	PaveText (gPad->GetLeftMargin(), 0.95, x2, 1, option) { this->SetTextAlign(12);}
 };
 
 
