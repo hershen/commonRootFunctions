@@ -28,7 +28,7 @@ TStyle* MyRootStyle()
   myRootStyle->SetPadTopMargin(0.05);
   myRootStyle->SetPadRightMargin(0.05);
   myRootStyle->SetPadBottomMargin(0.16);
-  myRootStyle->SetPadLeftMargin(0.16);
+  myRootStyle->SetPadLeftMargin(0.13);
 
   // set title offsets (for axis label)
   myRootStyle->SetTitleXOffset(1.4);
