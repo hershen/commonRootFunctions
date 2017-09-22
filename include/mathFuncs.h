@@ -315,5 +315,11 @@ namespace myFuncs
 	inline int exponent10(const double x) {
 		return std::floor(std::log10(std::abs(x)));
 	}
+	
+	//Rounds x to the same precision as error.
+	//I.e. number of significant digits in error determines number of significant digits in returned value.
+	//Assumes error has a maximum of 2 significant digits
+	double roundAccordingToError(const double x, const double error);
+	
 } //namespace myMathFunctions
 

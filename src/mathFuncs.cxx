@@ -464,4 +464,21 @@ double roundKeepDigits(const double x, const int digitsToKeep) {
 	return std::round(x / divisor) * divisor;
 }
 	
+double roundAccordingToError(const double x, const double error) {
+	if(error == 0.0)
+		return x;
+	
+	//If error = w*10^error10exponent, 0 < |w| < 10
+	const double error10exponent = std::pow(10, myFuncs::exponent10(error));
+	//And w = A.BCDEF...
+	//error10sig = AB
+	const int B = std::lround( 10.0 * error / error10exponent ) % 10;
+
+	if(B == 0)
+		return std::round( x / error10exponent ) * error10exponent;
+	
+	return std::round( x * 10.0 / error10exponent ) / 10.0 * error10exponent;
+	
+}
+
 } //namespace myMathFunctions
