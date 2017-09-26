@@ -21,10 +21,17 @@ const double runChannelEventXpos = 0.6;
 //getNominalMomentumString
 //-----------------------------------------------------------
 std::string getNominalMomentumString(const int runNum) {
-	int momentum = static_cast<int>(RunDB::instance()[runNum].getNominalBeamMomentum()); //Convert to int to get rid of decimal place
+	int momentum = std::lround(RunDB::instance()[runNum].getNominalBeamMomentum()); //Convert to int to get rid of decimal place
 	return std::to_string(momentum) + " MeV/c";
 }
 
+//-----------------------------------------------------------
+//getMeasuredMomentumString
+//-----------------------------------------------------------
+std::string getMeasuredMomentumString(const int runNum) {
+	int momentum = std::lround(RunDB::instance()[runNum].getMeasuredBeamMomentum()); //Convert to int to get rid of decimal place
+	return std::to_string(momentum) + " MeV/c";
+}
 //-----------------------------------------------------------
 //getCrystalString
 //-----------------------------------------------------------
@@ -42,7 +49,7 @@ std::string getCrystalString(const int runNum) {
 //getSourceDistanceString
 //-----------------------------------------------------------
 std::string getSourceDistanceString(const int runNum) {	
-	int distance = static_cast<int>(RunDB::instance()[runNum].getSourceDistance()); //Convert to int to get rid of decimal place
+	int distance = std::lround(RunDB::instance()[runNum].getSourceDistance()); //Convert to int to get rid of decimal place
 	if(distance < 0 ) return "no ^{60}Co";
 	return "^{60}Co " + std::to_string(distance) + " cm away";
 }

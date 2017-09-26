@@ -58,6 +58,11 @@ const int pionColor = kGreen;
 std::string getNominalMomentumString(const int runNum);
 
 //-----------------------------------------------------------
+//Return Measured beam momentum string with units
+//-----------------------------------------------------------
+std::string getMeasuredMomentumString(const int runNum);
+
+//-----------------------------------------------------------
 //Return crystal string
 //-----------------------------------------------------------
 std::string getCrystalString(const int runNum);
@@ -68,7 +73,7 @@ std::string getCrystalString(const int runNum);
 std::string getSourceDistanceString(const int runNum);
 
 inline std::string getRunParamsString(const int runNum) {	
-	return boost::str(boost::format("Run %1%, %2%, %3%, %4%")% runNum % getCrystalString(runNum) % getNominalMomentumString(runNum) % getSourceDistanceString(runNum)); 
+	return boost::str(boost::format("Run %1%, %2%, %3%, %4%")% runNum % getCrystalString(runNum) % getMeasuredMomentumString(runNum) % getSourceDistanceString(runNum)); 
 }
 
 //--------------------------------------------------------------------------------------------
