@@ -18,12 +18,13 @@ enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
 class RunParams
 {
 public:
-	constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV, const double nominalBeamMomentum, const double crystalFrontFaceToIncubatorSideWallDistance):
+	constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV, const double nominalBeamMomentum, const double measuredBeamMomentum, const double crystalFrontFaceToIncubatorSideWallDistance):
 	m_runNum(runNum),
 	m_crystal(crystal),
 	m_sourceDistance(sourceDistance), 
 	m_HV(HV),
 	m_nominalBeamMomentum(nominalBeamMomentum),
+	m_measuredBeamMomentum(measuredBeamMomentum),
 	m_crystalFrontFaceToIncubatorSideWallDistance(crystalFrontFaceToIncubatorSideWallDistance)
 	{}
 	
@@ -40,6 +41,10 @@ public:
 	//[MeV/c]. Negative means negative charged particles in beam
 	double getNominalBeamMomentum() const {return m_nominalBeamMomentum;}
 	
+	// Returns the measured momentum from the analysis of the TOF data.
+	//[MeV/c]. Negative means negative charged particles in beam
+	double getMeasuredBeamMomentum() const {return m_measuredBeamMomentum;}
+	
 	//Returns the downstream TOF center to crystal center distance in meters.
 	constexpr double getDownstream2crystalCenterDistance() const {
 		return c_downstreamCenter2incubatorWall + 
@@ -51,9 +56,10 @@ public:
 private:
 	int m_runNum;
 	Crystal m_crystal;
-	double m_sourceDistance; // Negative means no source
+	double m_sourceDistance; // Negative means no source.
 	double m_HV; // [V]
-	double m_nominalBeamMomentum; // [MeV/c]. Negative means negative charged particles in beam
+	double m_nominalBeamMomentum; // [MeV/c]. Negative means negative charged particles in beam.
+	double m_measuredBeamMomentum; // [MeV/c]. Momentum measured after analyzing TOF data. Negative means negative charged particles in beam.
 	double m_crystalFrontFaceToIncubatorSideWallDistance; // meters
 };
 
