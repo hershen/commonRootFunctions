@@ -321,5 +321,38 @@ namespace myFuncs
 	//Assumes error has a maximum of 2 significant digits
 	double roundAccordingToError(const double x, const double error);
 	
+	//Return sample mean of samples in values
+	template <class T>
+	double sampleMean(const std::vector<T>& values) {
+		return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+	}
+	
+	//return pair of weighted sample mean and it's standard deviation.
+	//If size of two input vectors is different, throw.
+	//Taken from https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Dealing_with_variance 
+	template <class T>
+	std::pair<double,double> weightedAverageAndStd(const std::vector<T>& values, const std::vector<double>& stds) {
+		if(values.size() != stds.size()) {
+			std::cout << "mathFuncs::weightedAverageAndStd : Error : size values (" << values.size() << ") != size stds(" << stds.size() << ")" << std::endl;
+			throw;
+		}
+		
+		double nom = 0.0;
+		double denom = 0.0;
+		
+		for(ulong i = 0; i < values.size(); ++i) {
+			const double one_sigma2 = 1.0/stds[i]/stds[i]; // = 1/sigma_i^2
+			nom += values[i] * one_sigma2; // = sum(x_i/sigma_i^2)
+			denom += one_sigma2; // = sum(1/sigma_i^2)
+		}
+		
+		return std::make_pair(nom/denom, std::sqrt(1.0/denom));
+	}
+	
+	//For unbiased estimator of the population std of a normallly distributed sample (it's different from the unbiased esitmator of the variance!!)
+	//https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation
+	
+	
+	
 } //namespace myMathFunctions
 
