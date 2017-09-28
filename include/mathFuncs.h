@@ -281,6 +281,9 @@ namespace myFuncs
 	}
 	
 	double getNovosibirskAmplitude(const double normalization, const double eta);
+	inline double getNovosibirskAmplitude(const TF1& novo) {
+		return getNovosibirskAmplitude( novo.GetParameter("Normalization"), novo.GetParameter("#eta"));
+	}
 	
 	//Solve parabola f = p0 + p1*x + p2*x^2 = 0
 	//pair = (-b+sqrt(delta) )/2a, (-b-sqrt(delta) )/2a
