@@ -52,6 +52,8 @@ const int elecColor = kBlue;
 const int muonColor = kRed;
 const int pionColor = kGreen;
 
+const std::unordered_map<int, int> c_pdgToColor { {11, elecColor}, {13, muonColor}, {211, pionColor}};
+
 //-----------------------------------------------------------
 //Return Nominal beam momentum string with units
 //-----------------------------------------------------------
