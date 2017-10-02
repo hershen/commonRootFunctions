@@ -38,6 +38,10 @@ public:
 	
 	std::vector<TPaveText*> getRectangles() const {return m_rectangles;}
 	
+	std::vector<double> getParameterValues() const {return m_parValues;}
+	std::vector<double> getParameterStds() const {return m_parErrors;}
+	std::vector<bool> getDrawRectangles() const {return m_drawRectangles;}
+	
 private:
 	std::vector<std::string> m_experiments;
 	std::vector<double> m_parValues;
