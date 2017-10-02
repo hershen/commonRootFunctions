@@ -297,7 +297,12 @@ void setNovosibirskParams(TF1& novosibirskTF1, const TH1& hist) {
 	const double norm = hist.GetMaximum();
 	const double peak = hist.GetBinCenter( hist.GetMaximumBin() );
 	const double width = myFuncs::FWHM(hist);
-	novosibirskTF1.SetParameters(norm, peak, width, 0.2);
+	
+	//Set parameters
+	novosibirskTF1.SetParameters(norm, peak, width, 0.0);
+	
+	//Set width limit
+	novosibirskTF1.SetParLimits(2, 0.0, width * 10);
 }
 
 } //namespace histFuncs
