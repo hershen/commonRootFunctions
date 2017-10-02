@@ -23,7 +23,7 @@ constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters. Based 
 
 constexpr double c_crystalLength = 0.3; // meters
 
-const std::unordered_map<int, double> c_csI_Tl_Belle_AdcToMeV { {1, 0.707}, {15, 0.7209} }; // [ADC counts / MeV]
+const std::unordered_map<int, double> c_csI_Tl_Belle_AdcToMeV { {1, 0.7073}, {15, 0.7209} }; // [ADC counts / MeV]
 
 //maps of [beam momentum] = value.
 //For mean and sigma.
