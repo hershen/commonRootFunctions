@@ -11,7 +11,12 @@
 //Boost
 #include "boost/format.hpp"
 
+//Mine
+#include "testbeam/constants.h"
+
 class TGraphErrors;
+
+enum class Crystal;
 
 namespace myFuncs {
 	class PaveText;
@@ -44,15 +49,11 @@ constexpr std::array<int, 20> representitiveRuns =  {591,
 																								 730,
 																								 731};
 
-																								 
-// struct 																								 
-// const std::unordered_map<int,
+static const int elecColor = kBlue;
+static const int muonColor = kRed;
+static const int pionColor = kGreen;
 
-const int elecColor = kBlue;
-const int muonColor = kRed;
-const int pionColor = kGreen;
-
-const std::unordered_map<int, int> c_pdgToColor { {11, elecColor}, {13, muonColor}, {211, pionColor}};
+static const std::unordered_map<int, int> c_pdgToColor { {11, elecColor}, {13, muonColor}, {211, pionColor}};
 
 //-----------------------------------------------------------
 //Return Nominal beam momentum string with units
@@ -148,6 +149,11 @@ int getRunNumAccordingToMomentum(const double momentum) {
 		return 600;
 
 	else return 1;
+}
+
+//Convert ADC counts to MeV. Depends on channel
+inline double adc2mev(const double adc, const int channel, const Crystal crystal = Crystal::CsI_Tl_Belle) {
+	return adc * c_crystal2_adc2mev.at(crystal).at(channel);
 }
 
 }//testbeam namespace

@@ -9,7 +9,6 @@
 #include "fileFuncs.h"
 #include "testbeam/RunDB.h"
 #include "histFuncs.h" //for PaveText
-#include "testbeam/constants.h"
 
 namespace myFuncs {
 namespace testbeam{

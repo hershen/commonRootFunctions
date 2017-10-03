@@ -1,10 +1,13 @@
 #pragma once
 
 #include <unordered_map>
+#include <map>
 
 namespace myFuncs {
 namespace testbeam{
 	
+enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
+
 constexpr double c_upstreamTOF2S0centersDistance = 0.44; //in meters #(average of 43.43 cm, 44.56 cm)	
 
 //old version - I don't know where the 43.1 is from...
@@ -23,18 +26,20 @@ constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters. Based 
 
 constexpr double c_crystalLength = 0.3; // meters
 
-const std::unordered_map<int, double> c_csI_Tl_Belle_AdcToMeV { {1, 0.7073}, {15, 0.7209} }; // [ADC counts / MeV]
+typedef std::map<int, double> CrystalAdc2meV;
+const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV { {1, 0.7073}, {15, 0.7209} }; // [ADC counts / MeV]
+const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{ {Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV} };
 
 //maps of [beam momentum] = value.
 //For mean and sigma.
 //Values calculated from fitting a gaussian to around mean +- 2 sigma in beta distribtuion.
 //Done in script findTOFcrystalTimesAndSigmas.C
-const std::unordered_map<int, double> muonBetaMean = { {-100, 0.72961},{-120, 0.786136}, {-140, 0.828577} }; 
-const std::unordered_map<int, double> pionBetaMean = { {-100, 0.605955},{-120, 0.680284}, {-140, 0.741776} }; 
+const static std::unordered_map<int, double> muonBetaMean = { {-100, 0.72961},{-120, 0.786136}, {-140, 0.828577} }; 
+const static std::unordered_map<int, double> pionBetaMean = { {-100, 0.605955},{-120, 0.680284}, {-140, 0.741776} }; 
 
-const std::unordered_map<int, double> electronBetaSigma = { {-100, 0.028034},{-120, 0.02957}, {-140, 0.028172} }; 
-const std::unordered_map<int, double> muonBetaSigma = { {-100, 0.013659},{-120, 0.015451}, {-140, 0.017359} }; 
-const std::unordered_map<int, double> pionBetaSigma = { {-100, 0.010849},{-120, 0.011701}, {-140, 0.013979} }; 
+const static std::unordered_map<int, double> electronBetaSigma = { {-100, 0.028034},{-120, 0.02957}, {-140, 0.028172} }; 
+const static std::unordered_map<int, double> muonBetaSigma = { {-100, 0.013659},{-120, 0.015451}, {-140, 0.017359} }; 
+const static std::unordered_map<int, double> pionBetaSigma = { {-100, 0.010849},{-120, 0.011701}, {-140, 0.013979} }; 
 
 
 }

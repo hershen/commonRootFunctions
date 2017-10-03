@@ -8,9 +8,6 @@
 
 namespace myFuncs {
 namespace testbeam{
-	
-enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
-
 
 //-----------------------------------------------------------
 //Class representing one TB run and all associated parameters.
