@@ -271,21 +271,8 @@ namespace myFuncs
 	//See H. Ikeda et al. / Nuclear Instruments and Methods in Physics Research A 441 (2000) 401-426
 	double novosibirsk(const double x, const double norm, const double peak, const double width, const double eta);
 	
-	TF1 getNovosibirskTF1(const double minValue, const double maxValue) {
-		static int iDummpy_getNovosibirskTF1 = 0;
-		++iDummpy_getNovosibirskTF1;
-		
-		TF1 function( ("novosibirsk" + std::to_string(iDummpy_getNovosibirskTF1)).data(),"[&](double *x, double *p){ return myFuncs::novosibirsk(x[0], p[0], p[1], p[2], p[3]); }",minValue, maxValue, 4);
-		
-		//Set parameter names
-		function.SetParNames("Normalization", "Peak", "Width", "#eta");
-		
-		//Set paramter limits
-// 		function.SetParLimits(0, 0.0, DBL_MAX);  //Could be an upside down novosibirsk
-// 		function.SetParLimits(2, 0.0, DBL_MAX);  //Makes it harder to get a good fit.
-		
-		return function;
-	}
+	//Returns a novosibirsk(see above) TF1 with range between minValue and maxValue
+	TF1 getNovosibirskTF1(const double minValue, const double maxValue);
 	
 	double getNovosibirskAmplitude(const double normalization, const double eta);
 	inline double getNovosibirskAmplitude(const TF1& novo) {
