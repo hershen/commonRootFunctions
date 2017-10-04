@@ -133,10 +133,10 @@ public:
 
 
 //Nice legend
-class legend : public TLegend
+class Legend : public TLegend
 {
 public:
-	legend (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2):
+	Legend (const Double_t x1, const Double_t y1, const Double_t x2, const Double_t y2):
 	TLegend(x1, y1, x2, y2)
 	{
 		this->SetTextFont(22);
