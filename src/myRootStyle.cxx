@@ -24,6 +24,10 @@ TStyle* MyRootStyle()
   myRootStyle->SetPadColor(icol);
   myRootStyle->SetStatColor(icol);
 	
+	//Color pallete
+	myRootStyle->SetPalette(kInvertedDarkBodyRadiator);
+	
+	
   // set margin sizes
   myRootStyle->SetPadTopMargin(0.05);
   myRootStyle->SetPadRightMargin(0.05);
