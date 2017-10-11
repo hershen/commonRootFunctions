@@ -49,9 +49,9 @@ constexpr std::array<int, 20> representitiveRuns =  {591,
 																								 730,
 																								 731};
 
-static const int elecColor = kBlue;
-static const int muonColor = kRed;
-static const int pionColor = kGreen;
+constexpr int elecColor = kBlue;
+constexpr int muonColor = kRed;
+constexpr int pionColor = kGreen;
 
 static const std::unordered_map<int, int> c_pdgToColor { {11, elecColor}, {13, muonColor}, {211, pionColor}};
 

@@ -9,6 +9,6 @@ namespace myFuncs {
 
 	// Taken from http://physics.nist.gov/cgi-bin/cuu/Value?c on 2-Feb-17.
 	constexpr double c_lightSpeed_mPerNs = 0.299792458;  //meters / ns
-	const std::string c_lightSpeed_mPerNs_string = "0.299792458";
+	static const std::string c_lightSpeed_mPerNs_string = "0.299792458";
 	
 }
