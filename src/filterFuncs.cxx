@@ -1,180 +1,252 @@
 #include "filterFuncs.h"
 
-#include <iostream>
-#include "TMath.h"
+// STL
+#include <cmath>
 
+//Mine
+#include "mathFuncs.h"
 
-namespace filterFuncs
-{
-  
-  template <typename Type>
-  std::vector<double> DfilterCR_RC2( std::vector<Type> xV,  double tau,  double T)
-  {
-    //return vector
-    std::vector<double> yV = std::vector<double>(xV.size(),0);
-    
-    // ------------------------------------------------------------------
-    //Sanity checks
-    // ------------------------------------------------------------------
-    if(xV.size() < 1) 
-    {
-      std::cout << "DfilterCR_RC2: empty input vector xV. Aborting." << std::endl;
-      return yV;
-    }
-    double effT = T;
-    if( std::abs(effT) < 1e-9) effT = 2./500.*tau;
-    
-    double a = 1./tau;
-    double alpha = TMath::Exp(-effT/tau);
-    
-    double xPrevious = xV[0], xPrevious2 = xV[0];
-    double yPrevious = 0., yPrevious2 = 0., yPrevious3 = 0.;
-    
-    
-    for(uint idx = 0; idx < xV.size(); ++idx)
-    {
-      if(idx == 0) { } //All previous are zeros
-      else if(idx == 1) 
-      { 
-	xPrevious = xV[idx-1];
-	yPrevious = yV[idx-1];
-      }
-      else if(idx == 2)
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2];
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2];
-      }
-      else //idx > 2
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2];
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2]; yPrevious3 = yV[idx-3];
-      }
-      
-      yV[idx] = 3.*alpha*yPrevious - 3.*pow(alpha,2)*yPrevious2 + pow(alpha,3)*yPrevious3 + effT*alpha*(1. - 0.5*a*effT)*xPrevious - effT*std::pow(alpha,2)*(1. + 0.5*a*effT)*xPrevious2;
+namespace myFuncs {
+namespace DSP {
+// Implementations taken from "Recursive algorithms for real time digital CR-(RC)^n pulse shaping", M. Nakhostin, IEEE
+// transactions on nuclear science, Vol 58, no 5, october 2011
 
-    }
-    
-    //Normalize
-    for(uint idx = 0; idx < yV.size(); ++idx)
-    {
-      yV[idx] = yV[idx] * effT / pow(tau,2) ;
-    }
-    return yV;
+//----------------------------------------------------------
+// filterCR_RC
+//----------------------------------------------------------
+template <typename Type>
+std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau, const double T) {
+
+  //---------------------------
+  // xs.size() == 0
+  //---------------------------
+  if (xs.size() == 0) {
+    return std::vector<double>();
   }
-  
-  //Declare all usefule implementations in order to avoid linker problems!
-  template std::vector<double> DfilterCR_RC2<double>( std::vector<double> xV,  double tau,  double T);
-  template std::vector<double> DfilterCR_RC2<unsigned int>( std::vector<unsigned int> xV,  double tau,  double T);
-  template std::vector<double> DfilterCR_RC2<int>( std::vector<int> xV,  double tau,  double T);
-  
-  
-  template <typename Type>
-  std::vector<double> DfilterCR_RC4(std::vector<Type> xV, double tau, double T)
-  {
-    //return vector
-    std::vector<double> yV = std::vector<double>(xV.size(),0);
-    
-    // ------------------------------------------------------------------
-    //Sanity checks
-    // ------------------------------------------------------------------
-    if(xV.size() < 1) 
-    {
-      std::cout << "DfilterCR_RC4: empty input vector xV. Aborting." << std::endl;
-      return yV;
-    }
-    if( std::abs(T) < 1e-9) T = 2./500.*tau;
-    double a = 1./tau;
-    double alpha = TMath::Exp(-T/tau);
-    
-    double xPrevious = xV[0], xPrevious2 = xV[0], xPrevious3 = xV[0], xPrevious4 = xV[0];
-    double yPrevious = 0., yPrevious2 = 0., yPrevious3 = 0., yPrevious4 = 0., yPrevious5 = 0.;
-    
-    
-    for(uint idx = 0; idx < xV.size(); ++idx)
-    {
-      if(idx == 0) { } //All previous are zeros
-      else if(idx == 1) 
-      { 
-	xPrevious = xV[idx-1];
-	yPrevious = yV[idx-1];
-      }
-      else if(idx == 2)
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2];
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2];
-      }
-      else if(idx == 3)
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2]; xPrevious3 = xV[idx-3];
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2]; yPrevious3 = yV[idx-3];
-      }
-      else if(idx == 4)
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2]; xPrevious3 = xV[idx-3]; xPrevious4 = xV[idx-4]; 
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2]; yPrevious3 = yV[idx-3]; yPrevious4 = yV[idx-4];
-      }
-      else //idx > 4
-      {
-	xPrevious = xV[idx-1]; xPrevious2 = xV[idx-2]; xPrevious3 = xV[idx-3]; xPrevious4 = xV[idx-4]; 
-	yPrevious = yV[idx-1]; yPrevious2 = yV[idx-2]; yPrevious3 = yV[idx-3]; yPrevious4 = yV[idx-4]; yPrevious5 = yV[idx-5];
-      }
-      
-      yV[idx] = 5.*alpha*yPrevious - 10.*pow(alpha,2)*yPrevious2 + 10.*pow(alpha,3)*yPrevious3 - 5.*pow(alpha,4)*yPrevious4 + pow(alpha,5)*yPrevious5 + 1./24.*(-a*pow(T,4)*alpha + 4.*pow(T,3)*alpha)*xPrevious + 1./24.*(-11.*a*pow(T,4)*pow(alpha,2) + 12.*pow(T,3)*pow(alpha,2))*xPrevious2 + 1./24.*(-12.*pow(T,3)*pow(alpha,3) - 11.*a*pow(T,4)*pow(alpha,3))*xPrevious3 + 1./24.*(-a*pow(T,4)*pow(alpha,4) - 4.*pow(T,3)*pow(alpha,4))*xPrevious4;
 
-    }
-    for(uint idx = 0; idx < yV.size(); ++idx)
-    {
-      yV[idx] = yV[idx] * T / pow(tau,4) ;
-    }
-    return yV;
+  //---------------------------
+  // xs.size() >= 1
+  //---------------------------
+  const double normFactor = 1.0; //T / tau; // Peak amplitude = tau^4 / T.
+  // return vector
+  std::vector<double> ys;
+  ys.reserve(xs.size());
+  ys.push_back(xs[0]); // ys[0]
+  if (xs.size() == 1) {
+    return myFuncs::scaleVector(ys, normFactor);
   }
-  
-  //Declare all usefule implementations in order to avoid linker problems!
-  template std::vector<double> DfilterCR_RC4<double>(std::vector<double> xV, double tau, double T);
-  template std::vector<double> DfilterCR_RC4<unsigned int>(std::vector<unsigned int> xV, double tau, double T);
-  template std::vector<double> DfilterCR_RC4<int>(std::vector<int> xV, double tau, double T);
-  
-  std::vector<double> DfilterCR_RC(std::vector<double> xV, double tau, double T)
-  {
-    //return vector
-    std::vector<double> yV = std::vector<double>(xV.size(),0);
-    
-    // ------------------------------------------------------------------
-    //Sanity checks
-    // ------------------------------------------------------------------
-    if(xV.size() < 1) 
-    {
-      std::cout << "DfilterCR_RC: empty input vector xV. Aborting." << std::endl;
-      return yV;
-    }
-    if( std::abs(T) < 1e-9) T = 2./500.*tau;
-    double a = 1./tau;
-    double alpha = TMath::Exp(-T/tau);
-    
-    double xPrevious = 0., yPrevious = 0., yPrevious2 = 0.;
-    for(uint idx = 0; idx < xV.size(); ++idx)
-    {
-      if(idx == 0) xPrevious = xV[0];
-      else if(idx == 1) 
-      { 
-	xPrevious = xV[idx - 1]; 
-	yPrevious = yV[idx - 1];
-      }
-      else //idx > 1
-      {
-	xPrevious = xV[idx-1];
-	yPrevious = yV[idx - 1];
-	yPrevious2 = yV[idx - 2];
-      }
-      
-      yV[idx] = 2.*alpha*yPrevious - pow(alpha,2)*yPrevious2 + xV[idx] - alpha*(1. + a*T)*xPrevious;
-    }
-    
-    //Normalize
-    for(size_t idx = 0 ; idx < yV.size(); ++idx) yV[idx] = yV[idx] * T / tau;
-    
-    return yV;
-  }
-  
 
+  //---------------------------
+  // xs.size() >= 2
+  //---------------------------
+
+  // Define constants
+
+  const double a = 1. / tau;
+  const double alpha = std::exp(-T * a);
+  const double xPreviousMultiplier = -alpha * (1.0 + a * T);
+  const double yPreviousMultiplier = 2 * alpha;
+
+  ys.push_back(yPreviousMultiplier * ys[0] + xs[1] + xPreviousMultiplier * xs[0]); // ys[1]
+  if (xs.size() == 2) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 3
+  //---------------------------
+  const double yPrevious2Multiplier = -alpha * alpha;
+
+  for (unsigned int idx = 2; idx < xs.size(); ++idx) {
+    ys.push_back(yPreviousMultiplier * ys[idx - 1] + yPrevious2Multiplier * ys[idx - 2] + xs[idx] +
+                 xPreviousMultiplier * xs[idx - 1]); // ys[>=2]
+  }
+
+  return myFuncs::scaleVector(ys, normFactor);
 }
+
+// Declare all usefule implementations in order to avoid linker problems!
+template std::vector<double> filterCR_RC<double>(const std::vector<double> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC<int>(const std::vector<int> &xs, const double tau, const double T);
+
+//----------------------------------------------------------
+// filterCR_RC2
+//----------------------------------------------------------
+template <typename Type>
+std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau, const double T) {
+  //---------------------------
+  // xs.size() == 0
+  //---------------------------
+  if (xs.size() == 0) {
+    return std::vector<double>();
+  }
+
+  //---------------------------
+  // xs.size() >= 1
+  //---------------------------
+
+  // return vector
+  std::vector<double> ys;
+  ys.reserve(xs.size());
+  ys.push_back(0.0); // y[0]
+  if (xs.size() == 1) {
+    return ys;
+  }
+  //---------------------------
+  // xs.size() >= 2
+  //---------------------------
+
+  // Define constants
+  const double normFactor = 1.0; //T / tau / tau; // Peak amplitude = tau^2 / T.
+  const double a = 1. / tau;
+  const double alpha = std::exp(-T * a);
+  const double xPreviousMultiplier = T * alpha * (1.0 - 0.5 * a * T);
+
+  ys.push_back(xPreviousMultiplier * xs[0]); // y[1]
+  if (xs.size() == 2) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 3
+  //---------------------------
+  const double xPrevious2Multiplier = -T * alpha * alpha * (1.0 + 0.5 * a * T);
+  const double yPreviousMultiplier = 3 * alpha;
+  ys.push_back(yPreviousMultiplier * ys[1] + xPreviousMultiplier * xs[1] + xPrevious2Multiplier * xs[0]); // y[2]
+  if (xs.size() == 3) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 4
+  //---------------------------
+  const double yPrevious2Multiplier = -3 * alpha * alpha;
+  ys.push_back(yPreviousMultiplier * ys[2] + yPrevious2Multiplier * ys[1] + xPreviousMultiplier * xs[2] +
+               xPrevious2Multiplier * xs[1]); // y[3]
+  if (xs.size() == 4) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() > 4
+  //---------------------------
+  const double yPrevious3Multiplier = alpha * alpha * alpha;
+
+  for (unsigned int idx = 4; idx < xs.size(); ++idx)
+    ys.push_back(yPreviousMultiplier * ys[idx - 1] + yPrevious2Multiplier * ys[idx - 2] + yPrevious3Multiplier * ys[idx - 3] +
+                  xPreviousMultiplier * xs[idx - 1] + xPrevious2Multiplier * xs[idx - 2]);
+
+  return myFuncs::scaleVector(ys, normFactor);
+} // namespace DSP
+
+// Declare all usefule implementations in order to avoid linker problems!
+template std::vector<double> filterCR_RC2<double>(const std::vector<double> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC2<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC2<int>(const std::vector<int> &xs, const double tau, const double T);
+
+//----------------------------------------------------------
+// filterCR_RC4
+//----------------------------------------------------------
+template <typename Type>
+std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, const double T) {
+  //---------------------------
+  // xs.size() == 0
+  //---------------------------
+  if (xs.size() == 0) {
+    return std::vector<double>();
+  }
+
+  //---------------------------
+  // xs.size() >= 1
+  //---------------------------
+
+  // return vector
+  std::vector<double> ys;
+  ys.reserve(xs.size());
+  ys.push_back(0.0); // y[0]
+  if (xs.size() == 1) {
+    return ys;
+  }
+
+  //---------------------------
+  // xs.size() >= 2
+  //---------------------------
+  // Define constants
+  const double normFactor = 1.0; //T / tau / tau / tau / tau; // Peak amplitude = tau^4 / T.
+  const double a = 1. / tau;
+  const double alpha = std::exp(-T * a);
+  constexpr double oneO24 = 1.0 / 24.0;
+  const double T3 = T * T * T;
+  const double T4 = T3 * T;
+  const double xPreviousMultiplier = oneO24 * alpha * (-a * T4 + 4.0 * T3);
+
+  ys.push_back(xPreviousMultiplier * xs[0]); // y[1]
+  if (xs.size() == 2) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 3
+  //---------------------------
+  const double xPrevious2Multiplier = oneO24 * alpha * alpha * (-11.0 * a * T4 + 12.0 * T3);
+  const double yPreviousMultiplier = 5.0 * alpha;
+  ys.push_back(yPreviousMultiplier * ys[1] + xPreviousMultiplier * xs[1] + xPrevious2Multiplier * xs[0]); // y[2]
+  if (xs.size() == 3) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 4
+  //---------------------------
+  const double xPrevious3Multiplier = oneO24 * alpha * alpha * alpha * (-11.0 * a * T4 - 12.0 * T3);
+  const double yPrevious2Multiplier = -10.0 * alpha * alpha;
+  ys.push_back(yPreviousMultiplier * ys[2] + yPrevious2Multiplier * ys[1] + xPreviousMultiplier * xs[2] +
+                xPrevious2Multiplier * xs[1] + xPrevious3Multiplier * xs[0]); // y[3]
+  if (xs.size() == 4) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 5
+  //---------------------------
+  const double xPrevious4Multiplier = oneO24 * alpha * alpha * alpha * alpha * (-a * T4 - 4.0 * T3);
+  const double yPrevious3Multiplier = 10.0 * alpha * alpha * alpha;
+  ys.push_back(yPreviousMultiplier * ys[3] + yPrevious2Multiplier * ys[2] + yPrevious3Multiplier * ys[1] +
+                xPreviousMultiplier * xs[3] + xPrevious2Multiplier * xs[2] + xPrevious3Multiplier * xs[1] +
+                xPrevious4Multiplier * xs[0]); // y[4]
+  if (xs.size() == 5) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() >= 6
+  //---------------------------
+  const double yPrevious4Multiplier = -5.0 * alpha * alpha * alpha * alpha;
+  ys.push_back(yPreviousMultiplier * ys[4] + yPrevious2Multiplier * ys[3] + yPrevious3Multiplier * ys[2] +
+                yPrevious4Multiplier * ys[1] + xPreviousMultiplier * xs[4] + xPrevious2Multiplier * xs[3] +
+                xPrevious3Multiplier * xs[2] + xPrevious4Multiplier * xs[1]); // y[5]
+  if (xs.size() == 6) {
+    return myFuncs::scaleVector(ys, normFactor);
+  }
+
+  //---------------------------
+  // xs.size() > 6
+  //---------------------------
+  const double yPrevious5Multiplier = alpha * alpha * alpha * alpha * alpha;
+
+  for (unsigned int idx = 6; idx < xs.size(); ++idx)
+    ys.push_back(yPreviousMultiplier * ys[idx - 1] + yPrevious2Multiplier * ys[idx - 2] + yPrevious3Multiplier * ys[idx - 3] +
+                  yPrevious4Multiplier * ys[idx - 4] + yPrevious5Multiplier * ys[idx - 5] + xPreviousMultiplier * xs[idx - 1] +
+                  xPrevious2Multiplier * xs[idx - 2] + xPrevious3Multiplier * xs[idx - 3] + xPrevious4Multiplier * xs[idx - 4]);
+
+  return myFuncs::scaleVector(ys, normFactor);
+} // namespace myFuncs
+
+// Declare all usefule implementations in order to avoid linker problems!
+template std::vector<double> filterCR_RC4<double>(const std::vector<double> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC4<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC4<int>(const std::vector<int> &xs, const double tau, const double T);
+
+} // namespace DSP
+} // namespace myFuncs
