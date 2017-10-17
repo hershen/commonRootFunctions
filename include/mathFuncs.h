@@ -19,12 +19,12 @@
 // #include "Math/Functor.h"
 
 namespace myFuncs
-{  
-	
+{
+
   //trying to compile with g++
 //   int vecSize = 0;
 //   TF1 globalFunc;
-  
+
   //--------------------------------------------------------------------------------------------
   //analytical_RC_CRn
   //********************************************************************************************
@@ -34,9 +34,11 @@ namespace myFuncs
   //Function is shifted in time so that it starts at time startTime.
   //amplitude controls the amplitude.
   //max time is an approximate time for the function to decrease below exp(-expCoefficient)
+	//Taken from "Recursive algorithms for real time digital CR-(RC)^n pulse shaping", M. Nakhostin, IEEE
+	// transactions on nuclear science, Vol 58, no 5, october 2011
   //--------------------------------------------------------------------------------------------
   TF1 analytical_RC_CRn(int n, double tau = 500., double amplitude = 1., double startTime = 0., double maxTime = 0.);
-    
+
   //--------------------------------------------------------------------------------------------
   //calcResiduals
   //********************************************************************************************
@@ -48,23 +50,23 @@ namespace myFuncs
 	//More xValues than yValues are not allowed.
   //--------------------------------------------------------------------------------------------
 	//Not implemented with boost zip itirators because ROOT doesn't compile Boost libraries well.
-  template <typename xValType, typename yValType> 
+  template <typename xValType, typename yValType>
   std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues, const std::vector<double>& stds, const TF1& modelFunc)
 	{
     // ------------------------------------------------------------------
     //Sanity checks
     // ------------------------------------------------------------------
 		//Allow cases where there are more y values than x values
-    if(yValues.size() < xValues.size()) 
+    if(yValues.size() < xValues.size())
       throw std::invalid_argument("yValuesV.size() < xValuesV.size()");
-		
-		if(stds.size() < xValues.size()) 
+
+		if(stds.size() < xValues.size())
       throw std::invalid_argument("stds.size() < xValuesV.size()");
-		
+
 		//Output vector
     std::vector<double> residuals;
 		residuals.reserve( xValues.size() );
-		
+
 		auto xIt = xValues.begin();
 		auto yIt = yValues.begin();
 		auto stdIt = stds.begin();
@@ -77,32 +79,32 @@ namespace myFuncs
 			++yIt;
 			++stdIt;
 		}
-		
+
 		return residuals;
 	}
-	
+
 	//Overloaded
-	template <typename xValType, typename yValType> 
+	template <typename xValType, typename yValType>
 	std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues, const double std, const TF1& modelFunc)
 	{
 		return calcResiduals(xValues, yValues, std::vector<double>(xValues.size(), std), modelFunc);
 	}
-	
-	
+
+
   //--------------------------------------------------------------------------------------------
   //convertArray2TF1Internal
   //********************************************************************************************
   //Internal function for convertVector2TF1.
   double convertArray2TF1Internal(double *var, double *params);
-  
-  
+
+
   //--------------------------------------------------------------------------------------------
   //convertVector2TF1
   //********************************************************************************************
   //Converts a vector of double values into a TF1.
   //Only parameter 0 should regularly change! Others change the function itself.
-  
-  
+
+
   //It is assumed that the values in vecValues are evenly spaced with spacing dT. I.e. vecValues[0] = f(0), vecValues[1] = f(dT), vecValues[2] = f(2dT)...
   //timeShift can shift the x axis.
   //Values between the ones in vecValues are evaluated using a linear interpolation between the points.
@@ -110,37 +112,37 @@ namespace myFuncs
   //The params array given to convertArray2TF1Internal is made up of {timeShift, dT, vecValues}
   //All parameters are fixed, except timeshift which floats.
   //There is a file scope "global" variable vecSize which holds the number of parameters in vecValues (because the internal function doesn't know this.
-  //The 
+  //The
   //All values of vecValues are given to the internal function
-  //-------------------------------------------------------------------------------------------- 
-  TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift);    
-    
-  
-  
+  //--------------------------------------------------------------------------------------------
+  TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift);
+
+
+
   double CFDfuncInternal(double *var, double *params);
-   
+
   //--------------------------------------------------------------------------------------------
   //CFD
   //********************************************************************************************
   //Implementing a CFD for TF1
-  //-------------------------------------------------------------------------------------------- 
+  //--------------------------------------------------------------------------------------------
   TF1 CFD(TF1 func, double DLY, double fraction);
 
-  
+
   //Assumes that it is a positive signal
   double CFtime(TF1 func, double DLY, double fraction/*, double initialGuess = 0.*/);
-  
-  
+
+
 
   //--------------------------------------------------------------------------------------------
   //cfdCR_RCnZeroCrossingTime
   //********************************************************************************************
   //Returns the zero crossing time of a CFD function from an analytical CR-(RC)^n output of a step function starting at t=0
-  
-  double cfdCR_RCnZeroCrossingTime(int n, double fraction, double tau, double DLY);
-  
 
-  
+  double cfdCR_RCnZeroCrossingTime(int n, double fraction, double tau, double DLY);
+
+
+
   //--------------------------------------------------------------------------------------------
   //addGaussianNoise
   //********************************************************************************************
@@ -148,10 +150,10 @@ namespace myFuncs
   //If seed is not given the default constructor is used. NOTE - the number sequence generated is always the same in this case.
   //If a seed is provided, it is used.
   //--------------------------------------------------------------------------------------------
-  template <typename Type> 
+  template <typename Type>
   std::vector<double> addGaussianNoise(std::vector<Type> inputValues, double mean, double  sigma, int seed = -1);
-  
-  
+
+
   //--------------------------------------------------------------------------------------------
   //getGaussianFit
   //********************************************************************************************
@@ -161,15 +163,15 @@ namespace myFuncs
   //The function returns the fit result in fitResult
   //--------------------------------------------------------------------------------------------
   TF1 getGaussianFit(TH1D hist, TFitResultPtr &fitResult, double xMinInitial, double xMaxInitial, double xMinFracOfSigma, double xMaxFracOfSigma);
-  
-  
+
+
   //--------------------------------------------------------------------------------------------
   //getGaussianFitResult - Overloaded
   //********************************************************************************************
   //Same as before, only without the fitResult parameter.
   //--------------------------------------------------------------------------------------------
   inline TF1 getGaussianFit(TH1D hist, double xMinInitial, double xMaxInitial, double xMinFracOfSigma, double xMaxFracOfSigma);
-  
+
   //--------------------------------------------------------------------------------------------
   //getCorrelationMatrix
   //********************************************************************************************
@@ -178,7 +180,7 @@ namespace myFuncs
   //If one of the diagonal elements M_ii is zero, return original matrix
   //--------------------------------------------------------------------------------------------
   TMatrixD getCorrelationMatrix(const TMatrixD &covarianceMatrix);
-  
+
   //--------------------------------------------------------------------------------------------
   //printMatrix
   //********************************************************************************************
@@ -189,7 +191,7 @@ namespace myFuncs
   //precision - the precision syntax to be used (as in printf )
   //--------------------------------------------------------------------------------------------
   void printMatrix(const TMatrixD matrix, const std::vector<std::string>& headings, int width = 10, std::ios_base& align( std::ios_base& str ) = std::left, const std::string& precision = ".3g" );
-  
+
   //--------------------------------------------------------------------------------------------
   //drawMatrix
   //********************************************************************************************
@@ -199,8 +201,8 @@ namespace myFuncs
   //zMin, zMax - used to set z axis limits
   //--------------------------------------------------------------------------------------------
   TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string>& xAxisHeadings, const std::vector<std::string>& yAxisHeadings, const double zMin = 0.0, const double zMax = 0.0, const std::string& precision = ".3g" );
-	
-	
+
+
 	//--------------------------------------------------------------------------------------------
   //sumVector
   //********************************************************************************************
@@ -211,7 +213,7 @@ namespace myFuncs
 	T sumVector(const std::vector<T>& vector, const T& initialValue = 0.0) {
 		return std::accumulate(vector.begin(), vector.end(), initialValue);
 	}
-	
+
 	//--------------------------------------------------------------------------------------------
   //sumVectorSquared
   //********************************************************************************************
@@ -220,44 +222,44 @@ namespace myFuncs
 	template <typename T>
 	T sumVectorSquared(const std::vector<T>& vector, const T& initialValue = 0.0) {
 		auto sum = initialValue;
-		
+
 		for(auto& element : vector)
 			sum += element*element;
-		
+
 		return sum;
 	}
-	
-	
+
+
 	template <class T1, class T2, class outputT>
 	std::vector<outputT> sumVectors(const std::vector<T1>& v1, const std::vector<T2>& v2) {
-		
+
 		const size_t outputSize = std::min(v1.size(), v2.size());
-		
+
 		std::vector<outputT> output;
 		output.reserve( outputSize );
-		
+
 		for(size_t i = 0; i < outputSize; ++i)
 			output.push_back(v1[i] + v2[i]);
-		
+
 		return output;
 	}
-	
+
 	template <class T>
 	std::vector<T> sumVectors(const std::vector<T>& v1, const std::vector<T>& v2) {
 		return sumVectors<T, T, T>(v1, v2);
 	}
-	
+
 	template <class T>
 	std::vector<T> scaleVector(const std::vector<T>& input, const T factor) {
-		
+
 		//output vector
 		std::vector<T> output;
 		output.reserve(input.size());
-		
+
 		//Scale vector
 		for(auto it = input.begin(); it != input.end(); ++it)
 			output.push_back(*it * factor);
-		
+
 		return output;
 	}
 
@@ -266,38 +268,38 @@ namespace myFuncs
 	double linearInterpolate(const T x0, const T x1, const T y0, const T y1, const double x) {
 		return static_cast<double>(y1 - y0)/static_cast<double>(x1-x0)*(x-x0) + y0;
 	}
-	
+
 	//Novosibirsk function
 	//See H. Ikeda et al. / Nuclear Instruments and Methods in Physics Research A 441 (2000) 401-426
 	double novosibirsk(const double x, const double norm, const double peak, const double width, const double eta);
-	
+
 	//Returns a novosibirsk(see above) TF1 with range between minValue and maxValue
 	TF1 getNovosibirskTF1(const double minValue, const double maxValue);
-	
+
 	double getNovosibirskAmplitude(const double normalization, const double eta);
 	inline double getNovosibirskAmplitude(const TF1& novo) {
 		return getNovosibirskAmplitude( novo.GetParameter("Normalization"), novo.GetParameter("#eta"));
 	}
-	
+
 	//Solve parabola f = p0 + p1*x + p2*x^2 = 0
 	//pair = (-b+sqrt(delta) )/2a, (-b-sqrt(delta) )/2a
 	std::pair<double, double> solveParabola(const double p0, const double p1, const double p2);
-	
-	
-	
+
+
+
 	//f = x/y
 	//Return sigma_f = sqrt(errX^2/y^2 + x^2/y^4*errY^2 + )
 	inline double xDivYerror(const double x, const double errX, const double y, const double errY, const double covXY = 0.0) {
 		return std::sqrt( errX*errX/y/y + x*x/y/y/y/y*errY*errY - 2.0*x*covXY/y/y/y );
 	}
-	
+
 	//return a number that has at max 2 significant digits.
 	//If the 2 significant digits are xy, then if xy > 35, return a number with only x as significant digit
 	//If xy <= 35, return a number with xy as significant digits.
 	//y is always rounded using the smaller digits.
 	//If error < 0 returns error
 	double round_35rule(const double error);
-	
+
 	//Round x and keep the first digitsToKeep digits.
 	//I.e. if x = 5.67890
 	//roundKeepDigits(5.67890, 0) = 6
@@ -307,49 +309,48 @@ namespace myFuncs
 	//...
 	//If x == 0.0 or digitsToKeep < 0, return x
 	double roundKeepDigits(const double x, const int digitsToKeep);
-	
+
 	//If x = w*10^n where 0 < |w| < 10, returns n
 	inline int exponent10(const double x) {
 		return std::floor(std::log10(std::abs(x)));
 	}
-	
+
 	//Rounds x to the same precision as error.
 	//I.e. number of significant digits in error determines number of significant digits in returned value.
 	//Assumes error has a maximum of 2 significant digits
 	double roundAccordingToError(const double x, const double error);
-	
+
 	//Return sample mean of samples in values
 	template <class T>
 	double sampleMean(const std::vector<T>& values) {
 		return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
 	}
-	
+
 	//return pair of weighted sample mean and it's standard deviation.
 	//If size of two input vectors is different, throw.
-	//Taken from https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Dealing_with_variance 
+	//Taken from https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Dealing_with_variance
 	template <class T>
 	std::pair<double,double> weightedAverageAndStd(const std::vector<T>& values, const std::vector<double>& stds) {
 		if(values.size() != stds.size()) {
 			std::cout << "mathFuncs::weightedAverageAndStd : Error : size values (" << values.size() << ") != size stds(" << stds.size() << ")" << std::endl;
 			throw;
 		}
-		
+
 		double nom = 0.0;
 		double denom = 0.0;
-		
+
 		for(ulong i = 0; i < values.size(); ++i) {
 			const double one_sigma2 = 1.0/stds[i]/stds[i]; // = 1/sigma_i^2
 			nom += values[i] * one_sigma2; // = sum(x_i/sigma_i^2)
 			denom += one_sigma2; // = sum(1/sigma_i^2)
 		}
-		
+
 		return std::make_pair(nom/denom, std::sqrt(1.0/denom));
 	}
-	
+
 	//For unbiased estimator of the population std of a normallly distributed sample (it's different from the unbiased esitmator of the variance!!)
 	//https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation
-	
-	
-	
-} //namespace myMathFunctions
 
+
+
+} //namespace myMathFunctions
