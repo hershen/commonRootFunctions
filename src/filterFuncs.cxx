@@ -3,7 +3,7 @@
 // STL
 #include <cmath>
 
-//Mine
+// Mine
 #include "mathFuncs.h"
 
 namespace myFuncs {
@@ -27,7 +27,7 @@ std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau, c
   //---------------------------
   // xs.size() >= 1
   //---------------------------
-  const double normFactor = 1.0; //T / tau; // Peak amplitude = tau^4 / T.
+  const double normFactor = T / tau; // Peak amplitude = tau / T.
   // return vector
   std::vector<double> ys;
   ys.reserve(xs.size());
@@ -98,7 +98,7 @@ std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau, 
   //---------------------------
 
   // Define constants
-  const double normFactor = 1.0; //T / tau / tau; // Peak amplitude = tau^2 / T.
+  const double normFactor = T / tau / tau; // Peak amplitude = tau^2 / T.
   const double a = 1. / tau;
   const double alpha = std::exp(-T * a);
   const double xPreviousMultiplier = T * alpha * (1.0 - 0.5 * a * T);
@@ -135,7 +135,7 @@ std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau, 
 
   for (unsigned int idx = 4; idx < xs.size(); ++idx)
     ys.push_back(yPreviousMultiplier * ys[idx - 1] + yPrevious2Multiplier * ys[idx - 2] + yPrevious3Multiplier * ys[idx - 3] +
-                  xPreviousMultiplier * xs[idx - 1] + xPrevious2Multiplier * xs[idx - 2]);
+                 xPreviousMultiplier * xs[idx - 1] + xPrevious2Multiplier * xs[idx - 2]);
 
   return myFuncs::scaleVector(ys, normFactor);
 } // namespace DSP
@@ -173,7 +173,7 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
   // xs.size() >= 2
   //---------------------------
   // Define constants
-  const double normFactor = 1.0; //T / tau / tau / tau / tau; // Peak amplitude = tau^4 / T.
+  const double normFactor = T / tau / tau / tau / tau; // Peak amplitude = tau^4 / T.
   const double a = 1. / tau;
   const double alpha = std::exp(-T * a);
   constexpr double oneO24 = 1.0 / 24.0;
@@ -202,7 +202,7 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
   const double xPrevious3Multiplier = oneO24 * alpha * alpha * alpha * (-11.0 * a * T4 - 12.0 * T3);
   const double yPrevious2Multiplier = -10.0 * alpha * alpha;
   ys.push_back(yPreviousMultiplier * ys[2] + yPrevious2Multiplier * ys[1] + xPreviousMultiplier * xs[2] +
-                xPrevious2Multiplier * xs[1] + xPrevious3Multiplier * xs[0]); // y[3]
+               xPrevious2Multiplier * xs[1] + xPrevious3Multiplier * xs[0]); // y[3]
   if (xs.size() == 4) {
     return myFuncs::scaleVector(ys, normFactor);
   }
@@ -213,8 +213,8 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
   const double xPrevious4Multiplier = oneO24 * alpha * alpha * alpha * alpha * (-a * T4 - 4.0 * T3);
   const double yPrevious3Multiplier = 10.0 * alpha * alpha * alpha;
   ys.push_back(yPreviousMultiplier * ys[3] + yPrevious2Multiplier * ys[2] + yPrevious3Multiplier * ys[1] +
-                xPreviousMultiplier * xs[3] + xPrevious2Multiplier * xs[2] + xPrevious3Multiplier * xs[1] +
-                xPrevious4Multiplier * xs[0]); // y[4]
+               xPreviousMultiplier * xs[3] + xPrevious2Multiplier * xs[2] + xPrevious3Multiplier * xs[1] +
+               xPrevious4Multiplier * xs[0]); // y[4]
   if (xs.size() == 5) {
     return myFuncs::scaleVector(ys, normFactor);
   }
@@ -224,8 +224,8 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
   //---------------------------
   const double yPrevious4Multiplier = -5.0 * alpha * alpha * alpha * alpha;
   ys.push_back(yPreviousMultiplier * ys[4] + yPrevious2Multiplier * ys[3] + yPrevious3Multiplier * ys[2] +
-                yPrevious4Multiplier * ys[1] + xPreviousMultiplier * xs[4] + xPrevious2Multiplier * xs[3] +
-                xPrevious3Multiplier * xs[2] + xPrevious4Multiplier * xs[1]); // y[5]
+               yPrevious4Multiplier * ys[1] + xPreviousMultiplier * xs[4] + xPrevious2Multiplier * xs[3] +
+               xPrevious3Multiplier * xs[2] + xPrevious4Multiplier * xs[1]); // y[5]
   if (xs.size() == 6) {
     return myFuncs::scaleVector(ys, normFactor);
   }
@@ -237,8 +237,8 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
 
   for (unsigned int idx = 6; idx < xs.size(); ++idx)
     ys.push_back(yPreviousMultiplier * ys[idx - 1] + yPrevious2Multiplier * ys[idx - 2] + yPrevious3Multiplier * ys[idx - 3] +
-                  yPrevious4Multiplier * ys[idx - 4] + yPrevious5Multiplier * ys[idx - 5] + xPreviousMultiplier * xs[idx - 1] +
-                  xPrevious2Multiplier * xs[idx - 2] + xPrevious3Multiplier * xs[idx - 3] + xPrevious4Multiplier * xs[idx - 4]);
+                 yPrevious4Multiplier * ys[idx - 4] + yPrevious5Multiplier * ys[idx - 5] + xPreviousMultiplier * xs[idx - 1] +
+                 xPrevious2Multiplier * xs[idx - 2] + xPrevious3Multiplier * xs[idx - 3] + xPrevious4Multiplier * xs[idx - 4]);
 
   return myFuncs::scaleVector(ys, normFactor);
 } // namespace myFuncs
