@@ -16,32 +16,30 @@
 
 class TGraphErrors;
 
-enum class Crystal;
-
 namespace myFuncs {
 	class PaveText;
 namespace testbeam{
 
-constexpr std::array<int, 20> representitiveRuns =  {591, 
-																								 597, 
-																								 599, 
-																								 600, 
+constexpr std::array<int, 20> representitiveRuns =  {591,
+																								 597,
+																								 599,
+																								 600,
 																								 589,
-																								 
+
 																								 627, //Chinese
 																								 611,
 																								 625,
 																								 653,
 																								 654,
 
-																								 
+
 																								 662, //Babar
 																								 664,
 																								 666,
 																								 676,
 																								 687,
 																								 688,
-																								 
+
 // 																								 713, //Ukranian
 																								 715,
 // 																								 716,
@@ -75,8 +73,8 @@ std::string getCrystalString(const int runNum);
 //-----------------------------------------------------------
 std::string getSourceDistanceString(const int runNum);
 
-inline std::string getRunParamsString(const int runNum) {	
-	return boost::str(boost::format("Run %1%, %2%, %3%, %4%")% runNum % getCrystalString(runNum) % getMeasuredMomentumString(runNum) % getSourceDistanceString(runNum)); 
+inline std::string getRunParamsString(const int runNum) {
+	return boost::str(boost::format("Run %1%, %2%, %3%, %4%")% runNum % getCrystalString(runNum) % getMeasuredMomentumString(runNum) % getSourceDistanceString(runNum));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -88,7 +86,7 @@ inline std::string getRunParamsString(const int runNum) {
 inline std::string getRunNum(const std::string& filename)
 {
 	std::string trimLeft = filename.substr(filename.find("00000", 0) + 5);
-	return trimLeft.substr(0,trimLeft.find("_000"));	
+	return trimLeft.substr(0,trimLeft.find("_000"));
 }
 
 //-----------------------------------------------------------
@@ -101,7 +99,7 @@ inline bool isCrystalChannel(const int channel) {
 }
 
 //Return TGraphErrors with voltage as function of time
-std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltage, const std::vector<double>& errors = std::vector<double>()); 
+std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltage, const std::vector<double>& errors = std::vector<double>());
 
 
 //Get PaveText of run parameters, channel and event num
@@ -117,9 +115,9 @@ bool isPion(const double beta, const int runNum);
 
 //====
 //Check if beta is inside a 3sigma range around the beta mean assuming gaussian distribtuion
-bool inElectronRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
-bool inMuonRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
-bool inPionRange(const double beta, const int runNum, const double sigmasAway = 3.0); 
+bool inElectronRange(const double beta, const int runNum, const double sigmasAway = 3.0);
+bool inMuonRange(const double beta, const int runNum, const double sigmasAway = 3.0);
+bool inPionRange(const double beta, const int runNum, const double sigmasAway = 3.0);
 //==	=
 
 bool isCsI(const int runNum);
@@ -138,7 +136,7 @@ double getGeantFilePrimaryMeanMomentum(const std::string& filename) {
 
 double getGeantFileMomentumResolution(const std::string& filename) {
 	return getGeantFileSimParamers(filename).at("momentumResolution");
-}                                          
+}
 
 int getRunNumAccordingToMomentum(const double momentum) {
 	if( std::abs(momentum - 167) < 10)
