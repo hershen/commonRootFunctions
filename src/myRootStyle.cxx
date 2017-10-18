@@ -1,21 +1,20 @@
 #include "myRootStyle.h"
 
-//std
+// std
 #include <iostream>
 
-//Root
+// Root
 #include "TROOT.h"
 
 void SetBelle2Style();
 
 namespace myFuncs {
 
-TStyle* MyRootStyle()
-{
-  TStyle *myRootStyle = new TStyle("myRootStyle","My Root style");
+TStyle *MyRootStyle() {
+  TStyle *myRootStyle = new TStyle("myRootStyle", "My Root style");
 
-	// use plain black on white colors
-  Int_t icol=0; // WHITE
+  // use plain black on white colors
+  Int_t icol = 0; // WHITE
   myRootStyle->SetFrameBorderMode(icol);
   myRootStyle->SetFrameFillColor(icol);
   myRootStyle->SetCanvasBorderMode(icol);
@@ -23,11 +22,10 @@ TStyle* MyRootStyle()
   myRootStyle->SetPadBorderMode(icol);
   myRootStyle->SetPadColor(icol);
   myRootStyle->SetStatColor(icol);
-	
-	//Color pallete
-	myRootStyle->SetPalette(kInvertedDarkBodyRadiator);
-	
-	
+
+  // Color pallete
+  myRootStyle->SetPalette(kInvertedDarkBodyRadiator);
+
   // set margin sizes
   myRootStyle->SetPadTopMargin(0.05);
   myRootStyle->SetPadRightMargin(0.05);
@@ -39,67 +37,65 @@ TStyle* MyRootStyle()
   myRootStyle->SetTitleYOffset(1.4);
 
   // use large fonts
-  //Int_t font=72; // Helvetica italics
-  Int_t font=42; // Helvetica
-  Double_t tsize=0.05;
+  // Int_t font=72; // Helvetica italics
+  Int_t font = 42; // Helvetica
+  Double_t tsize = 0.05;
   myRootStyle->SetTextFont(font);
 
   myRootStyle->SetTextSize(tsize);
-  myRootStyle->SetLabelFont(font,"x");
-  myRootStyle->SetTitleFont(font,"x");
-  myRootStyle->SetLabelFont(font,"y");
-  myRootStyle->SetTitleFont(font,"y");
-  myRootStyle->SetLabelFont(font,"z");
-  myRootStyle->SetTitleFont(font,"z");
-  
-  myRootStyle->SetLabelSize(tsize,"x");
-  myRootStyle->SetTitleSize(tsize,"x");
-  myRootStyle->SetLabelSize(tsize,"y");
-  myRootStyle->SetTitleSize(tsize,"y");
-  myRootStyle->SetLabelSize(tsize,"z");
-  myRootStyle->SetTitleSize(tsize,"z");
+  myRootStyle->SetLabelFont(font, "x");
+  myRootStyle->SetTitleFont(font, "x");
+  myRootStyle->SetLabelFont(font, "y");
+  myRootStyle->SetTitleFont(font, "y");
+  myRootStyle->SetLabelFont(font, "z");
+  myRootStyle->SetTitleFont(font, "z");
+
+  myRootStyle->SetLabelSize(tsize, "x");
+  myRootStyle->SetTitleSize(tsize, "x");
+  myRootStyle->SetLabelSize(tsize, "y");
+  myRootStyle->SetTitleSize(tsize, "y");
+  myRootStyle->SetLabelSize(tsize, "z");
+  myRootStyle->SetTitleSize(tsize, "z");
 
   // use bold lines and markers
   myRootStyle->SetMarkerStyle(20);
   myRootStyle->SetMarkerSize(1.2);
   myRootStyle->SetHistLineWidth(2.);
-  myRootStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
+  myRootStyle->SetLineStyleString(2, "[12 12]"); // postscript dashes
 
-  // get rid of X error bars 
-  //myRootStyle->SetErrorX(0.001);
+  // get rid of X error bars
+  // myRootStyle->SetErrorX(0.001);
   // get rid of error bar caps
   myRootStyle->SetEndErrorSize(0.);
 
   // do not display any of the standard histogram decorations
   myRootStyle->SetOptTitle(0);
-  
+
   myRootStyle->SetOptStat("ourme");
   myRootStyle->SetOptFit(1111);
-  
+
   // put tick marks on top and RHS of plots
   myRootStyle->SetPadTickX(1);
   myRootStyle->SetPadTickY(1);
-	
-	//Set default color of fitted functions
-	myRootStyle->SetFuncColor(kRed);
-	
-	
-	myRootStyle->SetMarkerColor(kBlue);
-	
-	//This may change the statistics box frame line color
-// 	myRootStyle->SetLineColor(kBlue);
-	
-  return myRootStyle;
 
+  // Set default color of fitted functions
+  myRootStyle->SetFuncColor(kRed);
+
+  myRootStyle->SetMarkerColor(kBlue);
+
+  // This may change the statistics box frame line color
+  // 	myRootStyle->SetLineColor(kBlue);
+
+  return myRootStyle;
 }
 
-void setMyRootStyle()
-{
-  static TStyle* myRootStyle = nullptr;
-  std::cout << "\nApplying myRootStyle\n" << std::endl ;
-  if ( !myRootStyle ) myRootStyle = MyRootStyle();
+void setMyRootStyle() {
+  static TStyle *myRootStyle = nullptr;
+  std::cout << "\nApplying myRootStyle\n" << std::endl;
+  if (!myRootStyle)
+    myRootStyle = MyRootStyle();
   gROOT->SetStyle("myRootStyle");
   gROOT->ForceStyle();
 }
 
-}//namespace
+} // namespace myFuncs

@@ -33,3 +33,6 @@
 
 #clang diagnostics
 clangCheckOutput
+
+#figureDumps
+figureDump/

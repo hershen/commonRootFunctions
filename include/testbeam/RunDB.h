@@ -1,99 +1,89 @@
 #pragma once
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-//Mine
+// Mine
 #include "testbeam/constants.h"
 
 namespace myFuncs {
-namespace testbeam{
+namespace testbeam {
 
 //-----------------------------------------------------------
-//Class representing one TB run and all associated parameters.
+// Class representing one TB run and all associated parameters.
 //-----------------------------------------------------------
-class RunParams
-{
+class RunParams {
 public:
-	constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV, const double nominalBeamMomentum, const double measuredBeamMomentum, const double crystalFrontFaceToIncubatorSideWallDistance):
-	m_runNum(runNum),
-	m_crystal(crystal),
-	m_sourceDistance(sourceDistance), 
-	m_HV(HV),
-	m_nominalBeamMomentum(nominalBeamMomentum),
-	m_measuredBeamMomentum(measuredBeamMomentum),
-	m_crystalFrontFaceToIncubatorSideWallDistance(crystalFrontFaceToIncubatorSideWallDistance)
-	{}
-	
-	int getRunNum() const {return m_runNum;}
-	
-	Crystal getCrystal() const {return m_crystal;}
-	
-	// Negative means no source
-	double getSourceDistance() const {return m_sourceDistance;}
-	
-	double getHV() const {return m_HV;}
-	
-	// Returns the nominal beam momentum - i.e. the momentum we thought the runs were at.
-	//[MeV/c]. Negative means negative charged particles in beam
-	double getNominalBeamMomentum() const {return m_nominalBeamMomentum;}
-	
-	// Returns the measured momentum from the analysis of the TOF data.
-	//[MeV/c]. Negative means negative charged particles in beam
-	double getMeasuredBeamMomentum() const {return m_measuredBeamMomentum;}
-	
-	//Returns the downstream TOF center to crystal center distance in meters.
-	constexpr double getDownstream2crystalCenterDistance() const {
-		return c_downstreamCenter2incubatorWall + 
-					 c_incubatorWallSideWidth + 
-					 m_crystalFrontFaceToIncubatorSideWallDistance + //different per run
-					 0.5 * c_crystalLength;
-	}
-	
+  constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV,
+                      const double nominalBeamMomentum, const double measuredBeamMomentum,
+                      const double crystalFrontFaceToIncubatorSideWallDistance)
+      : m_runNum(runNum), m_crystal(crystal), m_sourceDistance(sourceDistance), m_HV(HV),
+        m_nominalBeamMomentum(nominalBeamMomentum), m_measuredBeamMomentum(measuredBeamMomentum),
+        m_crystalFrontFaceToIncubatorSideWallDistance(crystalFrontFaceToIncubatorSideWallDistance) {}
+
+  int getRunNum() const { return m_runNum; }
+
+  Crystal getCrystal() const { return m_crystal; }
+
+  // Negative means no source
+  double getSourceDistance() const { return m_sourceDistance; }
+
+  double getHV() const { return m_HV; }
+
+  // Returns the nominal beam momentum - i.e. the momentum we thought the runs were at.
+  //[MeV/c]. Negative means negative charged particles in beam
+  double getNominalBeamMomentum() const { return m_nominalBeamMomentum; }
+
+  // Returns the measured momentum from the analysis of the TOF data.
+  //[MeV/c]. Negative means negative charged particles in beam
+  double getMeasuredBeamMomentum() const { return m_measuredBeamMomentum; }
+
+  // Returns the downstream TOF center to crystal center distance in meters.
+  constexpr double getDownstream2crystalCenterDistance() const {
+    return c_downstreamCenter2incubatorWall + c_incubatorWallSideWidth +
+           m_crystalFrontFaceToIncubatorSideWallDistance + // different per run
+           0.5 * c_crystalLength;
+  }
+
 private:
-	int m_runNum;
-	Crystal m_crystal;
-	double m_sourceDistance; // Negative means no source.
-	double m_HV; // [V]
-	double m_nominalBeamMomentum; // [MeV/c]. Negative means negative charged particles in beam.
-	double m_measuredBeamMomentum; // [MeV/c]. Momentum measured after analyzing TOF data. Negative means negative charged particles in beam.
-	double m_crystalFrontFaceToIncubatorSideWallDistance; // meters
+  int m_runNum;
+  Crystal m_crystal;
+  double m_sourceDistance;       // Negative means no source.
+  double m_HV;                   // [V]
+  double m_nominalBeamMomentum;  // [MeV/c]. Negative means negative charged particles in beam.
+  double m_measuredBeamMomentum; // [MeV/c]. Momentum measured after analyzing TOF data. Negative means negative charged particles
+                                 // in beam.
+  double m_crystalFrontFaceToIncubatorSideWallDistance; // meters
 };
 
-
 //-----------------------------------------------------------
-//Singleton class to access DB
+// Singleton class to access DB
 //-----------------------------------------------------------
-class RunDB
-{
+class RunDB {
 public:
-	
-	//-----------------------------------------------------------
-	//Get instance to singleton
-	//-----------------------------------------------------------
-	static RunDB& instance()
-	{
-			static RunDB instance; // Guaranteed to be destroyed.
-														   // Instantiated on first use.
-			return instance;
-	}
+  //-----------------------------------------------------------
+  // Get instance to singleton
+  //-----------------------------------------------------------
+  static RunDB &instance() {
+    static RunDB instance; // Guaranteed to be destroyed.
+                           // Instantiated on first use.
+    return instance;
+  }
+
 private:
-	RunDB();
+  RunDB();
 
 public:
-	RunDB(RunDB const&)         = delete;
-	void operator=(RunDB const&)  = delete;
+  RunDB(RunDB const &) = delete;
+  void operator=(RunDB const &) = delete;
 
-	//access RunParams with run number runNum
-	const RunParams& operator[](const int runNum) const;
-	
+  // access RunParams with run number runNum
+  const RunParams &operator[](const int runNum) const;
+
 private:
-//This holds the DB	
-const std::unordered_map<int, const RunParams> m_DB;
-
-
-	
+  // This holds the DB
+  const std::unordered_map<int, const RunParams> m_DB;
 };
 
-}//testbeam namespace
-}//myFuncs namespace
+} // namespace testbeam
+} // namespace myFuncs
