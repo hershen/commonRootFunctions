@@ -76,7 +76,7 @@ double Waveform::getSimpleAmplitude() const {
   for (unsigned int idx = m_samples.size() * 0.4; idx < m_samples.size(); ++idx) {
     if ((m_samples[idx] - pedestal) > amp) {
       amp = m_samples[idx] - pedestal;
-		}
+    }
   }
 
   return amp;

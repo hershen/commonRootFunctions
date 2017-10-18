@@ -1,46 +1,45 @@
 #pragma once
 
-#include <unordered_map>
 #include <map>
+#include <unordered_map>
 
 namespace myFuncs {
-namespace testbeam{
-	
-enum class Crystal {CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese};
+namespace testbeam {
 
-constexpr double c_upstreamTOF2S0centersDistance = 0.44; //in meters #(average of 43.43 cm, 44.56 cm)	
+enum class Crystal { CsI_Tl_Belle, CsI_Tl_Babar, CsI_Ukrainian, CsI_Chinese };
 
-//old version - I don't know where the 43.1 is from...
-//It came from a (probably incorrect calculation) done using elog 11 (appears in oneNote note).
+constexpr double c_upstreamTOF2S0centersDistance = 0.44; // in meters #(average of 43.43 cm, 44.56 cm)
+
+// old version - I don't know where the 43.1 is from...
+// It came from a (probably incorrect calculation) done using elog 11 (appears in oneNote note).
 // constexpr double c_upstreamTOF2S0distance = 0.437; //in meters #(average of 43.1 cm, 43.43 cm, 44.56 cm)
 
-constexpr double c_downstreamTOF2upstreamTOFdistance = 3.092; //in meters
+constexpr double c_downstreamTOF2upstreamTOFdistance = 3.092; // in meters
 constexpr double c_downstreamTOF2S0distance = c_downstreamTOF2upstreamTOFdistance - c_upstreamTOF2S0centersDistance;
 
-constexpr double c_incubatorWallSideWidth = 0.0525; // meters
+constexpr double c_incubatorWallSideWidth = 0.0525;         // meters
 constexpr double c_downstreamCenter2incubatorWall = 0.0419; // meters
 
-constexpr double c_downstreamFace2incubatorWall = 0.0034; //meters (based on pic 20150811_164604)
+constexpr double c_downstreamFace2incubatorWall = 0.0034; // meters (based on pic 20150811_164604)
 
 constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters. Based on M11distances.pptx
 
 constexpr double c_crystalLength = 0.3; // meters
 
 typedef std::map<int, double> CrystalAdc2meV;
-const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV { {1, 0.7073}, {15, 0.7209} }; // [ADC counts / MeV]
-const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{ {Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV} };
+const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV{{1, 0.7073}, {15, 0.7209}}; // [ADC counts / MeV]
+const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{{Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV}};
 
-//maps of [beam momentum] = value.
-//For mean and sigma.
-//Values calculated from fitting a gaussian to around mean +- 2 sigma in beta distribtuion.
-//Done in script findTOFcrystalTimesAndSigmas.C
-const static std::unordered_map<int, double> muonBetaMean = { {-100, 0.72961},{-120, 0.786136}, {-140, 0.828577} }; 
-const static std::unordered_map<int, double> pionBetaMean = { {-100, 0.605955},{-120, 0.680284}, {-140, 0.741776} }; 
+// maps of [beam momentum] = value.
+// For mean and sigma.
+// Values calculated from fitting a gaussian to around mean +- 2 sigma in beta distribtuion.
+// Done in script findTOFcrystalTimesAndSigmas.C
+const static std::unordered_map<int, double> muonBetaMean = {{-100, 0.72961}, {-120, 0.786136}, {-140, 0.828577}};
+const static std::unordered_map<int, double> pionBetaMean = {{-100, 0.605955}, {-120, 0.680284}, {-140, 0.741776}};
 
-const static std::unordered_map<int, double> electronBetaSigma = { {-100, 0.028034},{-120, 0.02957}, {-140, 0.028172} }; 
-const static std::unordered_map<int, double> muonBetaSigma = { {-100, 0.013659},{-120, 0.015451}, {-140, 0.017359} }; 
-const static std::unordered_map<int, double> pionBetaSigma = { {-100, 0.010849},{-120, 0.011701}, {-140, 0.013979} }; 
+const static std::unordered_map<int, double> electronBetaSigma = {{-100, 0.028034}, {-120, 0.02957}, {-140, 0.028172}};
+const static std::unordered_map<int, double> muonBetaSigma = {{-100, 0.013659}, {-120, 0.015451}, {-140, 0.017359}};
+const static std::unordered_map<int, double> pionBetaSigma = {{-100, 0.010849}, {-120, 0.011701}, {-140, 0.013979}};
 
-
-}
-}
+} // namespace testbeam
+} // namespace myFuncs
