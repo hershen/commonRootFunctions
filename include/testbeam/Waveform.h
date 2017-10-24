@@ -28,10 +28,11 @@ public:
   double getMean() const { return getMean(0, m_samples.size() * 0.12); }
 
   inline const std::vector<uint32_t> &getSamples() const { return m_samples; }
-  std::vector<double> &getSamplesDouble() const;
+
+  const std::vector<double> &getSamplesDouble() const;
 
   // Get vector of times.
-  std::vector<double> &getTimes() const;
+  const std::vector<double> &getTimes() const;
 
   // Return time at maximum and maximum.
   // Calculated with 2nd degree polynomial between first and last
@@ -43,6 +44,7 @@ public:
   // Get simple amplitude = maximum sample - pedestal
   // Pedestal is taken to be getMean()
   // Because of this, it's not the most efficient because it loops on values again.
+  // measures each 5'th sample!
   double getSimpleAmplitude() const;
 
   // Produce a TGraphErros from the wavefrom.

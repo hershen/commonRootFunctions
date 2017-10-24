@@ -19,7 +19,7 @@ double Waveform::getMean(const unsigned int first, const unsigned int last) cons
   return TMath::Mean(m_samples.begin() + first, m_samples.begin() + last);
 }
 
-std::vector<double> &Waveform::getSamplesDouble() const {
+const std::vector<double> &Waveform::getSamplesDouble() const {
 
   // If already calculated, return vector
   if (m_samples_double.size() == 0) {
@@ -32,7 +32,7 @@ std::vector<double> &Waveform::getSamplesDouble() const {
   return m_samples_double;
 }
 
-std::vector<double> &Waveform::getTimes() const {
+const std::vector<double> &Waveform::getTimes() const {
 
   // If already calculated, return vector
   if (m_times.size() == 0) {
@@ -73,7 +73,7 @@ double Waveform::getSimpleAmplitude() const {
   double amp = -1.0;
 
   const double pedestal = getMean();
-  for (unsigned int idx = m_samples.size() * 0.4; idx < m_samples.size(); ++idx) {
+  for (unsigned int idx = 0; idx < m_samples.size(); idx += 5) {
     if ((m_samples[idx] - pedestal) > amp) {
       amp = m_samples[idx] - pedestal;
     }
