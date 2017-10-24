@@ -33,8 +33,6 @@ namespace myFuncs {
 // Function is shifted in time so that it starts at time startTime.
 // amplitude controls the amplitude.
 // max time is an approximate time for the function to decrease below exp(-expCoefficient)
-// Taken from "Recursive algorithms for real time digital CR-(RC)^n pulse shaping", M. Nakhostin, IEEE
-// transactions on nuclear science, Vol 58, no 5, october 2011
 //--------------------------------------------------------------------------------------------
 TF1 analytical_RC_CRn(int n, double tau = 500., double amplitude = 1., double startTime = 0., double maxTime = 0.);
 
@@ -104,9 +102,9 @@ double convertArray2TF1Internal(double *var, double *params);
 // vecValues[2] = f(2dT)...  timeShift can shift the x axis.  Values between the ones in vecValues are evaluated using a linear
 // interpolation between the points.  Evals for x axis values smaller than the first entry in vecValues return vecValues[0]. Evals
 // for values greater than the last entry in vecValues return vecValues[last].  The params array given to convertArray2TF1Internal
-// is made up of {timeShift, dT, vecValues}  All parameters are fixed, except timeshift which floats.  There is a file scope "global"
-// variable vecSize which holds the number of parameters in vecValues (because the internal function doesn't know this.  The  All
-// values of vecValues are given to the internal function
+// is made up of {timeShift, dT, vecValues}  All parameters are fixed, except timeshift which floats.  There is a file scope
+// "global" variable vecSize which holds the number of parameters in vecValues (because the internal function doesn't know this.
+// The  All values of vecValues are given to the internal function
 //--------------------------------------------------------------------------------------------
 TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift);
 
@@ -248,6 +246,16 @@ std::vector<T> scaleVector(const std::vector<T> &input, const T factor) {
   for (auto it = input.begin(); it != input.end(); ++it)
     output.push_back(*it * factor);
 
+  return output;
+}
+
+template <class T>
+std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
+  // Create output vector
+  std::vector<T> output;
+  output.reserve(vector.size());
+
+  std::transform(vector.begin(), vector.end(), std::back_inserter(output), [&](const T element) { return element+val; });
   return output;
 }
 
