@@ -38,13 +38,13 @@ std::string getCrystalString(const int runNum) {
 
   Crystal crystal = RunDB::instance()[runNum].getCrystal();
   if (crystal == Crystal::CsI_Tl_Belle)
-    return "CsI(Tl) Belle";
+    return "CsI(Tl) PIN";
   else if (crystal == Crystal::CsI_Tl_Babar)
-    return "CsI(Tl) Babar";
+    return "CsI(Tl) PP";
   else if (crystal == Crystal::CsI_Ukrainian)
-    return "CsI AMCRYS";
+    return "CsI AMCRYS PP";
   else if (crystal == Crystal::CsI_Chinese)
-    return "CsI SICCAS";
+    return "CsI SICCAS PP";
   else
     return "Unknown crystal";
 }
