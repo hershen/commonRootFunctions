@@ -255,7 +255,7 @@ std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
   std::vector<T> output;
   output.reserve(vector.size());
 
-  std::transform(vector.begin(), vector.end(), std::back_inserter(output), [&](const T element) { return element+val; });
+  std::transform(vector.begin(), vector.end(), std::back_inserter(output), [&](const T element) { return element + val; });
   return output;
 }
 
@@ -343,5 +343,17 @@ std::pair<double, double> weightedAverageAndStd(const std::vector<T> &values, co
 
 // For unbiased estimator of the population std of a normallly distributed sample (it's different from the unbiased esitmator of
 // the variance!!)  https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation
+
+template <class T>
+std::vector<double> vectorToDouble(const std::vector<T> &input) {
+  std::vector<double> output;
+  output.reserve(input.size());
+
+  for (const auto sample : input) {
+    output.push_back(static_cast<double>(sample));
+}
+
+return output;
+} // namespace myFuncs
 
 } // namespace myFuncs
