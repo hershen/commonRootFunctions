@@ -227,4 +227,16 @@ inline double yNdcToUser(const double y) {
   gPad->Update(); // this is necessary!
   return y * (gPad->GetY2() - gPad->GetY1()) + gPad->GetY1();
 }
+
+
+template <class T>
+void drawTObjects(T& object) {
+  object.Draw();
+}
+template <class T, class... Ts>
+void drawTObjects(T& first, Ts&... others) {
+  first.Draw();
+  drawTObjects(others...);
+}
+
 } // namespace myFuncs
