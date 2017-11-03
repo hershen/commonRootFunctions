@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+class TGraph;
 class TGraphErrors;
 class TH1D;
 
@@ -13,7 +14,8 @@ namespace testbeam {
 
 class Waveform {
 public:
-  Waveform(const std::vector<uint32_t> samples, const double dt);
+  Waveform(const std::vector<uint32_t> &samples, const double dt);
+  Waveform(const std::vector<double> &samplesDouble, const double dt);
 
   // Get standard deviation between first and last
   double getStd(const unsigned int first, const unsigned int last) const;
@@ -46,6 +48,9 @@ public:
   // Because of this, it's not the most efficient because it loops on values again.
   // measures each 5'th sample!
   double getSimpleAmplitude() const;
+
+  // Produce a TGraph from the wavefrom.
+  TGraph getGraph();
 
   // Produce a TGraphErros from the wavefrom.
   // x axis errors are 0.

@@ -9,7 +9,13 @@
 
 using namespace myFuncs::testbeam;
 
-Waveform::Waveform(const std::vector<uint32_t> samples, const double dt) : m_samples(samples), m_dt(dt) {}
+Waveform::Waveform(const std::vector<uint32_t> &samples, const double dt) : m_samples(samples), m_dt(dt) {}
+
+Waveform::Waveform(const std::vector<double> &samplesDouble, const double dt) : m_samples_double(samplesDouble), m_dt(dt) {
+  m_samples.reserve(m_samples_double.size());
+  for (const auto sampleDouble : m_samples_double)
+    m_samples.push_back(static_cast<uint32_t>(sampleDouble));
+}
 
 double Waveform::getStd(const unsigned first, const unsigned last) const {
   return TMath::RMS(m_samples.begin() + first, m_samples.begin() + last);
@@ -83,9 +89,17 @@ double Waveform::getSimpleAmplitude() const {
 }
 
 TGraphErrors Waveform::getGraphErrors() {
-
   std::vector<double> stds(m_samples.size(), getStd());
   TGraphErrors graph(m_samples.size(), getTimes().data(), getSamplesDouble().data(), 0, stds.data());
+
+  graph.SetTitle(";Time (ns); Voltage (ADC counts)");
+  graph.SetMarkerSize(0.5);
+
+  return graph;
+}
+
+TGraph Waveform::getGraph() {
+  TGraph graph(m_samples.size(), getTimes().data(), getSamplesDouble().data());
 
   graph.SetTitle(";Time (ns); Voltage (ADC counts)");
   graph.SetMarkerSize(0.5);

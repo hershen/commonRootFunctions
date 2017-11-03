@@ -5,6 +5,9 @@
 #include <memory> //for unique_ptr
 #include <unordered_map>
 
+//Linux
+#include <dirent.h>
+
 // ROOT
 #include "TColor.h"
 
@@ -139,6 +142,12 @@ static inline int getRunNumAccordingToMomentum(const double momentum) {
 // Convert ADC counts to MeV. Depends on channel
 inline double adc2mev(const double adc, const int channel, const Crystal crystal = Crystal::CsI_Tl_Belle) {
   return adc * c_crystal2_adc2mev.at(crystal).at(channel);
+}
+
+//Check if seagate mounted and return it.
+//If not, return local HD.
+inline std::string getTestbeamDir() {
+  return opendir("/home/hershen/Seagate") ? "/home/hershen/Seagate" : "/home/hershen/PhD/Testbeam2015/midasFiles";
 }
 
 } // namespace testbeam
