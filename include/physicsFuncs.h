@@ -20,4 +20,8 @@ inline double momentum_mass2beta(const double momentum, const double mass) {
   return gamma2beta(energy / mass);
 }
 
+inline double energy_mass2momentum(const double energy, const double mass) {
+  return std::sqrt(energy*energy - mass*mass);
+}
+
 } // namespace myFuncs
