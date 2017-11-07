@@ -1,7 +1,7 @@
 #pragma once
 
 // STL
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -118,6 +118,6 @@ TFile *openFile(const std::string &filename, const std::string &options);
 // Read paramter file.
 // return string of pairs <paramName, paramValue>
 // File is formated: paramName<whitespace>paramValue
-std::map<std::string, std::string> getParams(const std::string &filename);
+std::unordered_map<std::string, std::string> getParams(const std::string &filename);
 
 } // namespace myFuncs

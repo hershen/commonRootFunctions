@@ -1,7 +1,6 @@
 #pragma once
 
 // STL
-#include <map>
 #include <memory> //for unique_ptr
 #include <unordered_map>
 
@@ -111,7 +110,7 @@ bool isCsI(const int runNum);
 
 int getV1730waveformLength(const int runNum);
 
-std::map<std::string, double> getGeantFileSimParamers(const std::string &filename);
+std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string &filename);
 
 static inline int getGeantFilePdg(const std::string &filename) {
   return std::lround(getGeantFileSimParamers(filename).at("primaryPdg"));

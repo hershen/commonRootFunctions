@@ -153,7 +153,7 @@ bool isCsI(const int runNum) {
     return false;
 }
 
-std::map<std::string, double> getGeantFileSimParamers(const std::string &filename) {
+std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string &filename) {
 
   const std::vector<std::string> branches{"beamParticle_pdgID", "nominalParticleMomentum_Mev_c", "particleMomentumResolution"};
   int pdg = 0;                    // Initialized so clang doesn't complain
@@ -165,7 +165,7 @@ std::map<std::string, double> getGeantFileSimParamers(const std::string &filenam
 
   chain->GetEntry(0);
 
-  std::map<std::string, double> map;
+  std::unordered_map<std::string, double> map;
   map["primaryPdg"] = pdg;
   map["primaryMeanMomentum"] = primaryMeanMomentum;
   map["momentumResolution"] = momentumResolution;

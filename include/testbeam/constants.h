@@ -1,7 +1,7 @@
 #pragma once
 
-#include <map>
 #include <unordered_map>
+#include <map>
 
 namespace myFuncs {
 namespace testbeam {
@@ -26,9 +26,9 @@ constexpr double c_upstreamLeadCollimatorFacesDistance = 0.02; // meters. Based 
 
 constexpr double c_crystalLength = 0.3; // meters
 
-typedef std::map<int, double> CrystalAdc2meV;
+using CrystalAdc2meV = std::unordered_map<int, double>;
 const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV{{1, 0.7073}, {15, 0.7209}}; // [ADC counts / MeV]
-const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{{Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV}};
+const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{{Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV}}; //Unordered map doesn't currently work with enums. Maybe with c++14
 
 // maps of [beam momentum] = value.
 // For mean and sigma.

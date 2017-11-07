@@ -1,4 +1,4 @@
-#include <map>
+#include <unordered_map>
 
 namespace myFuncs {
 
@@ -9,7 +9,7 @@ namespace myFuncs {
 // If the map doesn't contain the provided key, a new one will be added with value deltaValue (i.e. assuming value starts at 0).
 //--------------------------------------------------------------------------------------------
 template <typename keyType, typename valueType>
-void increaseMapValue(std::map<keyType, valueType> &map, const keyType key, const valueType deltaValue) {
+void increaseMapValue(std::unordered_map<keyType, valueType> &map, const keyType key, const valueType deltaValue) {
   auto returnPair = map.emplace(key, deltaValue);
 
   // returnPair.second is bool (true if key was added).
@@ -18,7 +18,7 @@ void increaseMapValue(std::map<keyType, valueType> &map, const keyType key, cons
 }
 
 template <typename keyType, typename valueType>
-std::vector<std::pair<keyType, valueType>> sortMapByValue(const std::map<keyType, valueType> &map) {
+std::vector<std::pair<keyType, valueType>> sortMapByValue(const std::unordered_map<keyType, valueType> &map) {
   std::vector<std::pair<keyType, valueType>> pairs;
   for (auto pair : map)
     pairs.push_back(pair);

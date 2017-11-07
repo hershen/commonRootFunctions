@@ -256,7 +256,7 @@ TFile *openFile(const std::string &filename, const std::string &options) {
   return file;
 }
 
-std::map<std::string, std::string> getParams(const std::string &filename) {
+std::unordered_map<std::string, std::string> getParams(const std::string &filename) {
   std::ifstream file(filename);
 
   if (!file.is_open()) {
@@ -266,7 +266,7 @@ std::map<std::string, std::string> getParams(const std::string &filename) {
   std::string paramName;
   std::string paramValue;
 
-  std::map<std::string, std::string> params;
+  std::unordered_map<std::string, std::string> params;
   while (file >> paramName >> paramValue) {
     params[paramName] = paramValue;
   }
