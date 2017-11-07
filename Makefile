@@ -37,7 +37,7 @@ all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/l
 
 clean:
 	-@rm $(OBJ_DIR)/* || true
-	-@rm $(OBJ_DIR)/TB_DIR/* || true
+	-@rm $(OBJ_DIR)/$(TB_DIR)/* || true
 	-@rm $(SHARED_DIR)/* || true
 
 
