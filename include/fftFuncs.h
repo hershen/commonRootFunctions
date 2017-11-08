@@ -11,7 +11,7 @@ namespace myFuncs {
 //--------------------------------------------
 // Does the real to complex FFT.
 // Normalizes output by 1/sqrt(input.size) - output has units of (input units) ~= sqrt(power).
-// The 1/sqrt(input.size)  makes fft and inverse fft are more symetric.
+// The 1/sqrt(input.size)  makes fft and inverse fft more symetric.
 //
 // Return pair of vectors - first is real part, second is imaginary part.
 // Done like this because fftC2R doesn't use TComplex, but needs 2 input vectors - real and imaginary part.
@@ -32,7 +32,7 @@ std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double>
                            const std::string &options = "ES");
 
 //--------------------------------------------
-// Takes in a real fft and produces the psd in units of |input units|^2/Hz.
+// Takes in a real time domain sequence and produces the psd in units of |input units|^2/Hz.
 // Output units are (input units)^2/Hz ~= power/Hz.
 
 // Properly multiplies by 2 all freuqncies except the DC component and (Nyquist component for even lengthed inputs).
