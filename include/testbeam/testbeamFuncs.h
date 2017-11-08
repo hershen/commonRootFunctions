@@ -146,7 +146,7 @@ inline double adc2mev(const double adc, const int channel, const Crystal crystal
 //Check if seagate mounted and return it.
 //If not, return local HD.
 inline std::string getTestbeamDir() {
-  return opendir("/home/hershen/Seagate") ? "/home/hershen/Seagate" : "/home/hershen/PhD/Testbeam2015/midasFiles";
+  return opendir("/home/hershen/Seagate/originalMidasFiles") ? "/home/hershen/Seagate" : "/home/hershen/PhD/Testbeam2015/midasFiles";
 }
 
 } // namespace testbeam
