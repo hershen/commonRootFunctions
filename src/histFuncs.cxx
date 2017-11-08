@@ -8,6 +8,7 @@
 #include "TF1.h"
 #include "TFrame.h"
 #include "TPaveText.h"
+#include "TApplication.h"
 
 bool compareHistMaximum(const TH1 *hist1, const TH1 *hist2) {
   return hist1->GetBinContent(hist1->GetMaximumBin()) < hist2->GetBinContent(hist2->GetMaximumBin());
@@ -271,6 +272,24 @@ void setNovosibirskParams(TF1 &novosibirskTF1, const TH1 &hist) {
 
   // Set width limit
   novosibirskTF1.SetParLimits(2, 0.0, width * 10);
+}
+
+void waitForDoubleClick() {
+  while (!gSystem->ProcessEvents()) {
+    if (!gPad) {
+      std::cout << "histFuncs::waitForDoubleClick: No open pad. Terminating application." << std::endl;
+      gApplication->Terminate();
+    }
+    int event = gPad->GetEvent();
+
+    if (event == kButton1Double) {
+      // the following statement is required against other loop executions
+      // before returning
+      // fCanvas->HandleInput((EEventType)-1, 0, 0);
+      return;
+    }
+    gSystem->Sleep(10);
+  }
 }
 
 } // namespace myFuncs

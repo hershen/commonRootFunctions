@@ -216,4 +216,8 @@ inline std::vector<double> getXvalues(TH1 &hist) {
 
 inline std::vector<double> getXvalues(TGraph &graph) { return std::vector<double>(graph.GetX(), graph.GetX() + graph.GetN()); }
 
+// Wait in current pad for double click.
+// If there is no pad, or if pad is closed while waiting, terminates the root TApplication.
+void waitForDoubleClick();
+
 } // namespace myFuncs
