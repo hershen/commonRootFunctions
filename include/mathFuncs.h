@@ -18,6 +18,8 @@
 // #include "Math/Factory.h"
 // #include "Math/Functor.h"
 
+class TGraphErrors;
+
 namespace myFuncs {
 
 // trying to compile with g++
@@ -45,6 +47,7 @@ TF1 analytical_RC_CRn(int n, double tau = 500., double amplitude = 1., double st
 // y values are in vector yValues of type yValueType
 // If there are more yValues than xValues, the residuals are calculated only for the xValues given.
 // More xValues than yValues are not allowed.
+// Does not check for zero values in stds (can devide by 0)
 //--------------------------------------------------------------------------------------------
 // Not implemented with boost zip itirators because ROOT doesn't compile Boost libraries well.
 template <typename xValType, typename yValType>
@@ -85,6 +88,8 @@ std::vector<double> calcResiduals(const std::vector<xValType> &xValues, const st
                                   const TF1 &modelFunc) {
   return calcResiduals(xValues, yValues, std::vector<double>(xValues.size(), std), modelFunc);
 }
+
+std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &modelFunc);
 
 //--------------------------------------------------------------------------------------------
 // convertArray2TF1Internal
@@ -351,9 +356,9 @@ std::vector<double> vectorToDouble(const std::vector<T> &input) {
 
   for (const auto sample : input) {
     output.push_back(static_cast<double>(sample));
-}
+  }
 
-return output;
+  return output;
 } // namespace myFuncs
 
 } // namespace myFuncs

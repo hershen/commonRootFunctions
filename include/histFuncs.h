@@ -140,42 +140,6 @@ public:
   }
 };
 
-// Creates 2 TPads and doesn't delete them!!!
-void prepareCanvasResiduals(TCanvas &canvas);
-
-template <class T1, class T2>
-void prettyCanvasResiduals(TCanvas &canvas, T1 &rootObjectTop, T2 &rootObjectBottom) {
-  rootObjectTop.GetXaxis()->SetLabelSize(0.0); // Don't draw x labels on top object
-
-  // Set axis label and Title size to absolute
-  rootObjectTop.GetYaxis()->SetLabelFont(43);    // Absolute font size in pixel (precision 3)
-  rootObjectBottom.GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
-  rootObjectBottom.GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
-  // Title
-  rootObjectTop.GetYaxis()->SetTitleFont(43);    // Absolute font size in pixel (precision 3)
-  rootObjectBottom.GetXaxis()->SetTitleFont(43); // Absolute font size in pixel (precision 3)
-  rootObjectBottom.GetYaxis()->SetTitleFont(43); // Absolute font size in pixel (precision 3)
-
-  // Set x + y axis label size
-  const double labelSize = std::min(0.03 * canvas.cd(1)->GetWh(), 0.03 * canvas.cd(1)->GetWw());
-  rootObjectTop.GetYaxis()->SetLabelSize(labelSize);
-  rootObjectBottom.GetYaxis()->SetLabelSize(labelSize);
-  // x axis
-  rootObjectBottom.GetXaxis()->SetLabelSize(labelSize);
-
-  // Set axis title sizes
-  const double titleSize = std::min(0.03 * canvas.cd(1)->GetWh(), 0.03 * canvas.cd(1)->GetWw());
-  rootObjectBottom.GetXaxis()->SetTitleSize(titleSize);
-  rootObjectBottom.GetYaxis()->SetTitleSize(titleSize);
-  rootObjectTop.GetYaxis()->SetTitleSize(titleSize);
-
-  // Set title offsets
-  rootObjectBottom.GetXaxis()->SetTitleOffset(3.25);
-
-  // Set y title
-  rootObjectBottom.GetYaxis()->SetTitle("Residual (#sigma)");
-}
-
 template <class T>
 TGraph getResidualsGraph(const std::vector<T> &xValues, const std::vector<double> residuals) {
   if (xValues.size() != residuals.size())
@@ -228,15 +192,28 @@ inline double yNdcToUser(const double y) {
   return y * (gPad->GetY2() - gPad->GetY1()) + gPad->GetY1();
 }
 
-
 template <class T>
-void drawTObjects(T& object) {
+void drawTObjects(T &object) {
   object.Draw();
 }
 template <class T, class... Ts>
-void drawTObjects(T& first, Ts&... others) {
+void drawTObjects(T &first, Ts &... others) {
   first.Draw();
   drawTObjects(others...);
 }
+
+inline std::vector<double> getXvalues(TH1 &hist) {
+
+  std::vector<double> xValues;
+  xValues.reserve(hist.GetXaxis()->GetNbins());
+
+  for (uint binNum = 0; binNum < xValues.size(); ++binNum) {
+    xValues.push_back(hist.GetBinCenter(binNum));
+  }
+
+  return xValues;
+}
+
+inline std::vector<double> getXvalues(TGraph &graph) { return std::vector<double>(graph.GetX(), graph.GetX() + graph.GetN()); }
 
 } // namespace myFuncs

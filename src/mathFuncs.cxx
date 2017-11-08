@@ -18,6 +18,7 @@
 #include "TRandom3.h"
 #include "TStyle.h"
 
+
 // Mine
 #include "histFuncs.h"
 
@@ -54,6 +55,13 @@ TF1 analytical_RC_CRn(int n, double tau, double amplitude, double startTime, dou
   return analytical;
 }
 
+std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &modelFunc) {
+  const auto xValues = std::vector<double>(graphErrors.GetX(), graphErrors.GetX() + graphErrors.GetN());
+  const auto yValues = std::vector<double>(graphErrors.GetY(), graphErrors.GetY() + graphErrors.GetN());
+  const auto stds = std::vector<double>(graphErrors.GetEY(), graphErrors.GetEY() + graphErrors.GetN());
+  return calcResiduals(xValues, yValues, stds, modelFunc);
+}
+
 //--------------------------------------------------------------------------------------------
 // convertArray2TF1Internal
 //********************************************************************************************
@@ -80,6 +88,8 @@ double convertArray2TF1Internal(double *var, double *params) {
 
   return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
 }
+
+
 
 //--------------------------------------------------------------------------------------------
 // convertVector2TF1
