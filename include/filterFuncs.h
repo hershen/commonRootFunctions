@@ -44,6 +44,9 @@ std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau =
 //----------------------------------------------------------
 template <typename Type>
 std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau = 1., const double T = 0.);
+
+template <typename Type>
+std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size_t numToBrick, const Type valueToBrick = 0);
 } // namespace DSP
 
 } // namespace myFuncs

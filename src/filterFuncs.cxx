@@ -5,6 +5,7 @@
 
 // Mine
 #include "mathFuncs.h"
+#include "fftFuncs.h"
 
 namespace myFuncs {
 namespace DSP {
@@ -247,6 +248,20 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
 template std::vector<double> filterCR_RC4<double>(const std::vector<double> &xs, const double tau, const double T);
 template std::vector<double> filterCR_RC4<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
 template std::vector<double> filterCR_RC4<int>(const std::vector<int> &xs, const double tau, const double T);
+
+template <typename Type>
+std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size_t numToBrick, const Type valueToBrick) {
+  auto fft = myFuncs::fftR2C(xs);
+  for (size_t i = 0; i < numToBrick; ++i) {
+    fft.first[i] = valueToBrick;
+    fft.second[i] = valueToBrick;
+  }
+
+  return myFuncs::fftC2R(xs.size(), fft.first, fft.second);
+}
+template std::vector<double> filterBrickwall<double>(const std::vector<double> &xs, const std::size_t numToBrick, const double valueToBrick);
+// template std::vector<double> filterBrickwall<unsigned int>(const std::vector<unsigned int> &xs, const std::size_t numToBrick, const unsigned int valueToBrick);
+// template std::vector<double> filterBrickwall<int>(const std::vector<int> &xs, const std::size_t numToBrick, const int valueToBrick);
 
 } // namespace DSP
 } // namespace myFuncs
