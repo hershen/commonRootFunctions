@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <complex>
 
 // ROOT
 #include "TComplex.h"
@@ -30,6 +31,21 @@ std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<dou
 //--------------------------------------------
 std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double> &realParts, const std::vector<double> &imagParts,
                            const std::string &options = "ES");
+
+template <class T>
+std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<std::complex<T>> fftComplex,
+                           const std::string &options = "ES") {
+  std::vector<double> realParts;
+  realParts.reserve(fftComplex.size());
+  std::vector<double> imagParts;
+  imagParts.reserve(fftComplex.size());
+
+  for (size_t i = 0; i < fftComplex.size(); ++i) {
+    realParts.push_back(fftComplex[i].real());
+    imagParts.push_back(fftComplex[i].imag());
+  }
+  return fftC2R(numTimePoints, realParts, imagParts, options);
+}
 
 //--------------------------------------------
 // Takes in a real time domain sequence and produces the psd in units of |input units|^2/Hz.
