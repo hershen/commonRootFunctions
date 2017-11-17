@@ -2,6 +2,7 @@
 
 // STD
 #include <iostream>
+#include <memory>
 
 // ROOT
 #include "TVirtualFFT.h"

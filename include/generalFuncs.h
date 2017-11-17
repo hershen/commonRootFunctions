@@ -28,4 +28,28 @@ std::vector<std::pair<keyType, valueType>> sortMapByValue(const std::unordered_m
 
   return pairs;
 }
+
+template <class T>
+std::vector<T> multiplyElementByElement(const std::vector<T> &vec) {
+  return vec;
+}
+
+template <class T1, class T2>
+std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &vec1, const std::vector<T2> &vec2) {
+  std::vector<decltype(T1() * T2())> returnVec;
+  returnVec.reserve(vec1.size());
+  std::transform(vec1.begin(), vec1.end(),
+                 vec2.begin(),                  // Second vector
+                 std::back_inserter(returnVec), // Insert result to returnVec
+                 std::multiplies<void>());
+  return returnVec;
+}
+
+// I don't know how to extract the type of T1*T2*Ts[0]*Ts[1]...
+// won't work if (for example) vector<int>, vector<int>, vector<double>.
+template <class T1, class T2, class... Ts>
+std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &first, const std::vector<T2> &second, Ts &... others) {
+  return multiplyElementByElement(multiplyElementByElement(first, second), others...);
+}
+
 } // namespace myFuncs
