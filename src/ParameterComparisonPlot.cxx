@@ -2,6 +2,7 @@
 
 // STL
 #include <iostream>
+#include <sstream>
 
 // ROOT
 #include "TPad.h"
