@@ -36,3 +36,6 @@ clangCheckOutput
 
 #figureDumps
 figureDump/
+
+#Catch2 compiled
+catch2Compiled/tests-main.o
