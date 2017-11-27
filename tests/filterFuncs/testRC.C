@@ -17,9 +17,21 @@ void testRC() {
   xs.insert(xs.end(), zeros.begin(), zeros.end());
   xs.insert(xs.end(), ones.begin(), ones.end());
 
-  const std::vector<double> filtered_RC = myFuncs::DSP::filterCR_RC(xs, tau, dt);
-  const std::vector<double> filtered_RC2 = myFuncs::DSP::filterCR_RC2(xs, tau, dt);
-  const std::vector<double> filtered_RC4 = myFuncs::DSP::filterCR_RC4(xs, tau, dt);
+  std::vector<double> nom;
+  std::vector<double> denom;
+
+  std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(1, tau, 1/dt);
+  const std::vector<double> filtered_RC = myFuncs::DSP::filter(nom, denom, xs);
+
+  std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(2, tau, 1/dt);
+  const std::vector<double> filtered_RC2 = myFuncs::DSP::filter(nom, denom, xs);
+
+
+  std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(3, tau, 1/dt);
+  const std::vector<double> filtered_RC3 = myFuncs::DSP::filter(nom, denom, xs);
+
+  std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(4, tau, 1/dt);
+  const std::vector<double> filtered_RC4 = myFuncs::DSP::filter(nom, denom, xs);
 
   // Draw
   TCanvas *canvas = new TCanvas("canvas", "", 0, 0, 1200, 900);

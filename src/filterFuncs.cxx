@@ -285,7 +285,7 @@ std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const 
     nominators = {0, a * a * a * T * T * alpha * (3 - a * T) * norm, a * a * a * T * T * alpha * alpha * (-4 * a * T) * norm,
                   -a * a * a * T * T * alpha * alpha * alpha * (3 + a * T) * norm};
     denominators = {6, -24 * alpha, 36 * alpha * alpha, -24 * alpha * alpha * alpha, 6 * alpha * alpha * alpha * alpha};
-  } else if (n == 3) {
+  } else if (n == 4) {
     nominators = {0, a * a * a * a * alpha * T * T * T * (4 - a * T) * norm,
                   a * a * a * a * alpha * alpha * T * T * T * (12 - 11 * a * T) * norm,
                   a * a * a * a * alpha * alpha * alpha * T * T * T * (-12 - 11 * a * T) * norm,
