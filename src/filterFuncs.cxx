@@ -4,8 +4,8 @@
 #include <cmath>
 
 // Mine
-#include "mathFuncs.h"
 #include "fftFuncs.h"
+#include "mathFuncs.h"
 
 namespace myFuncs {
 namespace DSP {
@@ -259,9 +259,49 @@ std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size
 
   return myFuncs::fftC2R(xs.size(), fft.first, fft.second);
 }
-template std::vector<double> filterBrickwall<double>(const std::vector<double> &xs, const std::size_t numToBrick, const double valueToBrick);
-// template std::vector<double> filterBrickwall<unsigned int>(const std::vector<unsigned int> &xs, const std::size_t numToBrick, const unsigned int valueToBrick);
-// template std::vector<double> filterBrickwall<int>(const std::vector<int> &xs, const std::size_t numToBrick, const int valueToBrick);
+template std::vector<double> filterBrickwall<double>(const std::vector<double> &xs, const std::size_t numToBrick,
+                                                     const double valueToBrick);
+// template std::vector<double> filterBrickwall<unsigned int>(const std::vector<unsigned int> &xs, const std::size_t numToBrick,
+// const unsigned int valueToBrick); template std::vector<double> filterBrickwall<int>(const std::vector<int> &xs, const
+// std::size_t numToBrick, const int valueToBrick);
+
+std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const int n, const double tau,
+                                                                          const double samplingFrequency) {
+
+  const double a = 1.0 / tau;
+  const double T = 1.0 / samplingFrequency;
+  const double alpha = std::exp(-T / tau);
+
+  const double norm = T; // I don't know why this is needed. It doesn't come out of the z transform of the time response
+  std::vector<double> nominators;
+  std::vector<double> denominators;
+  if (n == 1) {
+    nominators = {a * norm, -a * alpha * (1 + a * T) * norm};
+    denominators = {1.0, -2 * alpha, alpha * alpha};
+  } else if (n == 2) {
+    nominators = {0, a * a * T * alpha * (2 - a * T) * norm, -a * a * T * alpha * alpha * (2 + a * T) * norm};
+    denominators = {2, -6 * alpha, 6 * alpha * alpha, -2 * alpha * alpha * alpha};
+  } else if (n == 3) {
+    nominators = {0, a * a * a * T * T * alpha * (3 - a * T) * norm, a * a * a * T * T * alpha * alpha * (-4 * a * T) * norm,
+                  -a * a * a * T * T * alpha * alpha * alpha * (3 + a * T) * norm};
+    denominators = {6, -24 * alpha, 36 * alpha * alpha, -24 * alpha * alpha * alpha, 6 * alpha * alpha * alpha * alpha};
+  } else if (n == 3) {
+    nominators = {0, a * a * a * a * alpha * T * T * T * (4 - a * T) * norm,
+                  a * a * a * a * alpha * alpha * T * T * T * (12 - 11 * a * T) * norm,
+                  a * a * a * a * alpha * alpha * alpha * T * T * T * (-12 - 11 * a * T) * norm,
+                  a * a * a * a * alpha * alpha * alpha * alpha * T * T * T * (-4 - a * T) * norm};
+    denominators = {24,
+                    -120 * alpha,
+                    240 * alpha * alpha,
+                    -240 * alpha * alpha * alpha,
+                    120 * alpha * alpha * alpha * alpha,
+                    -24 * alpha * alpha * alpha * alpha * alpha};
+  } else {
+    std::cout << "filterFuncs::getCR_RCnCoefficients: n = " << n << " not supported. \n";
+  }
+
+  return std::make_pair(nominators, denominators);
+} // namespace DSP
 
 } // namespace DSP
 } // namespace myFuncs
