@@ -3,15 +3,17 @@ CLANG_TIDY=clang-tidy
 DEBUG=-Wall -Wextra -Wpedantic -Wunused-variable
 CXX11=-std=c++1y
 OPTIM=-O3
-
+CATCH_TESTS=catch2Compile/tests-main.o
 
 CCT=$(CC) $(OPTIM) $(DEBUG) $(CXX11)
 
 SRC_DIR=src
 OBJ_DIR=obj
+TEST_DIR=tests
 INC_DIR=include
 SHARED_DIR=lib
 TB_DIR=testbeam
+EXEC_DIR=executables
 
 #rootana
 ifdef ROOTANASYS
@@ -31,6 +33,7 @@ TEXT_RED=tput setaf 1;
 TEXT_RESET=tput sgr0;
 
 OBJ_FILES=$(patsubst $(SRC_DIR)/%.cxx,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cxx))
+TEST_EXEC_FILES=$(patsubst $(TEST_DIR)/%.cxx,$(TEST_DIR)/$(EXEC_DIR)/%.exe, $(shell find $(TEST_DIR)/ -type f -name '*.cxx'))
 TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wildcard $(SRC_DIR)/$(TB_DIR)/*.cxx))
 
 all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
@@ -55,6 +58,24 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs`
-	#
+
 $(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o
 	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
+
+
+##################################
+#catch2
+##################################
+catch2: $(CATCH_TESTS)
+
+$(CATCH_TESTS):
+	g++ catch2Compile/tests-main.cpp -c -o $@
+
+##################################
+#Tests
+##################################
+tests: $(TEST_EXEC_FILES)
+
+$(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
+	-$(shell mkdir -p $(dir $@))
+	$(CCT) $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
