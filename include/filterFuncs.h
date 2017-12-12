@@ -141,7 +141,7 @@ std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const 
 //   std::cout << "\n";
 // }
 // zero-phase forward and backward filtering.
-// Based on MATLASB's filtfilt (R2017a)
+// Inspiration form MATLASB's filtfilt (R2017a)
 template <class coefficientType, class inputType>
 std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType> &nominators,
                                                                 const std::vector<coefficientType> &denominators,
