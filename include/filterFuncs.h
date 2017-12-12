@@ -1,4 +1,4 @@
-#include <algorithm> //for for_each
+#include <algorithm> //for for_each, reverse
 #include <iostream>
 #include <iterator>
 #include <numeric> //for inner_product
@@ -116,7 +116,8 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
     return inputs.size() >= scaledNominators.size()
                ? std::inner_product(scaledNominators.begin(), scaledNominators.end(),
                                     std::make_reverse_iterator(inputs.begin() + n + 1), returnType(0))
-               : std::inner_product(std::make_reverse_iterator(inputs.begin() + n + 1), inputs.rend(), scaledNominators.begin(), returnType(0));
+               : std::inner_product(std::make_reverse_iterator(inputs.begin() + n + 1), inputs.rend(), scaledNominators.begin(),
+                                    returnType(0));
   };
 
   // Take care of y[0]
@@ -131,7 +132,69 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
   return outputs;
 }
 
-std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const int n, const double tau, const double samplingFrequency);
+std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const int n, const double tau,
+                                                                          const double samplingFrequency);
+
+// void print(const std::vector<double> &y) {
+//   for (const auto &item : y)
+//     std::cout << item << " ";
+//   std::cout << "\n";
+// }
+// zero-phase forward and backward filtering.
+// Based on MATLASB's filtfilt (R2017a)
+template <class coefficientType, class inputType>
+std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType> &nominators,
+                                                                const std::vector<coefficientType> &denominators,
+                                                                const std::vector<inputType> &inputs) {
+
+  const int filterOrder = std::max(nominators.size(), denominators.size());
+  const uint nfact = std::max(1, 3 * (filterOrder - 1));
+
+  using returnType = decltype(coefficientType() * inputType());
+  std::vector<returnType> outputs;
+
+  if (inputs.size() <= nfact) {
+    std::cerr << "filterFuncs::filter: Error: originalDenominators must have non zero first element element \n";
+    return outputs;
+  }
+
+  if (nominators.size() == 0 or denominators.size() == 0) {
+    return outputs;
+  }
+
+  outputs.reserve(inputs.size());
+
+  // Use outputs vector for intermediate steps as well
+  std::vector<returnType> adjustedInputs;
+  adjustedInputs.reserve(inputs.size() + nfact * 2);
+
+  //--------------------------------------------------------------------
+  // Prepair inputs:
+  // Append things at begginng and end of inputs to reduce transients
+  //--------------------------------------------------------------------
+  const inputType firstInputTimes2 = 2 * inputs.front();
+  const inputType lastInputTimes2 = 2 * inputs.back();
+
+  std::for_each(
+      std::make_reverse_iterator(inputs.begin() + nfact + 1), inputs.rend() - 1,
+      [&firstInputTimes2, &adjustedInputs](const inputType &input) { adjustedInputs.push_back(firstInputTimes2 - input); });
+  adjustedInputs.insert(adjustedInputs.end(), inputs.begin(), inputs.end());
+  std::for_each(inputs.rbegin() + 1, inputs.rbegin() + nfact + 1, [&lastInputTimes2, &adjustedInputs](const inputType &input) {
+    adjustedInputs.push_back(lastInputTimes2 - input);
+  });
+
+  // for_each(adjustedInputs.begin(), adjustedInputs.end(), [](auto n) { std::cout << n << " "; });
+
+  //--------------------------------------------------------------------
+  // Now filter
+  //--------------------------------------------------------------------
+  adjustedInputs = myFuncs::DSP::filter(nominators, denominators, adjustedInputs);
+  std::reverse(adjustedInputs.begin(), adjustedInputs.end());
+  adjustedInputs = myFuncs::DSP::filter(nominators, denominators, adjustedInputs);
+
+  outputs.insert(outputs.end(), adjustedInputs.rbegin() + nfact, adjustedInputs.rend() - nfact);
+  return outputs;
+}
 
 } // namespace DSP
 
