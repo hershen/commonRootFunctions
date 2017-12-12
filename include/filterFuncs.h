@@ -158,31 +158,41 @@ std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vecto
     return outputs;
   }
 
+  if (nominators.size() == 0 or denominators.size() == 0) {
+    return outputs;
+  }
+
+  outputs.reserve(inputs.size());
+
   // Use outputs vector for intermediate steps as well
-  outputs.reserve(inputs.size() + nfact * 2);
+  std::vector<returnType> adjustedInputs;
+  adjustedInputs.reserve(inputs.size() + nfact * 2);
 
   //--------------------------------------------------------------------
-  //Prepair inputs:
+  // Prepair inputs:
   // Append things at begginng and end of inputs to reduce transients
   //--------------------------------------------------------------------
   const inputType firstInputTimes2 = 2 * inputs.front();
   const inputType lastInputTimes2 = 2 * inputs.back();
 
-  std::for_each(std::make_reverse_iterator(inputs.begin() + nfact + 1), inputs.rend() - 1,
-                [&firstInputTimes2, &outputs](const inputType &input) { outputs.push_back(firstInputTimes2 - input); });
-  outputs.insert(outputs.end(), inputs.begin(), inputs.end());
-  std::for_each(inputs.rbegin() + 1, inputs.rbegin() + nfact + 1,
-                [&lastInputTimes2, &outputs](const inputType &input) { outputs.push_back(lastInputTimes2 - input); });
+  std::for_each(
+      std::make_reverse_iterator(inputs.begin() + nfact + 1), inputs.rend() - 1,
+      [&firstInputTimes2, &adjustedInputs](const inputType &input) { adjustedInputs.push_back(firstInputTimes2 - input); });
+  adjustedInputs.insert(adjustedInputs.end(), inputs.begin(), inputs.end());
+  std::for_each(inputs.rbegin() + 1, inputs.rbegin() + nfact + 1, [&lastInputTimes2, &adjustedInputs](const inputType &input) {
+    adjustedInputs.push_back(lastInputTimes2 - input);
+  });
 
-  // for_each(outputs.begin(), outputs.end(), [](auto n) { std::cout << n << " "; });
+  // for_each(adjustedInputs.begin(), adjustedInputs.end(), [](auto n) { std::cout << n << " "; });
 
   //--------------------------------------------------------------------
-  //Now filter
+  // Now filter
   //--------------------------------------------------------------------
-  outputs = myFuncs::DSP::filter(nominators, denominators, outputs);
-  std::reverse(outputs.begin(), outputs.end());
-  outputs = myFuncs::DSP::filter(nominators, denominators, outputs);
-  std::reverse(outputs.begin(), outputs.end());
+  adjustedInputs = myFuncs::DSP::filter(nominators, denominators, adjustedInputs);
+  std::reverse(adjustedInputs.begin(), adjustedInputs.end());
+  adjustedInputs = myFuncs::DSP::filter(nominators, denominators, adjustedInputs);
+
+  outputs.insert(outputs.end(), adjustedInputs.rbegin() + nfact, adjustedInputs.rend() - nfact);
   return outputs;
 }
 
