@@ -443,18 +443,12 @@ double round_35rule(const double error) {
   return myFuncs::roundKeepDigits(error, 1);
 }
 
+//Implementation inspired from Oori Hershenhorn.
 double roundKeepDigits(const double x, const int digitsToKeep) {
-  if (x == 0.0 or digitsToKeep < 0)
+  if (digitsToKeep < 0)
     return x;
 
-  const int exponent = myFuncs::exponent10(x); // x = w*10^exponent, 0 < |w| < 10.
-
-  const double divisor = std::pow(10, exponent - digitsToKeep);
-  // If digitsToKeep = 0, w will be rounded.
-  // If digitsToKeep = 1, 10*w will be rounded
-  //...
-
-  return std::round(x / divisor) * divisor;
+  return std::round(x * std::pow(10,digitsToKeep)) / std::pow(10,digitsToKeep);
 }
 
 double roundAccordingToError(const double x, const double error) {
