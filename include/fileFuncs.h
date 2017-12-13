@@ -1,8 +1,8 @@
 #pragma once
 
 // STL
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // Root
@@ -84,8 +84,8 @@ TChain *openChain_setBranch(const std::string &fileNameString, const std::string
 // openChain_setBranch - Overloaded
 //********************************************************************************************
 // Overloaded function - Create chain with tree treeName. Add file(s) corresponding to the elements in fileNameStringV(allows
-// wildcards).  Then set branches in branchNamesV with variables pointed at by pointers in pointerV.  There are no sanity checks on
-// pointer.  All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
+// wildcards).  Then set branches in branchNamesV with variables pointed at by pointers in pointerV.  There are no sanity checks
+// on pointer.  All other branche statuses in treeName are set to 0(disabled) - so they won't be read by GetEntries...
 //
 // The first element in fileNameStringV has to have a tree treeName and branch branchName. There is no check(I think) that the
 // other files have them...
@@ -112,12 +112,22 @@ std::vector<std::string> getFilesEndingWith(const std::string &dirString, const 
 TFile *openFile(const std::string &filename, const std::string &options);
 //   TFile getTFile(const std::string &fullFileName, const std::string &options);
 
+std::ifstream openIfstream(const std::string &filename, const int numHeaders = 0);
+
 //--------------------------------------------------------------------------------------------
 // readParamFile
 //********************************************************************************************
 // Read paramter file.
 // return string of pairs <paramName, paramValue>
 // File is formated: paramName<whitespace>paramValue
-std::unordered_map<std::string, std::string> getParams(const std::string &filename);
+std::unordered_map<std::string, std::string> getParams(const std::string &filename, const int numHeaders = 0);
+
+//--------------------------------------------------------------------------------------------
+// readFile
+//********************************************************************************************
+// Read a file.
+// Treat each line as a string.
+// Skip first numHeaders lines.
+std::vector<std::string> readFile(const std::string &filename, const int numHeaders = 0);
 
 } // namespace myFuncs

@@ -1,5 +1,8 @@
 #include "fileFuncs.h"
 
+#include <iostream>
+#include <limits>
+
 // For getParams
 #include <fstream>
 
@@ -11,7 +14,6 @@
 #include "TTree.h"
 #include "dirent.h"
 #include "stringFuncs.h"
-#include <iostream>
 
 // ToDo - Find why I need to do getEntries in order to use the tree
 // ToDo - Change all TChain functions to NOT use pointers
@@ -256,12 +258,23 @@ TFile *openFile(const std::string &filename, const std::string &options) {
   return file;
 }
 
-std::unordered_map<std::string, std::string> getParams(const std::string &filename) {
+std::ifstream openIfstream(const std::string &filename, const int numHeaders) {
   std::ifstream file(filename);
 
   if (!file.is_open()) {
     std::cout << "Could not open stream " << filename << ". Perhaps file doesn't exist???" << std::endl;
   }
+
+  // Read header lines
+  for (int lineNum = 0; lineNum < numHeaders; ++lineNum) {
+    file.ignore(std::numeric_limits<std::streamsize>::max(), file.widen('\n'));
+  }
+
+  return file;
+}
+
+std::unordered_map<std::string, std::string> getParams(const std::string &filename, const int numHeaders) {
+  std::ifstream file = myFuncs::openIfstream(filename, numHeaders);
 
   std::string paramName;
   std::string paramValue;
@@ -272,6 +285,19 @@ std::unordered_map<std::string, std::string> getParams(const std::string &filena
   }
 
   return params;
+}
+
+std::vector<std::string> readFile(const std::string &filename, const int numHeaders) {
+  std::ifstream file = myFuncs::openIfstream(filename, numHeaders);
+
+  std::string line;
+  std::vector<std::string> outputs;
+  std::unordered_map<std::string, std::string> params;
+  while (file >> line) {
+    outputs.push_back(line);
+  }
+
+  return outputs;
 }
 
 } // namespace myFuncs
