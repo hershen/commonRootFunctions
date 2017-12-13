@@ -18,7 +18,6 @@
 #include "TRandom3.h"
 #include "TStyle.h"
 
-
 // Mine
 #include "histFuncs.h"
 
@@ -89,8 +88,6 @@ double convertArray2TF1Internal(double *var, double *params) {
   return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 // convertVector2TF1
 //********************************************************************************************
@@ -101,9 +98,9 @@ double convertArray2TF1Internal(double *var, double *params) {
 // vecValues[2] = f(2dT)...  timeShift can shift the x axis.  Values between the ones in vecValues are evaluated using a linear
 // interpolation between the points.  Evals for x axis values smaller than the first entry in vecValues return vecValues[0]. Evals
 // for values greater than the last entry in vecValues return vecValues[last].  The params array given to convertArray2TF1Internal
-// is made up of {timeShift, dT, vecValues}  All parameters are fixed, except timeshift which floats.  There is a file scope "global"
-// variable vecSize which holds the number of parameters in vecValues (because the internal function doesn't know this.  The  All
-// values of vecValues are given to the internal function
+// is made up of {timeShift, dT, vecValues}  All parameters are fixed, except timeshift which floats.  There is a file scope
+// "global" variable vecSize which holds the number of parameters in vecValues (because the internal function doesn't know this.
+// The  All values of vecValues are given to the internal function
 //--------------------------------------------------------------------------------------------
 TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift = 0.) {
   double tMin = timeShift;
@@ -427,7 +424,7 @@ double getNovosibirskAmplitude(const double normalization, const double eta) {
   return normalization * std::exp(-0.5 * sigmaZero * sigmaZero);
 }
 
-double round_35rule(const double error) {
+double round_35rule(double error) {
   if (error <= 0.0)
     return error;
 
@@ -438,17 +435,23 @@ double round_35rule(const double error) {
   double tmpError = error / std::pow(10.0, power10 - 1);
 
   if (tmpError > 35)
-    return myFuncs::roundKeepDigits(error, 0);
+    return myFuncs::roundKeepDigits(error, 1);
 
-  return myFuncs::roundKeepDigits(error, 1);
+  return myFuncs::roundKeepDigits(error, 2);
 }
 
-//Implementation inspired from Oori Hershenhorn.
 double roundKeepDigits(const double x, const int digitsToKeep) {
-  if (digitsToKeep < 0)
+  if (x == 0.0 or digitsToKeep <= 0)
     return x;
 
-  return std::round(x * std::pow(10,digitsToKeep)) / std::pow(10,digitsToKeep);
+  const int exponent = myFuncs::exponent10(x); // x = w*10^exponent, 0 < |w| < 10.
+
+  const double divisor = std::pow(10, exponent - digitsToKeep + 1);
+  // If digitsToKeep = 1, w will be rounded.
+  // If digitsToKeep = 2, 10*w will be rounded
+  //...
+
+  return std::round(x / divisor) * divisor;
 }
 
 double roundAccordingToError(const double x, const double error) {

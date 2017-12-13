@@ -297,16 +297,17 @@ inline double xDivYerror(const double x, const double errX, const double y, cons
 // If xy <= 35, return a number with xy as significant digits.
 // y is always rounded using the smaller digits.
 // If error < 0 returns error
-double round_35rule(const double error);
+double round_35rule(double error);
 
 // Round x and keep the first digitsToKeep digits.
-// I.e. if x = 5.67890
-// roundKeepDigits(5.67890, 0) = 6
-// roundKeepDigits(5.67890, 1) = 5.7
-// roundKeepDigits(5.67890, 2) = 5.68
-// roundKeepDigits(5.67890, 3) = 5.679
-//...
 // If x == 0.0 or digitsToKeep < 0, return x
+// I.e. if x = 5.67890
+// roundKeepDigits(5.67890, 0) = 5.67890
+// roundKeepDigits(5.67890, 1) = 6
+// roundKeepDigits(5.67890, 2) = 5.7
+// roundKeepDigits(5.67890, 3) = 5.68
+// roundKeepDigits(5.67890, 4) = 5.679
+//...
 double roundKeepDigits(const double x, const int digitsToKeep);
 
 // If x = w*10^n where 0 < |w| < 10, returns n
@@ -359,6 +360,5 @@ std::vector<double> vectorToDouble(const std::vector<T> &input) {
   }
 
   return output;
-} // namespace myFuncs
-
+}
 } // namespace myFuncs
