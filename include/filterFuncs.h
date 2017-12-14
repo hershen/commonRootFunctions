@@ -132,6 +132,13 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
   return outputs;
 }
 
+template <class coefficientType, class inputType>
+std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<coefficientType> &originalNominators,
+                                                              const coefficientType originalDenominator,
+                                                              const std::vector<inputType> &inputs) {
+  return myFuncs::DSP::filter(originalNominators, std::vector<coefficientType>{originalDenominator}, inputs);
+}
+
 std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const int n, const double tau,
                                                                           const double samplingFrequency);
 
@@ -194,6 +201,13 @@ std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vecto
 
   outputs.insert(outputs.end(), adjustedInputs.rbegin() + nfact, adjustedInputs.rend() - nfact);
   return outputs;
+}
+
+template <class coefficientType, class inputType>
+std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType> &nominators,
+                                                                const coefficientType denominator,
+                                                                const std::vector<inputType> &inputs) {
+  return myFuncs::DSP::filtfilt(nominators, std::vector<coefficientType>{denominator}, inputs);
 }
 
 } // namespace DSP
