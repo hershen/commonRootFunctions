@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm> //for for_each, reverse
 #include <iostream>
 #include <iterator>

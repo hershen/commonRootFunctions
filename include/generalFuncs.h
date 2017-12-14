@@ -1,4 +1,8 @@
+#pragma once
+
+#include <algorithm>
 #include <unordered_map>
+#include <vector>
 
 namespace myFuncs {
 
@@ -48,8 +52,12 @@ std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1
 // I don't know how to extract the type of T1*T2*Ts[0]*Ts[1]...
 // won't work if (for example) vector<int>, vector<int>, vector<double>.
 template <class T1, class T2, class... Ts>
-std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &first, const std::vector<T2> &second, Ts &... others) {
+std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &first, const std::vector<T2> &second,
+                                                            Ts &... others) {
   return multiplyElementByElement(multiplyElementByElement(first, second), others...);
 }
+
+// transforms a vector of strings into a vector of doubles
+std::vector<double> changeStringsToDoubles(const std::vector<std::string> &strings);
 
 } // namespace myFuncs
