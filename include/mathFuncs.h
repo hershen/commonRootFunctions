@@ -265,8 +265,11 @@ std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
 }
 
 // Linearly interploate the y value at x given (x0,y0), (x1,y1)
-template <class T>
-double linearInterpolate(const T x0, const T x1, const T y0, const T y1, const double x) {
+template <class Tx, class Ty>
+double linearInterpolate(const Tx x0, const Tx x1, const Ty y0, const Ty y1, const double x) {
+  if(x1 - x0 == 0.0){
+    throw std::invalid_argument( "mathFuncs::linearInterpolate: zero denominator" );
+  }
   return static_cast<double>(y1 - y0) / static_cast<double>(x1 - x0) * (x - x0) + y0;
 }
 

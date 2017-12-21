@@ -82,3 +82,30 @@ TEST_CASE("Test sampleMean function", "[sampleMean]") {
     CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3.5));
   }
 }
+
+TEST_CASE("Test linearInterpolate function", "[linearInterpolate]") {
+
+  SECTION("Zero denominator") { CHECK_THROWS(myFuncs::linearInterpolate(1.0, 1.0, 2.0, 3.0, 1.5)); }
+  SECTION("Double x, double y") { CHECK(myFuncs::linearInterpolate(1.0, 2.0, 2.0, 4.0, 1.5) == Approx(3)); }
+  SECTION("Double x, int y") { CHECK(myFuncs::linearInterpolate(1.0, 2.0, 2, 4, 1.5) == Approx(3)); }
+  SECTION("int x, double y") { CHECK(myFuncs::linearInterpolate(1, 2, 2.0, 4.0, 1.5) == Approx(3)); }
+  SECTION("int x, int y") { CHECK(myFuncs::linearInterpolate(1, 2, 2, 4, 1.5) == Approx(3)); }
+  //
+  // SECTION("Vector int, integer result") {
+  //   std::vector<int> vector{1, 2, 3, 4, 5};
+  //   CHECK(myFuncs::sampleMean(vector) == Approx(3));
+  //   CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3));
+  // }
+  //
+  // SECTION("Vector double, non integer result") {
+  //   std::vector<double> vector{1, 2, 3, 4, 5, 6};
+  //   CHECK(myFuncs::sampleMean(vector) == Approx(3.5));
+  //   CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3.5));
+  // }
+  //
+  // SECTION("Vector int, non integer result") {
+  //   std::vector<int> vector{1, 2, 3, 4, 5, 6};
+  //   CHECK(myFuncs::sampleMean(vector) == Approx(3.5));
+  //   CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3.5));
+  // }
+}
