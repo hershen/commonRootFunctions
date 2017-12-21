@@ -319,9 +319,18 @@ inline int exponent10(const double x) { return std::floor(std::log10(std::abs(x)
 double roundAccordingToError(const double x, const double error);
 
 // Return sample mean of samples in values
+template <class InputIt>
+double sampleMean(InputIt first, InputIt last) {
+  const long numElements = std::distance(first, last);
+  if(numElements == 0) {
+    return 0.0;
+  }
+  return std::accumulate(first, last, 0) / static_cast<double>(std::distance(first, last));
+}
+
 template <class T>
 double sampleMean(const std::vector<T> &values) {
-  return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+  return sampleMean(values.begin(), values.end());
 }
 
 // return pair of weighted sample mean and it's standard deviation.

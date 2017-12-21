@@ -49,3 +49,36 @@ TEST_CASE("Test roundAccordingToError function", "[roundAccordingToError]") {
   CHECK(myFuncs::roundAccordingToError(67812.1234, 99000) == Approx(68000));
   CHECK(myFuncs::roundAccordingToError(666, 11000) == Approx(1000));
 }
+
+TEST_CASE("Test sampleMean function", "[sampleMean]") {
+
+  SECTION("Empty vector") {
+    std::vector<double> emptyVector;
+    CHECK(myFuncs::sampleMean(emptyVector) == Approx(0));
+    CHECK(myFuncs::sampleMean(emptyVector.begin(), emptyVector.end()) == Approx(0));
+  }
+
+  SECTION("Vector double, integer result") {
+    std::vector<double> vector{1, 2, 3, 4, 5};
+    CHECK(myFuncs::sampleMean(vector) == Approx(3));
+    CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3));
+  }
+
+  SECTION("Vector int, integer result") {
+    std::vector<int> vector{1, 2, 3, 4, 5};
+    CHECK(myFuncs::sampleMean(vector) == Approx(3));
+    CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3));
+  }
+
+  SECTION("Vector double, non integer result") {
+    std::vector<double> vector{1, 2, 3, 4, 5, 6};
+    CHECK(myFuncs::sampleMean(vector) == Approx(3.5));
+    CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3.5));
+  }
+
+  SECTION("Vector int, non integer result") {
+    std::vector<int> vector{1, 2, 3, 4, 5, 6};
+    CHECK(myFuncs::sampleMean(vector) == Approx(3.5));
+    CHECK(myFuncs::sampleMean(vector.begin(), vector.end()) == Approx(3.5));
+  }
+}
