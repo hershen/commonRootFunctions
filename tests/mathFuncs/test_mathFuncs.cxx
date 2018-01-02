@@ -91,3 +91,197 @@ TEST_CASE("Test linearInterpolate function", "[linearInterpolate]") {
   SECTION("int x, double y") { CHECK(myFuncs::linearInterpolate(1, 2, 2.0, 4.0, 1.5) == Approx(3)); }
   SECTION("int x, int y") { CHECK(myFuncs::linearInterpolate(1, 2, 2, 4, 1.5) == Approx(3)); }
 }
+
+template <class T>
+void testshiftVector_empty(const std::string &typeName) {
+  SECTION("Empty vector " + typeName) {
+    std::vector<T> emptyVector;
+    CHECK(myFuncs::shiftVector(emptyVector, 1).size() == 0);
+    CHECK(myFuncs::shiftVector(emptyVector, 1.5).size() == 0);
+    CHECK(myFuncs::shiftVector(emptyVector, 1.5, 2.5).size() == 0);
+  }
+}
+template <class T>
+void testshiftVector_linear(const std::string &typeName) {
+
+  SECTION("Linear vector " + typeName) {
+    std::vector<T> inputs{1, 2, 3, 4, 5, 6};
+
+    //---------------------------------------
+    // Integer bins
+    //---------------------------------------
+    SECTION("Shift by integer bins") {
+      SECTION("Shift by +1 bin") {
+        const std::vector<double> expected{1, 1, 2, 3, 4, 5};
+        const auto shifted = myFuncs::shiftVector(inputs, 1);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +3 bin") {
+        const std::vector<double> expected{1, 1, 1, 1, 2, 3};
+        const auto shifted = myFuncs::shiftVector(inputs, 3);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +5 bin") {
+        const std::vector<double> expected{1, 1, 1, 1, 1, 1};
+        const auto shifted = myFuncs::shiftVector(inputs, 5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +10 bin") {
+        const std::vector<double> expected{1, 1, 1, 1, 1, 1};
+        const auto shifted = myFuncs::shiftVector(inputs, 10);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -1 bin") {
+        const std::vector<double> expected{2, 3, 4, 5, 6, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -1);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -3 bin") {
+        const std::vector<double> expected{4, 5, 6, 6, 6, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -3);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -5 bin") {
+        const std::vector<double> expected{6, 6, 6, 6, 6, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -10 bin") {
+        const std::vector<double> expected{6, 6, 6, 6, 6, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -10);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+    }
+    //---------------------------------------
+    // Fractional bins
+    //---------------------------------------
+    SECTION("Shift by fractional bin") {
+      SECTION("Shift by +0.5 bin") {
+        const std::vector<double> expected{1, 1.5, 2.5, 3.5, 4.5, 5.5};
+        const auto shifted = myFuncs::shiftVector(inputs, 0.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +1.5 bin") {
+        const std::vector<double> expected{1, 1, 1.5, 2.5, 3.5, 4.5};
+        const auto shifted = myFuncs::shiftVector(inputs, 1.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -0.5 bin") {
+        const std::vector<double> expected{1.5, 2.5, 3.5, 4.5, 5.5, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -0.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -1.5 bin") {
+        const std::vector<double> expected{2.5, 3.5, 4.5, 5.5, 6, 6};
+        const auto shifted = myFuncs::shiftVector(inputs, -1.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+    }
+  }
+}
+
+template <class T>
+void testshiftVector_parabola(const std::string &typeName) {
+
+  SECTION("Parabola vector " + typeName) {
+    std::vector<T> inputs{9, 4, 1, 0, 1, 4, 9};
+
+    //---------------------------------------
+    // Integer bins
+    //---------------------------------------
+    SECTION("Shift by integer bins") {
+      SECTION("Shift by +1 bin") {
+        const std::vector<double> expected{9, 9, 4, 1, 0, 1, 4};
+        const auto shifted = myFuncs::shiftVector(inputs, 1);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +3 bin") {
+        const std::vector<double> expected{9, 9, 9, 9, 4, 1, 0};
+        const auto shifted = myFuncs::shiftVector(inputs, 3);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -1 bin") {
+        const std::vector<double> expected{4, 1, 0, 1, 4, 9, 9};
+        const auto shifted = myFuncs::shiftVector(inputs, -1);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -3 bin") {
+        const std::vector<double> expected{0, 1, 4, 9, 9, 9, 9};
+        const auto shifted = myFuncs::shiftVector(inputs, -3);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+    }
+    //---------------------------------------
+    // Fractional bins
+    //---------------------------------------
+    SECTION("Shift by fractional bin") {
+      SECTION("Shift by +0.5 bin") {
+        const std::vector<double> expected{9, 6.5, 2.5, 0.5, 0.5, 2.5, 6.5};
+        const auto shifted = myFuncs::shiftVector(inputs, 0.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by +1.5 bin") {
+        const std::vector<double> expected{9, 9, 6.5, 2.5, 0.5, 0.5, 2.5};
+        const auto shifted = myFuncs::shiftVector(inputs, 1.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -0.5 bin") {
+        const std::vector<double> expected{6.5, 2.5, 0.5, 0.5, 2.5, 6.5, 9};
+        const auto shifted = myFuncs::shiftVector(inputs, -0.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+      SECTION("Shift by -1.5 bin") {
+        const std::vector<double> expected{2.5, 0.5, 0.5, 2.5, 6.5, 9, 9};
+        const auto shifted = myFuncs::shiftVector(inputs, -1.5);
+        CHECK(expected.size() == shifted.size());
+        for (uint i = 0; i < inputs.size(); ++i)
+          CHECK(shifted[i] == Approx(expected[i]));
+      }
+    }
+  }
+}
+
+TEST_CASE("Test shiftVector function", "[shiftVector]") {
+  testshiftVector_empty<int>("int");
+  testshiftVector_empty<double>("double");
+  testshiftVector_linear<int>("int");
+  testshiftVector_linear<double>("double");
+}

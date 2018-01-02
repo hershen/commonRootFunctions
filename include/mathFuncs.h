@@ -267,8 +267,8 @@ std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
 // Linearly interploate the y value at x given (x0,y0), (x1,y1)
 template <class Tx, class Ty>
 double linearInterpolate(const Tx x0, const Tx x1, const Ty y0, const Ty y1, const double x) {
-  if(x1 - x0 == 0.0){
-    throw std::invalid_argument( "mathFuncs::linearInterpolate: zero denominator" );
+  if (x1 - x0 == 0.0) {
+    throw std::invalid_argument("mathFuncs::linearInterpolate: zero denominator");
   }
   return static_cast<double>(y1 - y0) / static_cast<double>(x1 - x0) * (x - x0) + y0;
 }
@@ -325,7 +325,7 @@ double roundAccordingToError(const double x, const double error);
 template <class InputIt>
 double sampleMean(InputIt first, InputIt last) {
   const long numElements = std::distance(first, last);
-  if(numElements == 0) {
+  if (numElements == 0) {
     return 0.0;
   }
   return std::accumulate(first, last, 0) / static_cast<double>(std::distance(first, last));
@@ -373,4 +373,53 @@ std::vector<double> vectorToDouble(const std::vector<T> &input) {
 
   return output;
 }
+
+// Shift vector to left or right, interpolating between points.
+// If dBins = +1, the shift will be by 1 sample distance to the right.
+// If dBins = -1, the shift will be by 1 sample distance to the left.
+// This is similar to : dBins = +2, f(x) = x^2 => shiftVector(inputs, +2) will return f(x-2)
+//If dt isn't provided, shift is in units of bins. If dt is provided it defines the time between bins and shift is in units of time.
+template <class Tvector>
+std::vector<double> shiftVector(const std::vector<Tvector> inputs, double shift, const double dt = 0.0) {
+
+  std::vector<double> outputs;
+  outputs.reserve(inputs.size());
+
+  // Sanity checks
+  if (inputs.empty()) {
+    return outputs;
+  }
+
+  // Convert shift to units of bins
+  if (dt != 0.0) {
+    shift = shift / dt;
+  }
+
+  // Pad beginning
+  const int pads = shift <= inputs.size() ? std::ceil(shift) : inputs.size();
+  for (int i = 0; i < pads; ++i) {
+    outputs.push_back(inputs[0]);
+  }
+
+  const double fractionalShift = shift - std::floor(shift);
+  const int lastIdx = shift < 0 ? inputs.size() - 1 : inputs.size() - static_cast<int>(std::abs(std::ceil(shift)));
+  // std::cout << "fractionalShift = " << fractionalShift << ", shift = " << shift << ", lastIdx = " << lastIdx << "\n";
+  for (int idx = shift >= 0 ? 0 : std::abs(static_cast<int>(shift)); idx < lastIdx; ++idx) {
+    const double x = idx + fractionalShift;
+    const Tvector y1 = inputs[idx];
+    const Tvector y2 = inputs[idx + 1];
+
+    outputs.push_back(linearInterpolate(idx, idx + 1, y1, y2, x));
+    // std::cout << "idx = " << idx << ", linearInterpolate(x1, x2, y1, y2, x) = " << linearInterpolate(idx, idx + 1, y1, y2, x)
+    // << "\n";
+  }
+
+  // Pad end
+  for (size_t i = outputs.size(); i < inputs.size(); ++i) {
+    outputs.push_back(inputs.back());
+  }
+
+  return outputs;
+}
+
 } // namespace myFuncs
