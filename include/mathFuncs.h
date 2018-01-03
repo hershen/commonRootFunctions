@@ -451,4 +451,21 @@ inline double parabola_maxValue(const TFitResultPtr &fitResult, const double xMa
 
 inline double parabola_maxValue(const TFitResultPtr &fitResult) { return parabola_maxValue(fitResult, parabola_xMax(fitResult)); }
 
+//----------------------------------------------
+// linear = p0 + p1*x
+//----------------------------------------------
+//Return when linear line crosses value
+template <class Tfunction, class Tvalue>
+inline double linear_crossValue(const Tfunction p0, const Tfunction p1, const Tvalue value = 0) {
+  if (p1 != 0) {
+    return (value - p0) / static_cast<double>(p1);
+  }
+  return 0.0;
+}
+
+template <class Tvalue>
+inline double linear_crossValue(const TFitResultPtr &fitResult, const Tvalue value) {
+  return linear_crossValue(fitResult->Value(0), fitResult->Value(1), value);
+}
+
 } // namespace myFuncs
