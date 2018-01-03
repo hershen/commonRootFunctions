@@ -328,7 +328,10 @@ double sampleMean(InputIt first, InputIt last) {
   if (numElements == 0) {
     return 0.0;
   }
-  return std::accumulate(first, last, 0) / static_cast<double>(std::distance(first, last));
+  // std::cout << "sum " << std::accumulate(first, last, 0.0) <<
+  // " numElements " << numElements <<
+  // " returning " << std::accumulate(first, last, 0) / static_cast<double>(numElements) << "\n";
+  return std::accumulate(first, last, 0.0) / static_cast<double>(numElements);
 }
 
 template <class T>
