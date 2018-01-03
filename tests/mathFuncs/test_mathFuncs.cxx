@@ -2,6 +2,8 @@
 
 #include "mathFuncs.h"
 
+#include "TGraph.h"
+
 using Catch::Matchers::Equals;
 using namespace Catch::Matchers;
 
@@ -284,4 +286,42 @@ TEST_CASE("Test shiftVector function", "[shiftVector]") {
   testshiftVector_empty<double>("double");
   testshiftVector_linear<int>("int");
   testshiftVector_linear<double>("double");
+}
+
+TEST_CASE("Test parabola_xMax function", "[parabola_xMax]") {
+  SECTION("Using raw numbers") {
+    CHECK(myFuncs::parabola_xMax(0,0) == Approx(0));
+    CHECK(myFuncs::parabola_xMax(0,1) == Approx(0));
+    CHECK(myFuncs::parabola_xMax(10,2) == Approx(-2.5));
+    CHECK(myFuncs::parabola_xMax(10.0,2.0) == Approx(-2.5));
+  }
+
+  SECTION("Using TFitResult") {
+    //Assuming y = 1 + 10x + 2x^2
+    std::vector<double> xs{0, 1, 2, 3, 4};
+    std::vector<double> ys{1, 13, 29, 49, 73};
+    TGraph graph(5, xs.data(), ys.data());
+    auto fitResult = graph.Fit("pol2", "SQ");
+    CHECK(myFuncs::parabola_xMax(fitResult) == Approx(-2.5));
+  }
+}
+
+TEST_CASE("Test parabola_maxValue function", "[parabola_maxValue]") {
+  SECTION("Using raw numbers") {
+    CHECK(myFuncs::parabola_maxValue(0,0,0) == Approx(0));
+
+    CHECK(myFuncs::parabola_maxValue(1, 10, 2) == Approx(-11.5));
+    CHECK(myFuncs::parabola_maxValue(1, 2, 3) == Approx(2./3.));
+    CHECK(myFuncs::parabola_maxValue(-0.5, 0.5, 1.5) == Approx(-0.54166666666666666667)); //Not best number to check
+  }
+
+  SECTION("Using TFitResult") {
+    //Assuming y = 1 + 10x + 2x^2
+    std::vector<double> xs{0, 1, 2, 3, 4};
+    std::vector<double> ys{1, 13, 29, 49, 73};
+    TGraph graph(5, xs.data(), ys.data());
+    auto fitResult = graph.Fit("pol2", "SQ");
+    CHECK(myFuncs::parabola_maxValue(fitResult, -2.5) == Approx(-11.5));
+    CHECK(myFuncs::parabola_maxValue(fitResult) == Approx(-11.5));
+  }
 }

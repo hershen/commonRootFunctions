@@ -378,7 +378,8 @@ std::vector<double> vectorToDouble(const std::vector<T> &input) {
 // If dBins = +1, the shift will be by 1 sample distance to the right.
 // If dBins = -1, the shift will be by 1 sample distance to the left.
 // This is similar to : dBins = +2, f(x) = x^2 => shiftVector(inputs, +2) will return f(x-2)
-//If dt isn't provided, shift is in units of bins. If dt is provided it defines the time between bins and shift is in units of time.
+// If dt isn't provided, shift is in units of bins. If dt is provided it defines the time between bins and shift is in units of
+// time.
 template <class Tvector>
 std::vector<double> shiftVector(const std::vector<Tvector> inputs, double shift, const double dt = 0.0) {
 
@@ -421,5 +422,33 @@ std::vector<double> shiftVector(const std::vector<Tvector> inputs, double shift,
 
   return outputs;
 }
+
+//----------------------------------------------
+// parabola = p0 + p1*x + p2*x^2
+//----------------------------------------------
+template <class T>
+inline double parabola_xMax(const T p1, const T p2) {
+  if (p2 != 0) {
+    return -p1 / 2.0 / p2;
+  }
+  return 0.0;
+}
+
+template <class T>
+inline double parabola_maxValue(const T p0, const T p1, const T p2) {
+  const auto xMax = parabola_xMax(p1, p2);
+  return p0 + p1 * xMax + p2 * xMax * xMax;
+}
+
+inline double parabola_xMax(const TFitResultPtr &fitResult) { return parabola_xMax(fitResult->Value(1), fitResult->Value(2)); }
+
+//----------------------------------------------
+// parabola using root TFitResult
+//----------------------------------------------
+inline double parabola_maxValue(const TFitResultPtr &fitResult, const double xMax) {
+  return fitResult->Value(0) + fitResult->Value(1) * xMax + fitResult->Value(2) * xMax * xMax;
+}
+
+inline double parabola_maxValue(const TFitResultPtr &fitResult) { return parabola_maxValue(fitResult, parabola_xMax(fitResult)); }
 
 } // namespace myFuncs
