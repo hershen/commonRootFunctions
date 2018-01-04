@@ -2,6 +2,7 @@
 
 // std
 #include <iostream>
+#include <iterator>
 #include <numeric> //For std::accumulate
 
 // Root
@@ -481,6 +482,29 @@ std::vector<decltype(T1() * T2())> sumElementByElement(const std::vector<T1> &in
   std::transform(inputs1.begin(), inputs1.end(), inputs2.begin(), std::back_inserter(outputs),
                  [](const auto element1, const auto element2) { return element1 + element2; });
   return outputs;
+}
+
+template <class ForwardIt>
+ForwardIt findMaxEvery_n(ForwardIt first, ForwardIt last, const size_t n) {
+  if (first == last) {
+    return first;
+  }
+
+  const size_t numElements = std::distance(first, last);
+  ForwardIt largest = first;
+  std::advance(first, n);
+  size_t currentElement = n;
+  for (; currentElement < numElements; std::advance(first, n), currentElement += n) {
+    if (*largest < *first) {
+      largest = first;
+    }
+  }
+  return largest;
+}
+
+template <class T>
+typename T::const_iterator findMaxEvery_n(const T &container, const size_t n) {
+  return findMaxEvery_n(container.begin(), container.end(), n);
 }
 
 } // namespace myFuncs

@@ -383,3 +383,55 @@ TEST_CASE("Test sumElementByElement function", "[sumElementByElement]") {
     }
   }
 }
+
+TEST_CASE("Test findMaxEvery_n function", "[findMaxEvery_n]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::findMaxEvery_n(vectorInt.begin(), vectorInt.end(), 3) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble.begin(), vectorDouble.end(), 3) == vectorDouble.begin());
+  }
+
+  SECTION("Non empty vectors") {
+    std::vector<double> vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0};
+
+    SECTION("Find every 1") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 1) == 16);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 1) == 16);
+    }
+    SECTION("Find every 2") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 2) == 15);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 2) == 15);
+    }
+    SECTION("Find every 3") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 3) == 16);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 3) == 16);
+    }
+    SECTION("Find every 4") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 4) == 13);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 4) == 13);
+    }
+    SECTION("Find every 5") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 5) == 16);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 5) == 16);
+    }
+    SECTION("Find every 6") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 6) == 13);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 6) == 13);
+    }
+    SECTION("Find every 7") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 7) == 15);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 7) == 15);
+    }
+    SECTION("Find every 8") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 8) == 9);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 8) == 9);
+    }
+    SECTION("Find every 9") {
+      CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 9) == 10);
+      CHECK(*myFuncs::findMaxEvery_n(vector, 9) == 10);
+    }
+
+  }
+}
