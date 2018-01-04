@@ -345,3 +345,41 @@ TEST_CASE("Test linear_crossValue function", "[linear_crossValue]") {
     CHECK(myFuncs::linear_crossValue(fitResult, 0) == Approx(-5));
   }
 }
+
+TEST_CASE("Test sumElementByElement function", "[sumElementByElement]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::sumElementByElement(vectorInt, vectorInt).size() == 0);
+    CHECK(myFuncs::sumElementByElement(vectorDouble, vectorInt).size() == 0);
+    CHECK(myFuncs::sumElementByElement(vectorInt, vectorDouble).size() == 0);
+    CHECK(myFuncs::sumElementByElement(vectorDouble, vectorDouble).size() == 0);
+  }
+
+  SECTION("Non empty vectors") {
+    std::vector<int> vectorInt{1, 2, 3, 4};
+    std::vector<double> vectorDouble{1.5, 1.5, -1.5, 3.1};
+
+    SECTION("int + int") {
+      const std::vector<int> expected{2, 4, 6, 8};
+      const auto result = myFuncs::sumElementByElement(vectorInt, vectorInt);
+      CHECK(expected.size() == result.size());
+      for (uint i = 0; i < result.size(); ++i)
+        CHECK(result[i] == Approx(expected[i]));
+    }
+    SECTION("int + double") {
+      const std::vector<double> expected{2.5, 3.5, 1.5, 7.1};
+      const auto result = myFuncs::sumElementByElement(vectorInt, vectorDouble);
+      CHECK(expected.size() == result.size());
+      for (uint i = 0; i < result.size(); ++i)
+        CHECK(result[i] == Approx(expected[i]));
+    }
+    SECTION("double + double") {
+      const std::vector<double> expected{3, 3, -3, 6.2};
+      const auto result = myFuncs::sumElementByElement(vectorDouble, vectorDouble);
+      CHECK(expected.size() == result.size());
+      for (uint i = 0; i < result.size(); ++i)
+        CHECK(result[i] == Approx(expected[i]));
+    }
+  }
+}

@@ -457,7 +457,7 @@ inline double parabola_maxValue(const TFitResultPtr &fitResult) { return parabol
 //----------------------------------------------
 // linear = p0 + p1*x
 //----------------------------------------------
-//Return when linear line crosses value
+// Return when linear line crosses value
 template <class Tfunction, class Tvalue>
 inline double linear_crossValue(const Tfunction p0, const Tfunction p1, const Tvalue value = 0) {
   if (p1 != 0) {
@@ -469,6 +469,18 @@ inline double linear_crossValue(const Tfunction p0, const Tfunction p1, const Tv
 template <class Tvalue>
 inline double linear_crossValue(const TFitResultPtr &fitResult, const Tvalue value) {
   return linear_crossValue(fitResult->Value(0), fitResult->Value(1), value);
+}
+
+//----------------------------------------------
+// Element by element sum of 2 vectors
+//----------------------------------------------
+template <class T1, class T2>
+std::vector<decltype(T1() * T2())> sumElementByElement(const std::vector<T1> &inputs1, const std::vector<T2> &inputs2) {
+  std::vector<decltype(T1() * T2())> outputs;
+  outputs.reserve(inputs1.size());
+  std::transform(inputs1.begin(), inputs1.end(), inputs2.begin(), std::back_inserter(outputs),
+                 [](const auto element1, const auto element2) { return element1 + element2; });
+  return outputs;
 }
 
 } // namespace myFuncs
