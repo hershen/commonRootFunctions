@@ -255,6 +255,7 @@ std::vector<T> scaleVector(const std::vector<T> &input, const T factor) {
   return output;
 }
 
+// Maybe can use generate algorithm
 template <class T>
 std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
   // Create output vector
@@ -467,6 +468,8 @@ inline double linear_crossValue(const Tfunction p0, const Tfunction p1, const Tv
   return 0.0;
 }
 
+// Return when linear line crosses value
+// Assumes fitResult is valid
 template <class Tvalue>
 inline double linear_crossValue(const TFitResultPtr &fitResult, const Tvalue value) {
   return linear_crossValue(fitResult->Value(0), fitResult->Value(1), value);
