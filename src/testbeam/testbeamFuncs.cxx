@@ -139,10 +139,7 @@ bool isMuon(const double beta, const int runNum) {
 bool isPion(const double beta, const int runNum) { return inPionRange(beta, runNum, 4.0) and not inMuonRange(beta, runNum, 4.0); }
 
 int getV1730waveformLength(const int runNum) {
-  if (isCsI(runNum))
-    return 5000;
-  else
-    return 17500;
+  return isCsI(runNum) ? 5000 : 17500;
 }
 
 bool isCsI(const int runNum) {
