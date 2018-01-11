@@ -9,13 +9,15 @@ class TH1D;
 
 namespace myFuncs {
 
-class MVectorTemplate {
+class VectorTemplate {
 
 public:
   enum AverageMode { keepWeight, noWeight };
 
-  MVectorTemplate();
-  MVectorTemplate(const std::vector<double> &newVec, const double newDx);
+  VectorTemplate();
+
+  template <class T>
+  VectorTemplate(const std::vector<T> &newVec, const double newDx);
 
   inline unsigned int getNumAveragedFuncs() const { return m_numAveragedFuncs; }
   // Should be used with care
@@ -51,7 +53,8 @@ public:
   // Adds a new vector to the template. The values are averaged (taking into account the relative wight of the new vector
   // according to the number of previous vectors added.  m_tF1 parameters reset at the end (otherwise they keep values of last
   // vector added.
-  TFitResult addVector(const std::vector<double> &newVector, const double std, TF1 &function);
+  template <class T>
+  TFitResult addVector(const std::vector<T> &newVector, const double std, TF1 &function);
 
   inline TF1 *getTF1() { return &m_tF1; }
 
