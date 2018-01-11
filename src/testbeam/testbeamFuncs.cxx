@@ -94,23 +94,10 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double> &voltag
 
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum) {
   std::unique_ptr<myFuncs::PaveText> pt(new myFuncs::PaveText(runChannelEventXpos));
-  pt->AddText(
-      (getRunParamsString(runNum) + ", channel " + std::to_string(channelNum) + ", event " + std::to_string(eventNum)).data());
+  pt->AddText((getRunParamsString(runNum) + ", event " + std::to_string(eventNum) + ", channel " +
+              std::to_string(channelNum)).data());
 
   return pt;
-}
-
-void drawWaveform(const std::vector<double> &voltages, const int runNum, const int channelNum, const size_t eventNum,
-                  const bool waitPrimitive) {
-  TCanvas c("c", "c", 0, 0, 1200, 900);
-  auto waveformGraph = myFuncs::testbeam::getWaveformGraph(voltages);
-  waveformGraph->Draw("AP");
-
-  auto eventInfoText = myFuncs::testbeam::getRunChannelEventPaveText(runNum, channelNum, eventNum);
-  eventInfoText->DrawClone();
-
-  if (waitPrimitive)
-    gPad->WaitPrimitive();
 }
 
 bool inElectronRange(const double beta, const int runNum, const double sigmasAway) {
@@ -138,9 +125,7 @@ bool isMuon(const double beta, const int runNum) {
 }
 bool isPion(const double beta, const int runNum) { return inPionRange(beta, runNum, 4.0) and not inMuonRange(beta, runNum, 4.0); }
 
-int getV1730waveformLength(const int runNum) {
-  return isCsI(runNum) ? 5000 : 17500;
-}
+int getV1730waveformLength(const int runNum) { return isCsI(runNum) ? 5000 : 17500; }
 
 bool isCsI(const int runNum) {
   const auto crystal = RunDB::instance()[runNum].getCrystal();

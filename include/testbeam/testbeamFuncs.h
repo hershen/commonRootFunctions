@@ -4,17 +4,19 @@
 #include <memory> //for unique_ptr
 #include <unordered_map>
 
-//Linux
+// Linux
 #include <dirent.h>
 
 // ROOT
 #include "TColor.h"
+#include "TCanvas.h"
 
 // Boost
 #include "boost/format.hpp"
 
 // Mine
 #include "testbeam/constants.h"
+#include "histFuncs.h"
 
 class TGraphErrors;
 
@@ -93,9 +95,6 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double> &voltag
 // Get PaveText of run parameters, channel and event num
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum);
 
-void drawWaveform(const std::vector<double> &voltages, const int runNum, const int channelNum, const size_t eventNum,
-                  const bool waitPrimitive = true);
-
 //===
 // Check if beta is inside the range for the particle and not in range of a different particle
 bool isElectron(const double beta, const int runNum);
@@ -143,10 +142,30 @@ inline double adc2mev(const double adc, const int channel, const Crystal crystal
   return adc * c_crystal2_adc2mev.at(crystal).at(channel);
 }
 
-//Check if seagate mounted and return it.
-//If not, return local HD.
+// Check if seagate mounted and return it.
+// If not, return local HD.
 inline std::string getTestbeamDir() {
-  return opendir("/home/hershen/Seagate/originalMidasFiles") ? "/home/hershen/Seagate" : "/home/hershen/PhD/Testbeam2015/midasFiles";
+  return opendir("/home/hershen/Seagate/originalMidasFiles") ? "/home/hershen/Seagate"
+                                                             : "/home/hershen/PhD/Testbeam2015/midasFiles";
+}
+
+template <class... Tdrawable>
+std::unique_ptr<TCanvas> drawWaveforms(const std::string &saveFilename, const bool waitDoubleClick,
+                                       Tdrawable &... drawableObjects) {
+  static int iDummy = 0;
+  std::unique_ptr<TCanvas> canvas(new TCanvas(("canvas_" + std::to_string(iDummy)).data(), "", 0, 0, 1200, 900));
+
+  drawTObjects(drawableObjects...);
+
+  if (not saveFilename.empty()) {
+    myFuncs::mySaveCanvas(canvas.get(), saveFilename);
+  }
+
+  if (waitDoubleClick) {
+    myFuncs::waitForDoubleClick();
+  }
+
+  return canvas;
 }
 
 } // namespace testbeam
