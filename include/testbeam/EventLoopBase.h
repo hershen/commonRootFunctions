@@ -79,6 +79,8 @@ public:
 	inline int getNumFilesToSkip() const {return m_filesToSkip;}
 	inline void setNumFilesToSkip(const int filesToSkip) {m_filesToSkip = filesToSkip;}
 
+	inline std::vector<double> getTimes() const {return m_times;}
+
 private:
 	//Midas files related to m_runNum
 	std::vector<std::string> m_midasFilenames;
@@ -91,6 +93,9 @@ private:
 	std::shared_ptr<double> m_betaError;
 	std::shared_ptr<double> m_timeAtCrystal_ns;
 	std::shared_ptr<double> m_timeAtCrystalError_ns;
+
+	//times (0..sizeOfWaveform*2)
+	std::vector<double> m_times;
 
 	//Maximum amplitude used in prefilter
 	double m_maxAmplitude;
@@ -116,7 +121,6 @@ private:
 	bool m_skipNoiseEvents;
 	bool m_timingValid;
 
-
 private:
 
 	//Sets ups the TOF chain.
@@ -125,6 +129,9 @@ private:
 	void setupTOFchain(const std::string TOFfilesPath);
 
 	inline void setTimingValid(const bool timingValid) {m_timingValid = timingValid;}
+
+	void fillTimes(const uint numMeasurements);
+
 };
 
 
