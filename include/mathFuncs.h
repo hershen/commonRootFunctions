@@ -487,9 +487,13 @@ std::vector<decltype(T1() * T2())> sumElementByElement(const std::vector<T1> &in
   return outputs;
 }
 
+//----------------------------------------------
+// Find maximum element checking every n'th element
+// I.e. element first, element first + n, first + 2n, etc.
+//----------------------------------------------
 template <class ForwardIt>
 ForwardIt findMaxEvery_n(ForwardIt first, ForwardIt last, const size_t n) {
-  if (first == last) {
+  if (first == last or n == 0) {
     return first;
   }
 
@@ -510,4 +514,31 @@ typename T::const_iterator findMaxEvery_n(const T &container, const size_t n) {
   return findMaxEvery_n(container.begin(), container.end(), n);
 }
 
+//----------------------------------------------
+// Find maximum element in 2 passes
+// First pass looks at elements first, first + n1, first + 2n1, etc.
+// If first returned element N, second pass evaluates all elements [N-n+1, N+n-1].
+// If these are outside first or last, then they are used as end points.
+//----------------------------------------------
+template <class ForwardIt>
+ForwardIt findMaxEvery_n_ThenBetween(ForwardIt first, ForwardIt last, const size_t n) {
+  if (first == last or n == 0) {
+    return first;
+  }
+
+  const auto firstPassItr = findMaxEvery_n(first, last, n);
+  auto newFirst = std::prev(firstPassItr, n - 1);
+  if (std::distance(first, newFirst) < 0) {
+    newFirst = first;
+  }
+  auto newLast = std::next(firstPassItr, n - 1);
+  if (std::distance(newLast, last) < 0) {
+    newLast = last;
+  }
+  return findMaxEvery_n(newFirst, newLast, 1);
+}
+template <class T>
+typename T::const_iterator findMaxEvery_n_ThenBetween(const T &container, const size_t n) {
+  return findMaxEvery_n_ThenBetween(container.begin(), container.end(), n);
+}
 } // namespace myFuncs

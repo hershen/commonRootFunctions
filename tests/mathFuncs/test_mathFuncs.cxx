@@ -388,8 +388,14 @@ TEST_CASE("Test findMaxEvery_n function", "[findMaxEvery_n]") {
   SECTION("Empty vectors") {
     std::vector<int> vectorInt;
     std::vector<double> vectorDouble;
+    CHECK(myFuncs::findMaxEvery_n(vectorInt.begin(), vectorInt.end(), 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble.begin(), vectorDouble.end(), 0) == vectorDouble.begin());
     CHECK(myFuncs::findMaxEvery_n(vectorInt.begin(), vectorInt.end(), 3) == vectorInt.begin());
     CHECK(myFuncs::findMaxEvery_n(vectorDouble.begin(), vectorDouble.end(), 3) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorInt, 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble, 0) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorInt, 3) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble, 3) == vectorDouble.begin());
   }
 
   SECTION("Non empty vectors") {
@@ -432,6 +438,46 @@ TEST_CASE("Test findMaxEvery_n function", "[findMaxEvery_n]") {
       CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 9) == 10);
       CHECK(*myFuncs::findMaxEvery_n(vector, 9) == 10);
     }
+  }
+}
 
+TEST_CASE("Test findMaxEvery_n_ThenBetween function", "[findMaxEvery_n_ThenBetween]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 0) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 1) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 1) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 3) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 3) == vectorDouble.begin());
+  }
+
+  SECTION("Non empty vectors") {
+    std::vector<double> vector{0,  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                               16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0};
+
+    SECTION("Find every 0") {
+      CHECK(myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 0) == vector.begin());
+      CHECK(myFuncs::findMaxEvery_n_ThenBetween(vector, 0) == vector.begin());
+    }
+    SECTION("Find every 1") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 1) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 1) == 16);
+    }
+    SECTION("Find every 10") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 10) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 10) == 16);
+    }
+    SECTION("Find every 20") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 20) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 20) == 16);
+    }
+    SECTION("Out of range") {
+      SECTION("Find every 50") {
+        CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 50) == 16);
+        CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 50) == 16);
+      }
+    }
   }
 }
