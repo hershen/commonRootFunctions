@@ -51,6 +51,40 @@ TEST_CASE("Test runningStatistics function", "[runningStatistics]") {
     CHECK(runStat.getSampleVariance() == Approx(2.5));
   }
 
+  SECTION("Test running function on all zeros") {
+    myFuncs::RunningStatistics runStat;
+
+    for(int i = 0; i < 10; ++i){
+      runStat.addElement(0);
+    }
+
+    CHECK(runStat.getSampleMean() == Approx(0));
+    CHECK(runStat.getSampleStd() == Approx(0));
+    CHECK(runStat.getSampleVariance() == Approx(0));
+  }
+
+  SECTION("Test running function on small # elements, with negative mean") {
+    myFuncs::RunningStatistics runStat;
+
+    runStat.addElement(0);
+    runStat.addElement(1);
+    runStat.addElement(-2);
+    runStat.addElement(-3);
+
+    CHECK(runStat.getSampleMean() == Approx(-1));
+  }
+
+  SECTION("Test running function on small # elements, with negative fractional mean") {
+    myFuncs::RunningStatistics runStat;
+
+    runStat.addElement(0);
+    runStat.addElement(0.1);
+    runStat.addElement(-0.2);
+    runStat.addElement(-0.3);
+
+    CHECK(runStat.getSampleMean() == Approx(-0.1));
+  }
+
   SECTION("Test running function on large sample from uniform distribution. These tests should pass ~99% of the times.") {
     myFuncs::RunningStatistics runStat;
     TRandom3 r(0);
