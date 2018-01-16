@@ -481,3 +481,50 @@ TEST_CASE("Test findMaxEvery_n_ThenBetween function", "[findMaxEvery_n_ThenBetwe
     }
   }
 }
+
+TEST_CASE("Test averageEach_n function", "[averageEach_n]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::averageEach_n(vectorInt, 0).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorDouble, 0).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorInt, 10).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorDouble, 10).size() == 0);
+  }
+
+  SECTION("Non empty vectors") {
+    std::vector<double> vectorDouble{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+
+    SECTION("Average every 0") { CHECK(myFuncs::averageEach_n(vectorDouble, 0) == std::vector<double>()); }
+
+    SECTION("Average every 1") {
+      const auto expected = vectorDouble;
+      CHECK(myFuncs::averageEach_n(vectorDouble, 1) == expected);
+    }
+
+    SECTION("Average every 2") {
+      const std::vector<double> expected{1.5, 3.5, 5.5, 7.5, 9.5, 11.5, 13.5, 15.5, 17.5, 19.5};
+      CHECK(myFuncs::averageEach_n(vectorDouble, 2) == expected);
+    }
+
+    SECTION("Average every 3") {
+      const std::vector<double> expected{2, 5, 8, 11, 14, 17};
+      CHECK(myFuncs::averageEach_n(vectorDouble, 3) == expected);
+    }
+
+    SECTION("Average every 6") {
+      const std::vector<double> expected{3.5, 9.5, 15.5};
+      CHECK(myFuncs::averageEach_n(vectorDouble, 6) == expected);
+    }
+
+    SECTION("Average every 20") {
+      const std::vector<double> expected{10.5};
+      CHECK(myFuncs::averageEach_n(vectorDouble, 20) == expected);
+    }
+
+    SECTION("Overflow - 21") {
+      const std::vector<double> expected;
+      CHECK(myFuncs::averageEach_n(vectorDouble, 21) == expected);
+    }
+  }
+}

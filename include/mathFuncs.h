@@ -541,4 +541,23 @@ template <class T>
 typename T::const_iterator findMaxEvery_n_ThenBetween(const T &container, const size_t n) {
   return findMaxEvery_n_ThenBetween(container.begin(), container.end(), n);
 }
+
+template <class T>
+std::vector<T> averageEach_n(const std::vector<T> &vector, const size_t n) {
+  std::vector<T> output;
+
+  if (n == 0) {
+    return output;
+  }
+
+  const double one_n = 1.0 / static_cast<double>(n);
+  auto it = vector.begin();
+  for (size_t idx = 0; idx + n - 1 < vector.size(); idx += n) {
+    auto nextIt = std::next(it, n);
+    const double average = std::accumulate(it, nextIt, 0.0) * one_n;
+    output.push_back(average);
+    it = nextIt;
+  }
+  return output;
+}
 } // namespace myFuncs
