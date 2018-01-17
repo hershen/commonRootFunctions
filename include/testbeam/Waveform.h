@@ -88,6 +88,35 @@ public:
   T &operator[](size_t idx) { return m_samples[idx]; }
   const T operator[](size_t idx) const { return m_samples[idx]; }
 
+  // Average each n samples (n=0,1 returns identity)
+  // Returns new waveform
+  Waveform<double> averageEach_n(const size_t n) const {
+    return Waveform<double>(myFuncs::averageEach_n(m_samples, n), getDt() * static_cast<double>(n));
+  }
+
+  Waveform<double> timeShift(const double shift) const {
+    return Waveform<double>(myFuncs::shiftVector(m_samples, shift, getDt()), getDt());
+  }
+
+  template <class newWaveformType>
+  Waveform<decltype(T() + newWaveformType())> operator+(const Waveform<newWaveformType> &rWaveform) const {
+    if (getDt() != rWaveform.getDt()) {
+      throw std::invalid_argument("Waveform::operator+: own dt = " + std::to_string(getDt()) +
+                                  ", received waveform dt = " + std::to_string(rWaveform.getDt()));
+    }
+    if (m_samples.size() != rWaveform.getSamples().size()) {
+      throw std::invalid_argument("Waveform::operator+: own number of elements = " + std::to_string(m_samples.size()) +
+                                  ", received waveform number of elements = " + std::to_string(rWaveform.getSamples().size()));
+    }
+
+    using returnType = decltype(T() + newWaveformType());
+
+    std::vector<returnType> output;
+    std::transform(m_samples.begin(), m_samples.end(), rWaveform.getSamples().begin(), std::back_inserter(output),
+                   [](const T own, const newWaveformType theirs) { return own + theirs; });
+    return Waveform<returnType>(output, getDt());
+  }
+
 private:
   std::vector<T> m_samples;
   mutable std::vector<double> m_times;

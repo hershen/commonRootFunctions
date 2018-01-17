@@ -21,6 +21,10 @@
 
 class TGraphErrors;
 
+
+//Todo
+//Think what happens if sampleMean, sampleStd have unsigned numbers (what happens with minuses?)
+
 namespace myFuncs {
 
 // trying to compile with g++
@@ -563,10 +567,11 @@ typename T::const_iterator findMaxEvery_n_ThenBetween(const T &container, const 
 }
 
 template <class T>
-std::vector<T> averageEach_n(const std::vector<T> &vector, const size_t n) {
-  std::vector<T> output;
+std::vector<double> averageEach_n(const std::vector<T> &vector, const size_t n) {
+  std::vector<double> output;
 
   if (n == 0) {
+    output = vectorToDouble(vector);
     return output;
   }
 
