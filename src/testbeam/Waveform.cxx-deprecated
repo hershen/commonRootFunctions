@@ -9,35 +9,6 @@
 
 using namespace myFuncs::testbeam;
 
-Waveform::Waveform(const std::vector<uint32_t> &samples, const double dt) : m_samples(samples), m_dt(dt) {}
-
-Waveform::Waveform(const std::vector<double> &samplesDouble, const double dt) : m_samples_double(samplesDouble), m_dt(dt) {
-  m_samples.reserve(m_samples_double.size());
-  for (const auto sampleDouble : m_samples_double)
-    m_samples.push_back(static_cast<uint32_t>(sampleDouble));
-}
-
-double Waveform::getStd(const unsigned first, const unsigned last) const {
-  return TMath::RMS(m_samples.begin() + first, m_samples.begin() + last);
-}
-
-double Waveform::getMean(const unsigned int first, const unsigned int last) const {
-  return TMath::Mean(m_samples.begin() + first, m_samples.begin() + last);
-}
-
-const std::vector<double> &Waveform::getSamplesDouble() const {
-
-  // If already calculated, return vector
-  if (m_samples_double.size() == 0) {
-    // Transform original samples to double
-    m_samples_double.reserve(m_samples.size());
-    for (const auto sample : m_samples)
-      m_samples_double.push_back(static_cast<double>(sample));
-  }
-
-  return m_samples_double;
-}
-
 const std::vector<double> &Waveform::getTimes() const {
 
   // If already calculated, return vector

@@ -2,8 +2,17 @@
 
 // STL
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <vector>
+// ROOT
+// #include "TFitResult.h"
+// #include "TGraphErrors.h"
+// #include "TH1D.h"
+#include "TMath.h"
+
+// Mine
+#include "mathFuncs.h"
 
 class TGraph;
 class TGraphErrors;
@@ -12,61 +21,89 @@ class TH1D;
 namespace myFuncs {
 namespace testbeam {
 
+template <class T>
 class Waveform {
 public:
-  Waveform(const std::vector<uint32_t> &samples, const double dt);
-  Waveform(const std::vector<double> &samplesDouble, const double dt);
+  Waveform(const std::vector<T> &samples, const double dt) : m_samples(samples), m_dt(dt) {
+    if (m_dt <= 0.0) {
+      throw std::invalid_argument("testbeam::Waveform::Waveform: dt = " + std::to_string(m_dt) + " <= 0");
+    }
+  }
 
-  // Get standard deviation between first and last
-  double getStd(const unsigned int first, const unsigned int last) const;
+  // Get (sample!) standard deviation between first and last
+  // No bounds checking
+  inline double getStd(const size_t firstIdx, const size_t lastIdx) const {
+    if (lastIdx - firstIdx == 0) {
+      return 0.0;
+    }
 
-  // Overloaded - Get standard deviation between m_samples[0] and m_samples[size * 12%]
-  inline double getStd() const { return getStd(0, m_samples.size() * 0.12); }
+    return sampleStd(std::next(m_samples.begin(), firstIdx), std::next(m_samples.begin(), lastIdx + 1));
+  }
 
-  // Get mean between first and last
-  double getMean(const unsigned int first, const unsigned int last) const;
+  inline double getStd() const { return myFuncs::sampleStd(m_samples.begin(), m_samples.end()); }
 
-  // Overloaded - Get mean deviation between m_samples[0] and m_samples[size * 12%]
-  double getMean() const { return getMean(0, m_samples.size() * 0.12); }
+  // Get (sample!) mean between first and last
+  double getMean(const size_t firstIdx, const size_t lastIdx) const {
+    if (lastIdx - firstIdx == 0) {
+      return 0.0;
+    }
+    return myFuncs::sampleMean(std::next(m_samples.begin(), firstIdx), std::next(m_samples.begin(), lastIdx + 1));
+  }
 
-  inline const std::vector<uint32_t> &getSamples() const { return m_samples; }
+  inline double getMean() const { return myFuncs::sampleMean(m_samples.begin(), m_samples.end()); }
 
-  const std::vector<double> &getSamplesDouble() const;
+  inline const std::vector<T> &getSamples() const { return m_samples; }
+
+  inline double getDt() const { return m_dt; }
+
+  Waveform<double> transformToDouble() const {
+    std::vector<double> samplesDouble;
+    samplesDouble.reserve(m_samples.size());
+    std::for_each(m_samples.begin(), m_samples.end(),
+                  [&](const T element) { samplesDouble.push_back(static_cast<double>(element)); });
+    return Waveform<double>(samplesDouble, getDt());
+  }
 
   // Get vector of times.
-  const std::vector<double> &getTimes() const;
+  const std::vector<double> &getTimes() const {
+    // If already calculated, return vector
+    if (m_times.empty()) {
+      fillTimes();
+    }
+    return m_times;
+  }
 
-  // Return time at maximum and maximum.
-  // Calculated with 2nd degree polynomial between first and last
-  std::pair<double, double> getMaxPoly2(const unsigned int first, const unsigned int last) const;
+  // Return pair of maximum idx and maximum value.
+  // Searches every every'th element, then again from (maximum found - every + 1, maximum found + every -1)
+  std::pair<size_t, T> getMaximumIdx_value(const size_t every = 20) const {
+    const auto maxItr = myFuncs::findMaxEvery_n_ThenBetween(m_samples.begin(), m_samples.end(), every);
+    if (maxItr == m_samples.end()) {
+      return std::make_pair(0, 0.0);
+    }
+    return std::make_pair(std::distance(m_samples.begin(), maxItr), *maxItr);
+  }
 
-  // Overloaded - First and last calculated 60-80%
-  inline std::pair<double, double> getMaxPoly2() const { return getMaxPoly2(m_samples.size() * 0.6, m_samples.size() * 0.8); }
-
-  // Get simple amplitude = maximum sample - pedestal
-  // Pedestal is taken to be getMean()
-  // Because of this, it's not the most efficient because it loops on values again.
-  // measures each 5'th sample!
-  double getSimpleAmplitude() const;
-
-  // Produce a TGraph from the wavefrom.
-  TGraph getGraph();
-
-  // Produce a TGraphErros from the wavefrom.
-  // x axis errors are 0.
-  // y axis errors are a constant getStd().
-  TGraphErrors getGraphErrors();
-
-  // Produce a TH1D from the wavefrom.
-  // All bin errors aer a constant getStd().
-  // Seems to be about 30% - 40% slower than using getGraphErrors().
-  TH1D getHistWithErrors();
+  // Access element idx.
+  // No bounds checking!
+  T &operator[](size_t idx) { return m_samples[idx]; }
+  const T operator[](size_t idx) const { return m_samples[idx]; }
 
 private:
-  std::vector<uint32_t> m_samples;
-  mutable std::vector<double> m_samples_double;
+  std::vector<T> m_samples;
   mutable std::vector<double> m_times;
   const double m_dt;
+
+  void fillTimes() const {
+    // Prepare times vector
+    m_times.reserve(m_samples.size());
+    for (uint iSample = 0; iSample < m_samples.size(); ++iSample)
+      m_times.push_back(iSample * m_dt);
+  }
+
+  template <typename Iterator>
+  inline double calcStd(Iterator first, Iterator last) const {
+    return TMath::StdDev(first, last);
+  }
 };
 
 } // namespace testbeam

@@ -59,7 +59,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/generalFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs`
 
-$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o
+$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o
 	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
 
 

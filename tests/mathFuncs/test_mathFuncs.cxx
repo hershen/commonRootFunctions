@@ -528,3 +528,32 @@ TEST_CASE("Test averageEach_n function", "[averageEach_n]") {
     }
   }
 }
+
+  TEST_CASE("Test sampleStd function", "[sampleStd]") {
+    SECTION("Empty vectors") {
+      std::vector<int> vectorInt;
+      std::vector<double> vectorDouble;
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+    }
+
+    SECTION("One element vectors") {
+      std::vector<int> vectorInt {1};
+      std::vector<double> vectorDouble {1};
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+    }
+
+    SECTION("Non Empty vectors") {
+      std::vector<int> vectorInt {1,2,3,4,5,6,7,8};
+      std::vector<double> vectorDouble {1,2,3,4,5,6,7,8};
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(2.29128784747792));
+    }
+}

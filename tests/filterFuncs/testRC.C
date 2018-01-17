@@ -87,5 +87,5 @@ void testRC() {
   pt->AddText( ("Shaping of unit step with CR-RC^{n}, #tau=" + (boost::format("%g") %tau).str()).data() );
   pt->Draw();
 
-  myFuncs::mySaveCanvas(canvas, "CR_RCnShaping");
+  myFuncs::mySaveCanvas(canvas, "CR_RCnShaping_tau" + (boost::format("%g")%tau).str());
 }

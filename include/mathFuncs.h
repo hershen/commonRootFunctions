@@ -341,6 +341,26 @@ double sampleMean(const std::vector<T> &values) {
   return sampleMean(values.begin(), values.end());
 }
 
+// Sample standard deviation
+// Devides by number of elements (not #elements - 1)
+template <class InputIt>
+double sampleStd(InputIt first, InputIt last) {
+  double numElements = 0;
+  const double sample_mean = sampleMean(first, last);
+
+  double sum = 0;
+  for_each(first, last, [&sum, &numElements, sample_mean](const auto element) {
+    sum += (element - sample_mean) * (element - sample_mean);
+    ++numElements;
+  });
+  return numElements > 1 ? std::sqrt(sum / static_cast<double>(numElements)) : 0.0;
+}
+
+template <class T>
+double sampleStd(const std::vector<T> &values) {
+  return sampleStd(values.begin(), values.end());
+}
+
 // return pair of weighted sample mean and it's standard deviation.
 // If size of two input vectors is different, throw.
 // Taken from https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Dealing_with_variance
