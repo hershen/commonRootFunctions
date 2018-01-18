@@ -19,7 +19,6 @@ TEST_CASE("Test empty Waveform", "[Waveform]") {
 
   std::vector<int> vector;
   Waveform<int> waveform(vector, 1.5);
-  CHECK(waveform.getTimes() == std::vector<double>());
   CHECK(waveform.getSamples() == std::vector<int>());
   CHECK(waveform.getDt() == Approx(1.5));
 
@@ -43,13 +42,6 @@ TEST_CASE("Test empty Waveform", "[Waveform]") {
   CHECK(averageEach_nWaveform.getDt() == Approx(3.0));
 }
 TEST_CASE("Test non empty Waveform", "[Waveform]") {
-
-  SECTION("getTimes") {
-    std::vector<int> vector(5);
-    Waveform<int> waveform(vector, 1.5);
-    std::vector<double> expected{0, 1.5, 3, 4.5, 6};
-    CHECK(waveform.getTimes() == expected);
-  }
 
   SECTION("Waveforms with content waveform") {
     std::vector<int> vector{1, 2, 3, 4, 5};

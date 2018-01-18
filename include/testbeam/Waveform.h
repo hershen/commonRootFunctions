@@ -64,15 +64,6 @@ public:
     return Waveform<double>(samplesDouble, getDt());
   }
 
-  // Get vector of times.
-  const std::vector<double> &getTimes() const {
-    // If already calculated, return vector
-    if (m_times.empty()) {
-      fillTimes();
-    }
-    return m_times;
-  }
-
   // Return pair of maximum idx and maximum value.
   // Searches every every'th element, then again from (maximum found - every + 1, maximum found + every -1)
   std::pair<size_t, T> getMaximumIdx_value(const size_t every = 20) const {
@@ -119,15 +110,7 @@ public:
 
 private:
   std::vector<T> m_samples;
-  mutable std::vector<double> m_times;
   const double m_dt;
-
-  void fillTimes() const {
-    // Prepare times vector
-    m_times.reserve(m_samples.size());
-    for (uint iSample = 0; iSample < m_samples.size(); ++iSample)
-      m_times.push_back(iSample * m_dt);
-  }
 
   template <typename Iterator>
   inline double calcStd(Iterator first, Iterator last) const {
