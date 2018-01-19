@@ -42,6 +42,7 @@ clean:
 	-@rm $(OBJ_DIR)/* || true
 	-@rm $(OBJ_DIR)/$(TB_DIR)/* || true
 	-@rm $(SHARED_DIR)/* || true
+	-@rm -r $(TEST_DIR)/$(EXEC_DIR)/* || true
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
@@ -59,7 +60,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/generalFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs`
 
-$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o
+$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o
 	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
 
 
@@ -78,4 +79,4 @@ tests: $(TEST_EXEC_FILES)
 
 $(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
 	-$(shell mkdir -p $(dir $@))
-	$(CCT) $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+	$(CCT) $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools -ltestBeam -L$(ROOTANASYS)/lib -lrootana -lXMLParser -lXMLIO `root-config --glibs`  -o $@ $<
