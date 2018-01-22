@@ -24,6 +24,8 @@ namespace testbeam {
 template <class T>
 class Waveform {
 public:
+  Waveform() : m_samples(std::vector<T>()), m_dt(0.0) {}
+
   Waveform(const std::vector<T> &samples, const double dt) : m_samples(samples), m_dt(dt) {
     if (m_dt <= 0.0) {
       throw std::invalid_argument("testbeam::Waveform::Waveform: dt = " + std::to_string(m_dt) + " <= 0");
@@ -108,14 +110,14 @@ public:
     return Waveform<returnType>(output, getDt());
   }
 
+  void removePedestal(const size_t idx) {
+    const double pedestal = getMean(0,idx);
+    m_samples = myFuncs::addToVector(m_samples, -pedestal);
+  }
+
 private:
   std::vector<T> m_samples;
-  const double m_dt;
-
-  template <typename Iterator>
-  inline double calcStd(Iterator first, Iterator last) const {
-    return TMath::StdDev(first, last);
-  }
+  double m_dt;
 };
 
 } // namespace testbeam
