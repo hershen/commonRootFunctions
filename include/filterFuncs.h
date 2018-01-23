@@ -141,6 +141,13 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
   return myFuncs::DSP::filter(originalNominators, std::vector<coefficientType>{originalDenominator}, inputs);
 }
 
+template <class coefficientType, class inputType>
+std::vector<decltype(coefficientType() * inputType())>
+filter(const std::vector<inputType> &inputs,
+       const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair) {
+  return myFuncs::DSP::filter(coeficientPair.first, coeficientPair.second, inputs);
+}
+
 std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const int n, const double tau,
                                                                           const double samplingFrequency);
 
