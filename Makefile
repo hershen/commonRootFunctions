@@ -7,9 +7,6 @@ CATCH_TESTS=catch2Compile/tests-main.o
 
 CCT=$(CC) $(OPTIM) $(DEBUG) $(CXX11)
 
-print-%:
-	@echo '$*=$($*)'
-
 SRC_DIR=src
 OBJ_DIR=obj
 TEST_DIR=tests
@@ -27,11 +24,9 @@ ROOTANAINC = -I../include
 ROOTANALIBS = ../lib/librootana.a
 endif
 
+EXTERNALS_INCLUDE = -I$(BELLE2_EXTERNALS_DIR)/include
+
 INC=-I$(INC_DIR) $(ROOTANAINC)
-
-
-
-
 
 ROOT_HEADERS=-I`root-config --incdir`
 
@@ -55,7 +50,7 @@ clean:
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
-	$(CCT) -c $(INC) $(ROOT_HEADERS) -fPIC -o $@ $<
+	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -fPIC -o $@ $<
 	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 
 # $(OBJ_DIR)/rootDictionalry.o:
@@ -91,4 +86,7 @@ tests: $(TEST_EXEC_FILES)
 
 $(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
 	-$(shell mkdir -p $(dir $@))
-	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+
+print-%:
+	@echo '$*=$($*)'
