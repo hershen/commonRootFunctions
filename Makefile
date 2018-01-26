@@ -7,6 +7,9 @@ CATCH_TESTS=catch2Compile/tests-main.o
 
 CCT=$(CC) $(OPTIM) $(DEBUG) $(CXX11)
 
+print-%:
+	@echo '$*=$($*)'
+
 SRC_DIR=src
 OBJ_DIR=obj
 TEST_DIR=tests
@@ -26,6 +29,10 @@ endif
 
 INC=-I$(INC_DIR) $(ROOTANAINC)
 
+
+
+
+
 ROOT_HEADERS=-I`root-config --incdir`
 
 #make the text red - used to distinguish cppcheck from g++
@@ -35,6 +42,9 @@ TEXT_RESET=tput sgr0;
 OBJ_FILES=$(patsubst $(SRC_DIR)/%.cxx,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cxx))
 TEST_EXEC_FILES=$(patsubst $(TEST_DIR)/%.cxx,$(TEST_DIR)/$(EXEC_DIR)/%.exe, $(shell find $(TEST_DIR)/ -type f -name '*.cxx'))
 TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wildcard $(SRC_DIR)/$(TB_DIR)/*.cxx))
+
+#Inspired by https://stackoverflow.com/questions/2394609/makefile-header-dependencies
+DEP = $(TEST_EXEC_FILES:%.exe=%.d)
 
 all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
 
@@ -76,6 +86,9 @@ $(CATCH_TESTS):
 ##################################
 tests: $(TEST_EXEC_FILES)
 
+# Include all .d files
+-include $(DEP)
+
 $(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
 	-$(shell mkdir -p $(dir $@))
-	$(CCT) $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
