@@ -86,3 +86,39 @@ TEST_CASE("Test TMatrixToEigenMatrix function", "[TMatrixToEigenMatrix]") {
     }
   }
 }
+
+SCENARIO("Test saveToFile/loadFromFile function", "[saveToFile][loadFromFile]") {
+  GIVEN("A matrix") {
+    Eigen::MatrixXd mat = Eigen::MatrixXd::Random(2, 3);
+    WHEN("trying to save") {
+      const std::string filename = "/home/hershen/temp/testingEigen.root";
+      myFuncs::saveToFile(mat, filename);
+      THEN("Expect the matrix") {
+        Eigen::MatrixXd loadedMatrix = myFuncs::loadFromFile(filename);
+        CHECK(loadedMatrix.rows() == mat.rows());
+        CHECK(loadedMatrix.cols() == mat.cols());
+        for (int row = 0; row < mat.rows(); ++row) {
+          for (int col = 0; col < mat.cols(); ++col) {
+            CHECK(mat(row, col) == Approx(loadedMatrix(row, col)));
+          }
+        }
+      }
+    }
+
+    WHEN("Saving a different matrix in a file with a specified tree name") {
+      const std::string filename = "/home/hershen/temp/testingEigen2.root";
+      mat = mat *10;
+      myFuncs::saveToFile(mat, filename, "myTree");
+      THEN("Expect the matrix") {
+        Eigen::MatrixXd loadedMatrix = myFuncs::loadFromFile(filename, "myTree");
+        CHECK(loadedMatrix.rows() == mat.rows());
+        CHECK(loadedMatrix.cols() == mat.cols());
+        for (int row = 0; row < mat.rows(); ++row) {
+          for (int col = 0; col < mat.cols(); ++col) {
+            CHECK(mat(row, col) == Approx(loadedMatrix(row, col)));
+          }
+        }
+      }
+    }
+  }
+}
