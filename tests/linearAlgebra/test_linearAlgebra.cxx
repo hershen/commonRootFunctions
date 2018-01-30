@@ -107,7 +107,7 @@ SCENARIO("Test saveToFile/loadFromFile function", "[saveToFile][loadFromFile]") 
 
     WHEN("Saving a different matrix in a file with a specified tree name") {
       const std::string filename = "/home/hershen/temp/testingEigen2.root";
-      mat = mat *10;
+      mat = mat * 10;
       myFuncs::saveToFile(mat, filename, "myTree");
       THEN("Expect the matrix") {
         Eigen::MatrixXd loadedMatrix = myFuncs::loadFromFile(filename, "myTree");
@@ -119,6 +119,16 @@ SCENARIO("Test saveToFile/loadFromFile function", "[saveToFile][loadFromFile]") 
           }
         }
       }
+    }
+  }
+}
+
+SCENARIO("Convert Eigen matrix to TMatrixD", "[EigenToTMatrix]") {
+  GIVEN("A an Eigen Matrix") {
+    Eigen::MatrixXd *eigenMatrix = new Eigen::MatrixXd(Eigen::MatrixXd::Random(8, 11));
+    WHEN("Converting it to a TMatrixD") {
+      TMatrixD tMatrix = myFuncs::EigenToTMatrix(*eigenMatrix);
+      THEN("Matrices should be equal") { isEqual(tMatrix, *eigenMatrix); }
     }
   }
 }

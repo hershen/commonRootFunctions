@@ -14,28 +14,18 @@
 
 namespace myFuncs {
 
-// not tested
-// Returns the contents of a TMatrix in an Eigen SelfadjointView.
-// template <unsigned int UpLo = Eigen::Lower>
-// Eigen::SelfAdjointView<Eigen::Map<Eigen::MatrixXd>, UpLo> TMatrixToEigenSymmetric(TMatrixD &matrix) {
-//   typedef Eigen::Map<Eigen::MatrixXd> MapType;
-//   MapType m2map(matrix.GetMatrixArray(), matrix.GetNrows(), matrix.GetNcols());
-//   // Eigen::MatrixXd m2(matrix.GetNrows(), matrix.GetNcols());
-//
-//   // Matrix4d M = Map<Matrix<double,4,4,RowMajor> >(data);
-//   return m2map.template selfadjointView<UpLo>();
-// }
-
 // Returns the contents of a TMatrix in an Eigen matrix.
-//
 Eigen::MatrixXd TMatrixToEigenMatrix(TMatrixD &matrix) {
   typedef Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> MapType;
   MapType m2map(matrix.GetMatrixArray(), matrix.GetNrows(), matrix.GetNcols());
   return m2map;
 }
 
-void saveToFile(Eigen::MatrixXd &matrix, const std::string &filename, const std::string &treeName = "tree") {
-  TFile f(filename.c_str(), "RECREATE");
+// Save Eigen matrix into TTree
+template <typename EigenType>
+void saveToFile(EigenType &matrix, const std::string &filename, const std::string &treeName = "tree",
+                const std::string &options = "RECREATE") {
+  TFile f(filename.c_str(), options.c_str());
   TTree tree(treeName.c_str(), "");
   const size_t numElements = matrix.rows() * matrix.cols();
 
@@ -50,6 +40,7 @@ void saveToFile(Eigen::MatrixXd &matrix, const std::string &filename, const std:
   f.Close();
 }
 
+// Load Eigen matrix from TTree
 Eigen::MatrixXd loadFromFile(const std::string &filename, const std::string &treeName = "tree") {
   TFile f(filename.c_str(), "READ");
   TTree *tree = (TTree *)f.Get(treeName.c_str());
@@ -79,5 +70,10 @@ Eigen::MatrixXd loadFromFile(const std::string &filename, const std::string &tre
   typedef Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>> MapType;
   MapType m2map(matrixArray.data(), rows, cols);
   return m2map;
+}
+
+template <class EigenType>
+TMatrixD EigenToTMatrix(const EigenType &eigenMatrix) {
+  return TMatrixD(eigenMatrix.rows(), eigenMatrix.cols(), eigenMatrix.data(), "F"); //"F" is for column wise
 }
 } // namespace myFuncs
