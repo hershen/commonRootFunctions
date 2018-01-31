@@ -110,8 +110,7 @@ public:
     return Waveform<returnType>(output, getDt());
   }
 
-  void removePedestal(const size_t idx) {
-    const double pedestal = getMean(0,idx);
+  void removePedestal(const double pedestal) {
     m_samples = myFuncs::addToVector(m_samples, -pedestal);
   }
 

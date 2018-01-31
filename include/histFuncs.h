@@ -2,6 +2,7 @@
 
 // std
 #include <iostream>
+#include <numeric> //for iota
 
 // Boost
 #include "boost/format.hpp"
@@ -219,5 +220,28 @@ inline std::vector<double> getXvalues(TGraph &graph) { return std::vector<double
 // Wait in current pad for double click.
 // If there is no pad, or if pad is closed while waiting, terminates the root TApplication.
 void waitForDoubleClick();
+
+// Produce TGraph from yValues and set title.
+// xValues will be 0, 1, 2,...
+template <class T>
+TGraph getGraph(const std::vector<T> &xValues, const std::vector<T> yValues, const std::string &title) {
+  if (xValues.size() != yValues.size()) {
+    throw std::invalid_argument("histFuncs::getGraph: xValues.size() = " + std::to_string(xValues.size()) +
+                                ", yValues.size() = " + std::to_string(yValues.size()));
+  }
+  TGraph graph(yValues.size(), xValues.data(), yValues.data());
+  graph.SetTitle(title.c_str());
+  
+  return graph;
+}
+
+// Produce TGraph from yValues and set title.
+// xValues will be 0, 1, 2,...
+template <class T>
+TGraph getGraph(const std::vector<T> &yValues, const std::string &title) {
+  std::vector<T> xValues(yValues.size());
+  std::iota(xValues.begin(), xValues.end(), T(0));
+  return getGraph(xValues, yValues, title);
+}
 
 } // namespace myFuncs
