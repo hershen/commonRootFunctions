@@ -90,20 +90,34 @@ TEST_CASE("Test filter function", "[filter]") {
     const int zeros = 300;
     std::vector<double> stepFunc(zeros, 0.0);
     stepFunc.insert(stepFunc.end(), zeros, 1.0);
+    SECTION("With seperate nom and denom") {
+      std::vector<double> nom;
+      std::vector<double> denom;
+      std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(4, 500, 1.0 / 2.0);
+      const auto filtered = filter(nom, denom, stepFunc);
 
-    std::vector<double> nom;
-    std::vector<double> denom;
-    std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(4, 500, 1.0 / 2.0);
-    const auto filtered = filter(nom, denom, stepFunc);
+      REQUIRE(filtered.size() == stepFunc.size());
 
-    REQUIRE(filtered.size() == stepFunc.size());
+      // AnalyticalFunction
+      auto analyticalFunc = myFuncs::analytical_RC_CRn(4, 500., 1.0, zeros * 2.0 - 2.0 / 2.0, stepFunc.size() * 2.0);
 
-    // AnalyticalFunction
-    auto analyticalFunc = myFuncs::analytical_RC_CRn(4, 500., 1.0, zeros * 2.0 - 2.0 / 2.0, stepFunc.size() * 2.0);
+      // Check filter
+      for (uint i = 0; i < filtered.size(); ++i)
+        REQUIRE(std::abs(filtered[i] - analyticalFunc.Eval(i * 2.0)) <= 1e-7); // Pretty low tollerance!
+    }
 
-    // Check filter
-    for (uint i = 0; i < filtered.size(); ++i)
-      REQUIRE(std::abs(filtered[i] - analyticalFunc.Eval(i * 2.0)) <= 1e-7); //Pretty low tollerance!
+    SECTION("With getCR_RCnCoefficients directly") {
 
+      const auto filtered = filter(myFuncs::DSP::getCR_RCnCoefficients(4, 500, 1.0 / 2.0), stepFunc);
+
+      REQUIRE(filtered.size() == stepFunc.size());
+
+      // AnalyticalFunction
+      auto analyticalFunc = myFuncs::analytical_RC_CRn(4, 500., 1.0, zeros * 2.0 - 2.0 / 2.0, stepFunc.size() * 2.0);
+
+      // Check filter
+      for (uint i = 0; i < filtered.size(); ++i)
+        REQUIRE(std::abs(filtered[i] - analyticalFunc.Eval(i * 2.0)) <= 1e-7); // Pretty low tollerance!
+    }
   }
 }

@@ -301,7 +301,7 @@ std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const 
   }
 
   return std::make_pair(nominators, denominators);
-} // namespace DSP
+}
 
 } // namespace DSP
 } // namespace myFuncs

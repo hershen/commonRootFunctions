@@ -388,8 +388,14 @@ TEST_CASE("Test findMaxEvery_n function", "[findMaxEvery_n]") {
   SECTION("Empty vectors") {
     std::vector<int> vectorInt;
     std::vector<double> vectorDouble;
+    CHECK(myFuncs::findMaxEvery_n(vectorInt.begin(), vectorInt.end(), 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble.begin(), vectorDouble.end(), 0) == vectorDouble.begin());
     CHECK(myFuncs::findMaxEvery_n(vectorInt.begin(), vectorInt.end(), 3) == vectorInt.begin());
     CHECK(myFuncs::findMaxEvery_n(vectorDouble.begin(), vectorDouble.end(), 3) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorInt, 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble, 0) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorInt, 3) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n(vectorDouble, 3) == vectorDouble.begin());
   }
 
   SECTION("Non empty vectors") {
@@ -432,6 +438,132 @@ TEST_CASE("Test findMaxEvery_n function", "[findMaxEvery_n]") {
       CHECK(*myFuncs::findMaxEvery_n(vector.begin(), vector.end(), 9) == 10);
       CHECK(*myFuncs::findMaxEvery_n(vector, 9) == 10);
     }
-
   }
+}
+
+TEST_CASE("Test findMaxEvery_n_ThenBetween function", "[findMaxEvery_n_ThenBetween]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 0) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 0) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 1) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 1) == vectorDouble.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorInt.begin(), vectorInt.end(), 3) == vectorInt.begin());
+    CHECK(myFuncs::findMaxEvery_n_ThenBetween(vectorDouble.begin(), vectorDouble.end(), 3) == vectorDouble.begin());
+  }
+
+  SECTION("Non empty vectors") {
+    std::vector<double> vector{0,  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                               16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0};
+
+    SECTION("Find every 0") {
+      CHECK(myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 0) == vector.begin());
+      CHECK(myFuncs::findMaxEvery_n_ThenBetween(vector, 0) == vector.begin());
+    }
+    SECTION("Find every 1") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 1) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 1) == 16);
+    }
+    SECTION("Find every 10") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 10) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 10) == 16);
+    }
+    SECTION("Find every 20") {
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 20) == 16);
+      CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 20) == 16);
+    }
+    SECTION("Out of range") {
+      SECTION("Find every 50") {
+        CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector.begin(), vector.end(), 50) == 16);
+        CHECK(*myFuncs::findMaxEvery_n_ThenBetween(vector, 50) == 16);
+      }
+    }
+  }
+}
+
+template <class T>
+void checkNonEmptyAverageEach_n(const std::vector<T>& vector) {
+  SECTION("Average every 0") { CHECK(myFuncs::averageEach_n(vector, 0) == myFuncs::vectorToDouble(vector)); }
+
+  SECTION("Average every 1") {
+    const auto expected = vector;
+    CHECK(myFuncs::averageEach_n(vector, 1) == myFuncs::vectorToDouble(vector));
+  }
+
+  SECTION("Average every 2") {
+    const std::vector<double> expected{1.5, 3.5, 5.5, 7.5, 9.5, 11.5, 13.5, 15.5, 17.5, 19.5};
+    CHECK(myFuncs::averageEach_n(vector, 2) == expected);
+  }
+
+  SECTION("Average every 3") {
+    const std::vector<double> expected{2, 5, 8, 11, 14, 17};
+    CHECK(myFuncs::averageEach_n(vector, 3) == expected);
+  }
+
+  SECTION("Average every 6") {
+    const std::vector<double> expected{3.5, 9.5, 15.5};
+    CHECK(myFuncs::averageEach_n(vector, 6) == expected);
+  }
+
+  SECTION("Average every 20") {
+    const std::vector<double> expected{10.5};
+    CHECK(myFuncs::averageEach_n(vector, 20) == expected);
+  }
+
+  SECTION("Overflow - 21") {
+    const std::vector<double> expected;
+    CHECK(myFuncs::averageEach_n(vector, 21) == expected);
+  }
+}
+
+TEST_CASE("Test averageEach_n function", "[averageEach_n]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::averageEach_n(vectorInt, 0).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorDouble, 0).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorInt, 10).size() == 0);
+    CHECK(myFuncs::averageEach_n(vectorDouble, 10).size() == 0);
+  }
+
+  SECTION("double vector") {
+    std::vector<double> vectorDouble{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    checkNonEmptyAverageEach_n(vectorDouble);
+  }
+  SECTION("double int") {
+    std::vector<int> vectorDouble{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    checkNonEmptyAverageEach_n(vectorDouble);
+  }
+
+
+}
+
+  TEST_CASE("Test sampleStd function", "[sampleStd]") {
+    SECTION("Empty vectors") {
+      std::vector<int> vectorInt;
+      std::vector<double> vectorDouble;
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+    }
+
+    SECTION("One element vectors") {
+      std::vector<int> vectorInt {1};
+      std::vector<double> vectorDouble {1};
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+    }
+
+    SECTION("Non Empty vectors") {
+      std::vector<int> vectorInt {1,2,3,4,5,6,7,8};
+      std::vector<double> vectorDouble {1,2,3,4,5,6,7,8};
+      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorInt) == Approx(2.29128784747792));
+      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(2.29128784747792));
+    }
 }

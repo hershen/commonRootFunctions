@@ -1,123 +1,55 @@
 #include "testbeam/Waveform.h"
+
+// STL
 #include <iostream>
 
-// ROOT
-#include "TFitResult.h"
-#include "TGraphErrors.h"
-#include "TH1D.h"
-#include "TMath.h"
+namespace myFuncs {
+namespace testbeam {
 
-using namespace myFuncs::testbeam;
-
-Waveform::Waveform(const std::vector<uint32_t> &samples, const double dt) : m_samples(samples), m_dt(dt) {}
-
-Waveform::Waveform(const std::vector<double> &samplesDouble, const double dt) : m_samples_double(samplesDouble), m_dt(dt) {
-  m_samples.reserve(m_samples_double.size());
-  for (const auto sampleDouble : m_samples_double)
-    m_samples.push_back(static_cast<uint32_t>(sampleDouble));
+Waveform::Waveform(const std::vector<double> &samples, const double dt) : m_samples(samples), m_dt(dt) {
+  if (m_dt <= 0.0) {
+    throw std::invalid_argument("testbeam::Waveform::Waveform: dt = " + std::to_string(m_dt) + " <= 0");
+  }
 }
 
-double Waveform::getStd(const unsigned first, const unsigned last) const {
-  return TMath::RMS(m_samples.begin() + first, m_samples.begin() + last);
-}
-
-double Waveform::getMean(const unsigned int first, const unsigned int last) const {
-  return TMath::Mean(m_samples.begin() + first, m_samples.begin() + last);
-}
-
-const std::vector<double> &Waveform::getSamplesDouble() const {
-
-  // If already calculated, return vector
-  if (m_samples_double.size() == 0) {
-    // Transform original samples to double
-    m_samples_double.reserve(m_samples.size());
-    for (const auto sample : m_samples)
-      m_samples_double.push_back(static_cast<double>(sample));
+double Waveform::getStd(const size_t firstIdx, const size_t lastIdx) const {
+  if (lastIdx - firstIdx == 0) {
+    return 0.0;
   }
 
-  return m_samples_double;
+  return sampleStd(std::next(m_samples.begin(), firstIdx), std::next(m_samples.begin(), lastIdx + 1));
 }
 
-const std::vector<double> &Waveform::getTimes() const {
+double Waveform::getMean(const size_t firstIdx, const size_t lastIdx) const {
+  if (lastIdx - firstIdx == 0) {
+    return 0.0;
+  }
+  return myFuncs::sampleMean(std::next(m_samples.begin(), firstIdx), std::next(m_samples.begin(), lastIdx + 1));
+}
 
-  // If already calculated, return vector
-  if (m_times.size() == 0) {
-    // Prepare times vector
-    m_times.reserve(m_samples.size());
-    for (uint iSample = 0; iSample < m_samples.size(); ++iSample)
-      m_times.push_back(iSample * m_dt);
+std::pair<size_t, double> Waveform::getMaximumIdx_value(const size_t every) const {
+  const auto maxItr = myFuncs::findMaxEvery_n_ThenBetween(m_samples.begin(), m_samples.end(), every);
+  if (maxItr == m_samples.end()) {
+    return std::make_pair(0, 0.0);
+  }
+  return std::make_pair(std::distance(m_samples.begin(), maxItr), *maxItr);
+}
+
+Waveform Waveform::operator+(const Waveform &rWaveform) const {
+  if (getDt() != rWaveform.getDt()) {
+    throw std::invalid_argument("Waveform::operator+: own dt = " + std::to_string(getDt()) +
+                                ", received waveform dt = " + std::to_string(rWaveform.getDt()));
+  }
+  if (m_samples.size() != rWaveform.getSamples().size()) {
+    throw std::invalid_argument("Waveform::operator+: own number of elements = " + std::to_string(m_samples.size()) +
+                                ", received waveform number of elements = " + std::to_string(rWaveform.getSamples().size()));
   }
 
-  return m_times;
+  std::vector<double> output;
+  std::transform(m_samples.begin(), m_samples.end(), rWaveform.getSamples().begin(), std::back_inserter(output),
+                 std::plus<double>());
+  return Waveform(output, getDt());
 }
 
-std::pair<double, double> Waveform::getMaxPoly2(const unsigned int first, const unsigned int last) const {
-
-  // Sanity
-  if (first >= last)
-    return {0.0, 0.0};
-
-  const double std = getStd();
-  const long numPoints = last - first;
-
-  std::vector<double> errors(numPoints, std);
-
-  TGraphErrors graph(numPoints, getTimes().data() + first, getSamplesDouble().data() + first, 0, errors.data());
-  auto fitResult = graph.Fit("pol2", "MSQ");
-
-  const double timeAtMax = -fitResult->Value(1) / fitResult->Value(2) / 2.0;
-  const double maxVal = fitResult->Value(0) + fitResult->Value(1) * timeAtMax + fitResult->Value(2) * timeAtMax * timeAtMax;
-
-  // 	std::cout << "Chi2 / ndf = " << fitResult->Chi2() << "/" << fitResult->Ndf() << ", prob = " << fitResult->Prob() <<
-  // std::endl; 	std::cout << "time - (" << 	getTimes()[first] << " , " << getTimes()[first + numPoints] << std::endl;
-  //
-
-  return {timeAtMax, maxVal};
-}
-
-double Waveform::getSimpleAmplitude() const {
-  double amp = -1.0;
-
-  const double pedestal = getMean();
-  for (unsigned int idx = 0; idx < m_samples.size(); idx += 5) {
-    if ((m_samples[idx] - pedestal) > amp) {
-      amp = m_samples[idx] - pedestal;
-    }
-  }
-
-  return amp;
-}
-
-TGraphErrors Waveform::getGraphErrors() {
-  std::vector<double> stds(m_samples.size(), getStd());
-  TGraphErrors graph(m_samples.size(), getTimes().data(), getSamplesDouble().data(), 0, stds.data());
-
-  graph.SetTitle(";Time (ns); Voltage (ADC counts)");
-  graph.SetMarkerSize(0.5);
-
-  return graph;
-}
-
-TGraph Waveform::getGraph() {
-  TGraph graph(m_samples.size(), getTimes().data(), getSamplesDouble().data());
-
-  graph.SetTitle(";Time (ns); Voltage (ADC counts)");
-  graph.SetMarkerSize(0.5);
-
-  return graph;
-}
-
-TH1D Waveform::getHistWithErrors() {
-
-  const double std = getStd();
-
-  TH1D fitHist("fitHist", "fitHist", m_samples.size(), -m_dt / 2.0, m_samples.size() * m_dt - m_dt / 2.0);
-  for (size_t idx = 1; idx <= m_samples.size(); ++idx) {
-    fitHist.SetBinContent(idx, m_samples[idx - 1]);
-    fitHist.SetBinError(idx, std);
-  }
-
-  fitHist.SetTitle(";Time (ns); Voltage (ADC counts)");
-
-  return fitHist;
-}
+} // namespace testbeam
+} // namespace myFuncs

@@ -30,8 +30,7 @@ void testRC() {
   std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(3, tau, 1/dt);
   const std::vector<double> filtered_RC3 = myFuncs::DSP::filter(nom, denom, xs);
 
-  std::tie(nom, denom) = myFuncs::DSP::getCR_RCnCoefficients(4, tau, 1/dt);
-  const std::vector<double> filtered_RC4 = myFuncs::DSP::filter(nom, denom, xs);
+  const std::vector<double> filtered_RC4 = myFuncs::DSP::filter(myFuncs::DSP::getCR_RCnCoefficients(4, tau, 1/dt), xs);
 
   // Draw
   TCanvas *canvas = new TCanvas("canvas", "", 0, 0, 1200, 900);
@@ -87,5 +86,5 @@ void testRC() {
   pt->AddText( ("Shaping of unit step with CR-RC^{n}, #tau=" + (boost::format("%g") %tau).str()).data() );
   pt->Draw();
 
-  myFuncs::mySaveCanvas(canvas, "CR_RCnShaping");
+  myFuncs::mySaveCanvas(canvas, "CR_RCnShaping_tau" + (boost::format("%g")%tau).str());
 }

@@ -5,6 +5,9 @@
 #include <memory>
 #include <vector>
 
+// Mine
+#include "mathFuncs.h"
+
 class TGraph;
 class TGraphErrors;
 class TH1D;
@@ -14,59 +17,56 @@ namespace testbeam {
 
 class Waveform {
 public:
-  Waveform(const std::vector<uint32_t> &samples, const double dt);
-  Waveform(const std::vector<double> &samplesDouble, const double dt);
+  Waveform() = default;
 
-  // Get standard deviation between first and last
-  double getStd(const unsigned int first, const unsigned int last) const;
+  Waveform(const std::vector<double> &samples, const double dt);
 
-  // Overloaded - Get standard deviation between m_samples[0] and m_samples[size * 12%]
-  inline double getStd() const { return getStd(0, m_samples.size() * 0.12); }
+  template <class T>
+  Waveform(const std::vector<T> &samples, const double dt) : Waveform(std::vector<double>(), dt) {
+    m_samples.reserve(m_samples.size());
+    std::for_each(samples.begin(), samples.end(), [&](const T element) { m_samples.push_back(static_cast<double>(element)); });
+  }
 
-  // Get mean between first and last
-  double getMean(const unsigned int first, const unsigned int last) const;
+  // Get (sample!) standard deviation between first and last
+  // No bounds checking
+  double getStd(const size_t firstIdx, const size_t lastIdx) const;
 
-  // Overloaded - Get mean deviation between m_samples[0] and m_samples[size * 12%]
-  double getMean() const { return getMean(0, m_samples.size() * 0.12); }
+  inline double getStd() const { return myFuncs::sampleStd(m_samples.begin(), m_samples.end()); }
 
-  inline const std::vector<uint32_t> &getSamples() const { return m_samples; }
+  // Get (sample!) mean between first and last
+  double getMean(const size_t firstIdx, const size_t lastIdx) const;
 
-  const std::vector<double> &getSamplesDouble() const;
+  inline double getMean() const { return myFuncs::sampleMean(m_samples.begin(), m_samples.end()); }
 
-  // Get vector of times.
-  const std::vector<double> &getTimes() const;
+  inline const std::vector<double> &getSamples() const { return m_samples; }
 
-  // Return time at maximum and maximum.
-  // Calculated with 2nd degree polynomial between first and last
-  std::pair<double, double> getMaxPoly2(const unsigned int first, const unsigned int last) const;
+  inline double getDt() const { return m_dt; }
 
-  // Overloaded - First and last calculated 60-80%
-  inline std::pair<double, double> getMaxPoly2() const { return getMaxPoly2(m_samples.size() * 0.6, m_samples.size() * 0.8); }
+  // Return pair of maximum idx and maximum value.
+  // Searches every every'th element, then again from (maximum found - every + 1, maximum found + every -1)
+  std::pair<size_t, double> getMaximumIdx_value(const size_t every = 20) const;
 
-  // Get simple amplitude = maximum sample - pedestal
-  // Pedestal is taken to be getMean()
-  // Because of this, it's not the most efficient because it loops on values again.
-  // measures each 5'th sample!
-  double getSimpleAmplitude() const;
+  // Access element idx.
+  // No bounds checking!
+  double &operator[](size_t idx) { return m_samples[idx]; }
+  double operator[](size_t idx) const { return m_samples[idx]; }
 
-  // Produce a TGraph from the wavefrom.
-  TGraph getGraph();
+  // Average each n samples (n=0,1 does nothing)
+  inline void averageEach_n(const size_t n) {
+    m_samples = myFuncs::averageEach_n(m_samples, n);
+    m_dt = getDt() * static_cast<double>(n);
+  }
 
-  // Produce a TGraphErros from the wavefrom.
-  // x axis errors are 0.
-  // y axis errors are a constant getStd().
-  TGraphErrors getGraphErrors();
+  inline void timeShift(const double shift) { m_samples = myFuncs::shiftVector(m_samples, shift, getDt()); }
 
-  // Produce a TH1D from the wavefrom.
-  // All bin errors aer a constant getStd().
-  // Seems to be about 30% - 40% slower than using getGraphErrors().
-  TH1D getHistWithErrors();
+  Waveform operator+(const Waveform &rWaveform) const;
+
+  // Remove given pedestal from waveform
+  void removePedestal(const double pedestal) { m_samples = myFuncs::addToVector(m_samples, -pedestal); }
 
 private:
-  std::vector<uint32_t> m_samples;
-  mutable std::vector<double> m_samples_double;
-  mutable std::vector<double> m_times;
-  const double m_dt;
+  std::vector<double> m_samples;
+  double m_dt;
 };
 
 } // namespace testbeam

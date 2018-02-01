@@ -300,4 +300,17 @@ std::vector<std::string> readFile(const std::string &filename, const int numHead
   return outputs;
 }
 
+void copyTTreeFromFileToFile(const std::string &treename, const std::string &fromFilename, const std::string &toFilename) {
+  TFile fromFile(fromFilename.c_str(), "READ");
+  TTree *oldtree = (TTree *)fromFile.Get(treename.c_str());
+
+  //Clone tree to new file
+  TFile toFile(toFilename.c_str(), "UPDATE");
+  oldtree->CloneTree();
+
+  //Cleanup
+  toFile.Write();
+  fromFile.Close();
+  toFile.Close();
+}
 } // namespace myFuncs
