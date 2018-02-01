@@ -143,8 +143,8 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
 
 template <class coefficientType, class inputType>
 std::vector<decltype(coefficientType() * inputType())>
-filter(const std::vector<inputType> &inputs,
-       const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair) {
+filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair,
+       const std::vector<inputType> &inputs) {
   return myFuncs::DSP::filter(coeficientPair.first, coeficientPair.second, inputs);
 }
 
