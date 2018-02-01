@@ -87,7 +87,7 @@ tests: $(TEST_EXEC_FILES)
 
 $(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
 	-$(shell mkdir -p $(dir $@))
-	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -L$(SHARED_DIR) -ltestBeam -lbasf2Tools `root-config --glibs` -lRHTTP -o $@ $<
 
 print-%:
 	@echo '$*=$($*)'

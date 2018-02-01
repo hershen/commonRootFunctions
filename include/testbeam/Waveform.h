@@ -22,7 +22,7 @@ public:
   Waveform(const std::vector<double> &samples, const double dt);
 
   template <class T>
-  Waveform(const std::vector<T> &samples, const double dt) : m_dt(dt) {
+  Waveform(const std::vector<T> &samples, const double dt) : Waveform(std::vector<double>(), dt) {
     m_samples.reserve(m_samples.size());
     std::for_each(samples.begin(), samples.end(), [&](const T element) { m_samples.push_back(static_cast<double>(element)); });
   }

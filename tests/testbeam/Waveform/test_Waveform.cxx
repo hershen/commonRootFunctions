@@ -99,7 +99,7 @@ TEST_CASE("timeShift", "[Waveform]") {
     CHECK(waveform.getSamples() == std::vector<double>{1, 1, 1, 1, 2});
   }
   SECTION("time shift -3 bins") {
-    waveform.timeShift(1.5 * 3.0);
+    waveform.timeShift(-1.5 * 3.0);
     CHECK(waveform.getSamples() == std::vector<double>{4, 5, 5, 5, 5});
   }
 }
