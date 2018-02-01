@@ -24,6 +24,8 @@ ROOTANAINC = -I../include
 ROOTANALIBS = ../lib/librootana.a
 endif
 
+EXTERNALS_INCLUDE = -I$(BELLE2_EXTERNALS_DIR)/include
+
 INC=-I$(INC_DIR) $(ROOTANAINC)
 
 ROOT_HEADERS=-I`root-config --incdir`
@@ -36,6 +38,9 @@ OBJ_FILES=$(patsubst $(SRC_DIR)/%.cxx,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cxx
 TEST_EXEC_FILES=$(patsubst $(TEST_DIR)/%.cxx,$(TEST_DIR)/$(EXEC_DIR)/%.exe, $(shell find $(TEST_DIR)/ -type f -name '*.cxx'))
 TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wildcard $(SRC_DIR)/$(TB_DIR)/*.cxx))
 
+#Inspired by https://stackoverflow.com/questions/2394609/makefile-header-dependencies
+DEP = $(TEST_EXEC_FILES:%.exe=%.d)
+
 all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
 
 clean:
@@ -46,7 +51,7 @@ clean:
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
-	$(CCT) -c $(INC) $(ROOT_HEADERS) -fPIC -o $@ $<
+	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -fPIC -o $@ $<
 	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 
 # $(OBJ_DIR)/rootDictionalry.o:
@@ -77,6 +82,12 @@ $(CATCH_TESTS):
 ##################################
 tests: $(TEST_EXEC_FILES)
 
+# Include all .d files
+-include $(DEP)
+
 $(TEST_DIR)/$(EXEC_DIR)/%.exe: $(TEST_DIR)/%.cxx
 	-$(shell mkdir -p $(dir $@))
-	$(CCT) $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) -L$(SHARED_DIR) -lbasf2Tools -ltestBeam -L$(ROOTANASYS)/lib -lrootana -lXMLParser -lXMLIO `root-config --glibs`  -o $@ $<
+	$(CCT) -MMD $(CATCH_TESTS) $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -L$(SHARED_DIR) -lbasf2Tools `root-config --glibs` -o $@ $<
+
+print-%:
+	@echo '$*=$($*)'

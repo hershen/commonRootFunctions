@@ -4,6 +4,7 @@
 #include "TChain.h"
 #include "TGraphErrors.h"
 #include "TPad.h"
+#include "TF1.h"
 
 // Mine
 #include "fileFuncs.h"
@@ -153,6 +154,15 @@ std::unordered_map<std::string, double> getGeantFileSimParamers(const std::strin
   map["momentumResolution"] = momentumResolution;
 
   return map;
+}
+
+TF1 getPedestalFitFunction(const int runNum, const int channel) {
+  const pedestalFitParams fitParams = RunDB::instance()[runNum].getPedestalFitParams(channel);
+  TF1 func(("pedesalFunc_" + std::to_string(runNum) + "_" + std::to_string(channel)).c_str(), "pol2", 0, 1e6);
+  func.FixParameter(0, fitParams.p0);
+  func.FixParameter(1, fitParams.p1);
+  func.FixParameter(2, fitParams.p2);
+  return func;
 }
 
 } // namespace testbeam

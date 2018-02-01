@@ -61,8 +61,8 @@ public:
 
   Waveform operator+(const Waveform &rWaveform) const;
 
-  // Remove pedestal from waveform
-  void removePedestal(const size_t pedestalEntries);
+  // Remove given pedestal from waveform
+  void removePedestal(const double pedestal) { m_samples = myFuncs::addToVector(m_samples, -pedestal); }
 
 private:
   std::vector<double> m_samples;

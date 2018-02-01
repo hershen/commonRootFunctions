@@ -46,13 +46,9 @@ Waveform Waveform::operator+(const Waveform &rWaveform) const {
   }
 
   std::vector<double> output;
-  std::transform(m_samples.begin(), m_samples.end(), rWaveform.getSamples().begin(), std::back_inserter(output), std::plus<double>());
+  std::transform(m_samples.begin(), m_samples.end(), rWaveform.getSamples().begin(), std::back_inserter(output),
+                 std::plus<double>());
   return Waveform(output, getDt());
-}
-
-void Waveform::removePedestal(const size_t pedestalEntries) {
-  const double pedestal = getMean(0, pedestalEntries);
-  m_samples = myFuncs::addToVector(m_samples, -pedestal);
 }
 
 } // namespace testbeam

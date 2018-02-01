@@ -12,6 +12,7 @@
 
 class TChain;
 class TFile;
+class TTree;
 
 namespace myFuncs {
 //--------------------------------------------------------------------------------------------
@@ -130,4 +131,6 @@ std::unordered_map<std::string, std::string> getParams(const std::string &filena
 // Skip first numHeaders lines.
 std::vector<std::string> readFile(const std::string &filename, const int numHeaders = 0);
 
+
+void copyTTreeFromFileToFile(const std::string& treename, const std::string& fromFilename, const std::string& toFilename);
 } // namespace myFuncs

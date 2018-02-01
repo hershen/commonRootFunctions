@@ -9,15 +9,23 @@
 namespace myFuncs {
 namespace testbeam {
 
+struct pedestalFitParams {
+  const double p0;
+  const double p1;
+  const double p2;
+};
+
 //-----------------------------------------------------------
 // Class representing one TB run and all associated parameters.
 //-----------------------------------------------------------
 class RunParams {
 public:
-  constexpr RunParams(const int runNum, const Crystal crystal, const double sourceDistance, const double HV,
-                      const double nominalBeamMomentum, const double measuredBeamMomentum,
+  constexpr RunParams(const int runNum, const pedestalFitParams &fitParams_channel1, const pedestalFitParams &fitParams_channel15,
+                      const pedestalFitParams &fitParams_summedChannels, const Crystal crystal, const double sourceDistance,
+                      const double HV, const double nominalBeamMomentum, const double measuredBeamMomentum,
                       const double crystalFrontFaceToIncubatorSideWallDistance)
-      : m_runNum(runNum), m_crystal(crystal), m_sourceDistance(sourceDistance), m_HV(HV),
+      : m_runNum(runNum), m_fitParams_channel1(fitParams_channel1), m_fitParams_channel15(fitParams_channel15),
+        m_fitParams_summedChannels(fitParams_summedChannels), m_crystal(crystal), m_sourceDistance(sourceDistance), m_HV(HV),
         m_nominalBeamMomentum(nominalBeamMomentum), m_measuredBeamMomentum(measuredBeamMomentum),
         m_crystalFrontFaceToIncubatorSideWallDistance(crystalFrontFaceToIncubatorSideWallDistance) {}
 
@@ -45,8 +53,24 @@ public:
            0.5 * c_crystalLength;
   }
 
+  pedestalFitParams getPedestalFitParams(const int channel) const {
+    if (channel == 1) {
+      return m_fitParams_channel1;
+    } else if (channel == 15) {
+      return m_fitParams_channel15;
+
+    } else if (channel == 16) {
+      return m_fitParams_summedChannels;
+    }
+
+    return pedestalFitParams{};
+  }
+
 private:
   int m_runNum;
+  const pedestalFitParams m_fitParams_channel1;       // Fit parameters for mean pedestal [ADC counts] as function of event number
+  const pedestalFitParams m_fitParams_channel15;      // Fit parameters for mean pedestal [ADC counts] as function of event number
+  const pedestalFitParams m_fitParams_summedChannels; // Fit parameters for mean pedestal [ADC counts] as function of event number
   Crystal m_crystal;
   double m_sourceDistance;       // Negative means no source.
   double m_HV;                   // [V]

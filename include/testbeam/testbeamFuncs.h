@@ -19,6 +19,7 @@
 #include "histFuncs.h"
 
 class TGraphErrors;
+class TF1;
 
 namespace myFuncs {
 class PaveText;
@@ -167,6 +168,9 @@ std::unique_ptr<TCanvas> drawWaveforms(const std::string &saveFilename, const bo
 
   return canvas;
 }
+
+//Return a function which describes the pedestal as a function of event number
+TF1 getPedestalFitFunction(const int runNum, const int channel);
 
 } // namespace testbeam
 } // namespace myFuncs
