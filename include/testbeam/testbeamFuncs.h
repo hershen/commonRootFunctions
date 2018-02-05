@@ -172,5 +172,7 @@ std::unique_ptr<TCanvas> drawWaveforms(const std::string &saveFilename, const bo
 //Return a function which describes the pedestal as a function of event number
 TF1 getPedestalFitFunction(const int runNum, const int channel);
 
+std::vector<double> getTimes(const size_t times, const double dt);
+
 } // namespace testbeam
 } // namespace myFuncs
