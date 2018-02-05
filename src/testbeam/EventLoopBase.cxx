@@ -34,12 +34,9 @@ EventLoopBase::EventLoopBase(const std::string midasFilesPath, const std::string
 
   std::cout << "Info::: EventLoopBase::EventLoopBase: Found " << m_midasFilenames.size() << " .mid.gz files in " << midasFilesPath
             << std::endl;
-
-  // Fill times vector
-  fillTimes(getV1730waveformLength(runNum));
 }
 
-void EventLoopBase::setupTOFchain(const std::string TOFfilesPath) {
+void EventLoopBase::setupTOFchain(const std::string& TOFfilesPath) {
 
   // Get files with timing information
   const auto timingFilenames = getFilesRelatedToRun(TOFfilesPath, getRunNum(), ".root");
@@ -161,15 +158,4 @@ void EventLoopBase::run(const std::string options) {
   // Release memory
   for (uint iElement = 0; iElement < argv.size(); ++iElement)
     delete argv[iElement];
-}
-
-void EventLoopBase::fillTimes(const uint numMeasurements) {
-  if (m_times.size() == numMeasurements) {
-    return;
-  }
-
-  m_times.reserve(numMeasurements);
-
-  for (uint iSample = 0; iSample < numMeasurements; ++iSample)
-    m_times.push_back(iSample * 2.0);
 }

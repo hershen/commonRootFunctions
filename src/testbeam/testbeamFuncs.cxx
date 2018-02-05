@@ -2,9 +2,9 @@
 
 // Root
 #include "TChain.h"
+#include "TF1.h"
 #include "TGraphErrors.h"
 #include "TPad.h"
-#include "TF1.h"
 
 // Mine
 #include "fileFuncs.h"
@@ -95,8 +95,8 @@ std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double> &voltag
 
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum) {
   std::unique_ptr<myFuncs::PaveText> pt(new myFuncs::PaveText(runChannelEventXpos));
-  pt->AddText((getRunParamsString(runNum) + ", event " + std::to_string(eventNum) + ", channel " +
-              std::to_string(channelNum)).data());
+  pt->AddText(
+      (getRunParamsString(runNum) + ", event " + std::to_string(eventNum) + ", channel " + std::to_string(channelNum)).data());
 
   return pt;
 }
@@ -165,5 +165,15 @@ TF1 getPedestalFitFunction(const int runNum, const int channel) {
   return func;
 }
 
+std::vector<double> getTimes(const size_t size, const double dt) {
+  std::vector<double> times;
+  times.reserve(size);
+
+  for (uint iSample = 0; iSample < size; ++iSample)
+    times.push_back(iSample * dt);
+
+  return times;
+}
 } // namespace testbeam
+
 } // namespace myFuncs
