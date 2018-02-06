@@ -533,8 +533,8 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D &fitHist, TF1 &function) {
   TFitResultPtr fitResult = fitHist.Fit(&function, "QSNR");
   //"Q" Quiet mode (minimum printing)
   //"M" More. Improve fit results. It uses the IMPROVE command of TMinuit (see TMinuit::mnimpr). This algorithm attempts to
-  //improve the found local minimum by searching for a better one. "N" Do not store the graphics function, do not draw "S" The
-  //result of the fit is returned in the TFitResultPtr (see below Access to the Fit Result)
+  // improve the found local minimum by searching for a better one. "N" Do not store the graphics function, do not draw "S" The
+  // result of the fit is returned in the TFitResultPtr (see below Access to the Fit Result)
 
   if (fitGood(fitResult) or !isXshiftFitEnabled())
     return fitResult;

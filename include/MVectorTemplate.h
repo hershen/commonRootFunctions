@@ -18,6 +18,7 @@ public:
   MVectorTemplate(const std::vector<double> &newVec, const double newDx);
 
   inline unsigned int getNumAveragedFuncs() const { return m_numAveragedFuncs; }
+
   // Should be used with care
   inline void setNumAveragedFuncs(const unsigned int numAveraged) { m_numAveragedFuncs = numAveraged; }
 
