@@ -142,6 +142,9 @@ private:
   // remain
   void clipTemplateEnds(const double xOfNewVector_0, const size_t newVectorSize);
 
+  //get histogram used to fit template to vector
+  TH1D getHistogramForFit(const std::vector<double> &vector, const double std);
+
   // Create a new vector, interpolating between values if necessary, in which m_templateValues[0] corresponds to the same time as
   // a value in the returned vector (not necessarily the first).  I.e. m_templateValues[0] is the same time as returnedVector[i],
   // m_templateValues[1] is the same time as returnedVector[i+1], etc.

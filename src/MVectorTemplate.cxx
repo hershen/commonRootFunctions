@@ -137,6 +137,11 @@ void MVectorTemplate::addFirstVector(const std::vector<double> &newVector) {
   m_peakIdx = std::distance(newVector.begin(), maxElementIt);
 
   const double maxMinusPedestal = maximum - pedestal;
+  if (maxMinusPedestal == 0.0) {
+    throw std::invalid_argument(
+        "MVectorTemplate::addFirstVector: received a vector with maximum - pedestal == 0. Cannot normalize amplitude");
+  }
+
   // ------------------------------------------------------------------
   // Populate m_templateValues, normalizing and subtracting pedestal
   // ------------------------------------------------------------------
@@ -226,12 +231,6 @@ bool MVectorTemplate::goodFit(const TFitResultPtr &fitResult) const {
 TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double> &vector, const double std, TF1 &function) {
 
   // Histrogram with entries of vector - used to fit the template
-  // Center of each bin corresponds to correct x value (that's why there's a -m_dx/2. term)
-  TH1D fitHist("fitHist", "fitHist", vector.size(), -m_dx / 2.0, vector.size() * m_dx - m_dx / 2.0);
-  for (size_t idx = 1; idx <= vector.size(); ++idx) {
-    fitHist.SetBinContent(idx, vector[idx - 1]);
-    fitHist.SetBinError(idx, std);
-  }
 
   // ------------------------------------------------------------------
   // Initial guesses for fit
@@ -240,13 +239,21 @@ TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double> &vecto
 
   const double amplitudeGuess = isAmplitudeFitEnabled() ? getAmplitudeGuess(vector, pedestalGuess) : function.GetParameter(0);
 
+  if (amplitudeGuess == 0.0) {
+    throw std::invalid_argument("MVectorTemplate::fitFunctionToVector: amplitudeGuess == 0.0. I'm assuming you're trying to add "
+                                "constant vector. Can't reason about amplitude");
+  }
+
   const double xShiftGuess = isXshiftFitEnabled() ? 0.0 : function.GetParameter(2);
 
-  if (m_debugLevel > 15)
+  if (m_debugLevel > 15) {
     std::cout << "MVectorTemplate::fitFunctionToVector : amplitudeGuess = " << amplitudeGuess
               << ", pedestalGuess = " << pedestalGuess << ", xShiftGuess = " << xShiftGuess << std::endl;
+  }
 
   setTF1Parameters(function, amplitudeGuess, pedestalGuess, xShiftGuess); // Amplitude, pedestal, xShift
+
+  TH1D fitHist = getHistogramForFit(vector, std);
 
   // ------------------------------------------------------------------
   // Fit!
@@ -375,72 +382,51 @@ TFitResult MVectorTemplate::addVector(const std::vector<double> &newVector, cons
     return TFitResult();
   } // First vector added
 
-  else { // from second vector
+  // from second vector
 
-    if (getDebugLevel() > 50) {
-      std::cout << "MVectorTemplate::addVector : template values before adding vector:" << std::endl;
+  if (getDebugLevel() > 50) {
+    std::cout << "MVectorTemplate::addVector : template values before adding vector:" << std::endl;
 
-      for (size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-        std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
+    for (size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+      std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
 
-      std::cout << std::endl;
-    }
+    std::cout << std::endl;
+  }
 
-    // Fit function
-    TFitResult fitResult = fitFunctionToVector(newVector, std, function);
+  // Fit function
+  TFitResult fitResult = fitFunctionToVector(newVector, std, function);
 
-    if (!fitResult.IsValid())
-      return fitResult;
+  if (!fitResult.IsValid())
+    return fitResult;
 
-    // ------------------------------------------------------------------
-    // Positive fittedXshift means newVector[0] is forward in time relative to m_templateValues[0], i.e. :
-    // In order to align the newVector, newVector[0] should correspond to time (-fittedXshift)
-    // not sure if true:
-    // newVector[idx] = m_templateValues[idx - fittedXshift/m_dx]
-    // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // Positive fittedXshift means newVector[0] is forward in time relative to m_templateValues[0], i.e. :
+  // In order to align the newVector, newVector[0] should correspond to time (-fittedXshift)
+  // not sure if true:
+  // newVector[idx] = m_templateValues[idx - fittedXshift/m_dx]
+  // ------------------------------------------------------------------
 
-    const double fittedXshift = fitResult.Parameter(2);
-    const double xOfNewVector_0 = /*getXvalueOfFirstTemplateEntry()*/ -fittedXshift;
+  const double fittedXshift = fitResult.Parameter(2);
+  const double xOfNewVector_0 = /*getXvalueOfFirstTemplateEntry()*/ -fittedXshift;
 
-    if (getDebugLevel() > 20)
-      std::cout << "MVectorTemplate::addVector : xOfNewVector_0 = " << xOfNewVector_0 << std::endl;
+  if (getDebugLevel() > 20) {
+    std::cout << "MVectorTemplate::addVector : xOfNewVector_0 = " << xOfNewVector_0 << std::endl;
+  }
 
-    // 		std::vector<double> times;
-    // 		times.reserve(newVector.size());
-    // 		for(int idx = 0; idx < newVector.size(); ++idx) {
-    // 			times.push_back(idx * 2.0);
-    // 		}
-    // 		TCanvas c("c","",0,0,1200,900);
-    // 		c.Divide(1,2);
-    // 		c.cd(1);
-    // 		TGraph newVectorGraph(times.size(), times.data(), newVector.data());
-    // 		newVectorGraph.Draw("AP");
-    // 		function.Draw("Same");
-    // 		c.cd(2);
-    //
-    // 		std::vector<double> templateTimes;
-    // 		templateTimes.reserve(getTemplateValues().size());
-    // 		for(int idx = 0; idx < getTemplateValues().size(); ++idx)
-    // 			templateTimes.push_back(effXofFirstTemplateEntry + idx*2.0);
-    //
-    // 		TGraph templateGraph(templateTimes.size(), templateTimes.data(), getTemplateValues().data());
-    // 		templateGraph.Draw("AP");
-    // 		gPad->WaitPrimitive();
+  // fittedXshift rescales the time of newVector. newVector[0] corresponds to time xOfNewVector_0, newVector[1] corresponds to
+  // time (xOfNewVector_0 + m_dx)...
 
-    // fittedXshift rescales the time of newVector. newVector[0] corresponds to time xOfNewVector_0, newVector[1] corresponds to
-    // time (xOfNewVector_0 + m_dx)...
+  // Clip first and end of template, if they don't overlap in time with the newVector. We want to keep only the parts that can
+  // be averaged.
+  clipTemplateEnds(xOfNewVector_0, newVector.size());
 
-    // Clip first and end of template, if they don't overlap in time with the newVector. We want to keep only the parts that can
-    // be averaged.
-    clipTemplateEnds(xOfNewVector_0, newVector.size());
+  assert(getXvalueOfFirstTemplateEntry() >= xOfNewVector_0);
 
-    assert(getXvalueOfFirstTemplateEntry() >= xOfNewVector_0);
+  // newAlignedVector has it's values time aligned to template values, time of 0'th element of newTimeAlignedVector has same
+  // time as templateVlaues[0]
+  std::vector<double> newTimeAlignedVector = getTimeAlignedVector(newVector, xOfNewVector_0);
 
-    // newAlignedVector has it's values time aligned to template values, time of 0'th element of newTimeAlignedVector has same
-    // time as templateVlaues[0]
-    std::vector<double> newTimeAlignedVector = getTimeAlignedVector(newVector, xOfNewVector_0);
-
-    /*
+  /*
 if(getXvalueOfFirstTemplateEntry >= xOfNewVector_0 )
 {
 template:                      Idx0---------Idx1---------Idx2
@@ -448,7 +434,7 @@ Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)-------------Idx(size
 Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1) In this example both
 vectors are same length and xOfNewVector_0 = getXvalueOfFirstTemplateEntry - 1.5m_dx firstTemplateIdx = 0, lastTemplateIdx =
 newVector.size()-3
-    }
+  }
 else
 {
 template:  Idx0--------Idx1--------Idx2          Idx(size-2)-------------Idx(size-1)
@@ -457,73 +443,69 @@ In this example both vectors are same length and xOfNewVector_0 = getXvalueOfFir
 firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
 }*/
 
-    if (getDebugLevel() > 10)
-      std::cout << "MVectorTemplate::addVector : About to average in the range (" << getXvalueOfFirstTemplateEntry() << ","
-                << getXvalueOfFirstTemplateEntry() + (getTemplateSize() - 1) * m_dx << ")" << std::endl;
+  if (getDebugLevel() > 10)
+    std::cout << "MVectorTemplate::addVector : About to average in the range (" << getXvalueOfFirstTemplateEntry() << ","
+              << getXvalueOfFirstTemplateEntry() + (getTemplateSize() - 1) * m_dx << ")" << std::endl;
 
-    // ------------------------------------------------------------------
-    // Average newVector with template
-    // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // Average newVector with template
+  // ------------------------------------------------------------------
 
-    const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
+  const double ov_numAveragedFuncsP1 = 1.0 / static_cast<double>(m_numAveragedFuncs + 1);
 
-    // Average
-    double peakVal = -DBL_MAX;
+  // Average
+  double peakVal = -DBL_MAX;
 
-    const double fittedAmplitude = fitResult.Parameter(0);
-    const double fittedPedestal = fitResult.Parameter(1);
+  const double fittedAmplitude = fitResult.Parameter(0);
+  const double fittedPedestal = fitResult.Parameter(1);
 
-    for (size_t iTemplateIdx = 0; iTemplateIdx < getTemplateSize(); ++iTemplateIdx) {
-      double newVectorValue = newTimeAlignedVector[iTemplateIdx];
+  for (size_t iTemplateIdx = 0; iTemplateIdx < getTemplateSize(); ++iTemplateIdx) {
+    double newVectorValue = newTimeAlignedVector[iTemplateIdx];
 
-      if (getAverageMode() == noWeight) {
+    if (getAverageMode() == noWeight) {
 
-        // Normalize newVectorValue so it can be added to template values.
-        newVectorValue = (newVectorValue - fittedPedestal) / fittedAmplitude;
+      // Normalize newVectorValue so it can be added to template values.
+      newVectorValue = (newVectorValue - fittedPedestal) / fittedAmplitude;
 
-        // average vectors
-        m_templateValues[iTemplateIdx] += newVectorValue;
-      } else if (getAverageMode() == keepWeight) { // This assumes the result will later be normalized so peak is at 1.
-        const double templateValue = fittedPedestal + fittedAmplitude * m_templateValues[iTemplateIdx];
-        m_templateValues[iTemplateIdx] =
-            (templateValue * static_cast<double>(m_numAveragedFuncs) + newVectorValue) * ov_numAveragedFuncsP1;
-      }
-
-      if (getDebugLevel() > 30) {
-        std::cout << "MVectorTemplate::addVector : Averaging template iTemplateIdx " << iTemplateIdx
-                  << ", time = " << getXvalueOfFirstTemplateEntry() + iTemplateIdx * m_dx
-                  << ". newVectorValue = " << newVectorValue
-                  << ", m_templateValues[iTemplateIdx] after averaging = " << m_templateValues[iTemplateIdx] << std::endl;
-      }
-
-      // Store maximum value (used to normalize later) and its index
-      if (m_templateValues[iTemplateIdx] > peakVal) {
-        peakVal = m_templateValues[iTemplateIdx];
-        m_peakIdx = iTemplateIdx;
-      }
+      // average vectors
+      m_templateValues[iTemplateIdx] += newVectorValue;
+    } else if (getAverageMode() == keepWeight) { // This assumes the result will later be normalized so peak is at 1.
+      const double templateValue = fittedPedestal + fittedAmplitude * m_templateValues[iTemplateIdx];
+      m_templateValues[iTemplateIdx] =
+          (templateValue * static_cast<double>(m_numAveragedFuncs) + newVectorValue) * ov_numAveragedFuncsP1;
     }
 
-    // ------------------------------------------------------------------
-    // re-Normalize vector - keep peak == 1
-    // Make sure pedestal is zero
-    // ------------------------------------------------------------------
-    if (getAverageMode() == keepWeight)
-      normalizeAndZeroTemplateValues();
-
-    if (getDebugLevel() > 20) {
-      std::cout << "template values after adding vector:" << std::endl;
-      for (size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
-        std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
-
-      std::cout << std::endl;
+    if (getDebugLevel() > 30) {
+      std::cout << "MVectorTemplate::addVector : Averaging template iTemplateIdx " << iTemplateIdx
+                << ", time = " << getXvalueOfFirstTemplateEntry() + iTemplateIdx * m_dx << ". newVectorValue = " << newVectorValue
+                << ", m_templateValues[iTemplateIdx] after averaging = " << m_templateValues[iTemplateIdx] << std::endl;
     }
 
-    ++m_numAveragedFuncs;
+    // Store maximum value (used to normalize later) and its index
+    if (m_templateValues[iTemplateIdx] > peakVal) {
+      peakVal = m_templateValues[iTemplateIdx];
+      m_peakIdx = iTemplateIdx;
+    }
+  }
 
-    return fitResult;
-  } // add, from second vector
+  // ------------------------------------------------------------------
+  // re-Normalize vector - keep peak == 1
+  // Make sure pedestal is zero
+  // ------------------------------------------------------------------
+  if (getAverageMode() == keepWeight)
+    normalizeAndZeroTemplateValues();
 
-  return TFitResult();
+  if (getDebugLevel() > 20) {
+    std::cout << "template values after adding vector:" << std::endl;
+    for (size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
+      std::cout << "template[" << iTemplateIdx << "] = " << m_templateValues[iTemplateIdx] << "\n";
+
+    std::cout << std::endl;
+  }
+
+  ++m_numAveragedFuncs;
+
+  return fitResult;
 }
 
 TFitResultPtr MVectorTemplate::fitTemplate(TH1D &fitHist, TF1 &function) {
@@ -627,9 +609,11 @@ double MVectorTemplate::TF1Eval(double *var, double *params) {
   const double y1 = m_templateValues[idx];
   const double y2 = m_templateValues[idx + 1];
 
-  // 	std::cout << "MVectorTemplate::TF1Eval :var[0] = " << var[0] << ",  x1 = " << x1 << ", x2 = " << x2 << ", y1 = " << y1 <<
-  // ", y2 = " << y2 << ", effectiveX = " << effectiveX << ", TF1Eval = " << params[1] + params[0]*linearInterpolate(x1, x2, y1,
-  // y2, effectiveX) <<  std::endl;
+  if (getDebugLevel() >= 1000) {
+    std::cout << "MVectorTemplate::TF1Eval :var[0] = " << var[0] << ",  x1 = " << x1 << ", x2 = " << x2 << ", y1 = " << y1
+              << ", y2 = " << y2 << ", effectiveX = " << effectiveX
+              << ", TF1Eval = " << params[1] + params[0] * linearInterpolate(x1, x2, y1, y2, effectiveX) << std::endl;
+  }
 
   return params[1] + params[0] * linearInterpolate(x1, x2, y1, y2, effectiveX);
 }
@@ -783,6 +767,16 @@ void MVectorTemplate::normalizeAndZeroTemplateValues() {
   const double peakVal = m_templateValues[m_peakIdx];
   for (size_t iTemplateIdx = 0; iTemplateIdx < m_templateValues.size(); ++iTemplateIdx)
     m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal) / (peakVal - pedestal);
+}
+
+TH1D MVectorTemplate::getHistogramForFit(const std::vector<double> &vector, const double std) {
+  // Center of each bin corresponds to correct x value (that's why there's a -m_dx/2. term)
+  TH1D fitHist("fitHist", "fitHist", vector.size(), -m_dx / 2.0, vector.size() * m_dx - m_dx / 2.0);
+  for (size_t idx = 1; idx <= vector.size(); ++idx) {
+    fitHist.SetBinContent(idx, vector[idx - 1]);
+    fitHist.SetBinError(idx, std);
+  }
+  return fitHist;
 }
 
 } // namespace myFuncs
