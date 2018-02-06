@@ -26,24 +26,14 @@ bool EventLoopBothChannels::ProcessMidasEvent(TDataContainer &dataContainer) {
 
     Waveform waveform(std::move(measurement.getSamples()), 2.0);
 
-    const long eventNum = dataContainer.GetMidasEvent().GetSerialNumber();
-
     if (channel == 1) {
-      m_eventNumChannel1 = eventNum;
       m_channel1waveform = waveform;
-
     } else if (channel == 15) {
-
       // combine channels
-      if (eventNum == m_eventNumChannel1) {
-        Waveform channel1aligned = m_channel1waveform;
-        channel1aligned.timeShift(myFuncs::testbeam::c_channel1_channel15_timeDifference);
-        Waveform combinedWaveforms = waveform + channel1aligned;
-        return processEvent(dataContainer, m_channel1waveform, waveform, combinedWaveforms);
-      }
-
-      // This is channel 15 processing
-      //
+      Waveform channel1aligned = m_channel1waveform;
+      channel1aligned.timeShift(myFuncs::testbeam::c_channel1_channel15_timeDifference);
+      Waveform combinedWaveforms = waveform + channel1aligned;
+      return processEvent(dataContainer, m_channel1waveform/*ch1*/, waveform/*ch15*/, combinedWaveforms/*combined*/);
     }
   }
 

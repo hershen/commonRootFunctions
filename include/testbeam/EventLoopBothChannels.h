@@ -29,7 +29,6 @@ private:
                             Waveform &waveformCombined) = 0;
 
   Waveform m_channel1waveform;
-  long m_eventNumChannel1;
 };
 
 } // namespace testbeam
