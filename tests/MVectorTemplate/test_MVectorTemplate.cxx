@@ -125,39 +125,3 @@ SCENARIO("Check adding same shape vector", "[MVectorTemplate]") {
     }
   }
 }
-
-SCENARIO("Check template averaging", "[MVectorTemplate]") {
-  GIVEN("A template from a constant vector with a few element different than the constant") {
-    const double dt = 2.0;
-    const double mainAmplitude = 300;
-    std::vector<double> oneNonZero(1e3, 10.0);
-    for (int i = 495; i <= 505; ++i) {
-      oneNonZero[i] = mainAmplitude;
-    }
-    MVectorTemplate myTemplate(oneNonZero, dt);
-    // myTemplate.setDebugLevel(16);
-    WHEN("Adding a similar vector, offset in time and with a different pedestal and amplitude and one wrong value") {
-      const double offsetPedestal = -5;
-      std::vector<double> offsetVector(1e3, offsetPedestal);
-      const int binsOffset = 5;
-      const double offsetAmplitude = 100;
-      for (int i = 495 + binsOffset; i <= 505 + binsOffset; ++i) {
-        offsetVector[i] = offsetAmplitude;
-      }
-      offsetVector[495 + binsOffset / 2] = offsetAmplitude * 0.9;
-
-      THEN("Check that fit results and number of averaged functions are correct ") {
-        for (int iAdd = 1; iAdd <= 1; ++iAdd) {
-          auto fitResult = myTemplate.addVector(offsetVector, 10, *myTemplate.getTF1());
-          fitResult.Print();
-          // CHECK(fitResult.Value(0) == Approx(offsetAmplitude - offsetPedestal));
-          // CHECK(fitResult.Value(1) == Approx(offsetPedestal));
-          // CHECK(fitResult.Value(2) == Approx(binsOffset * dt));
-          // CHECK(myTemplate.getNumAveragedFuncs() == iAdd + 1);
-        }
-        // CHECK(myTemplate.getXvalueOfFirstTemplateEntry() == Approx(0));
-        // CHECK(myTemplate.getTemplateSize() == oneNonZero.size() - binsOffset);
-      }
-    }
-  }
-}
