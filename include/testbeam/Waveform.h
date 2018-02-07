@@ -67,7 +67,7 @@ public:
 
   // Get maxelement - average of first elementsForPedestal elements
   // No bounds checking on elementsForPedestal
-  inline double getCrudeAmplitude(const size_t elementsForPedestal) {
+  inline double getMaxMinusPedestal(const size_t elementsForPedestal) {
     return getMaximumIdx_value().second - getMean(0, elementsForPedestal - 1);
   }
 
