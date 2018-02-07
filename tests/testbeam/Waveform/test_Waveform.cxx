@@ -55,6 +55,10 @@ TEST_CASE("Test non empty Waveform", "[Waveform]") {
     CHECK(waveform.getStd(1, 3) == Approx(0.816496580927726));
     CHECK(waveform.getStd() == Approx(1.4142135623731));
 
+    CHECK(waveform.getCrudeAmplitude(1) == Approx(4));
+    CHECK(waveform.getCrudeAmplitude(2) == Approx(3.5));
+    CHECK(waveform.getCrudeAmplitude(5) == Approx(2));
+
     SECTION("average every n") {
       auto averageEach_nWaveform = waveform;
       averageEach_nWaveform.averageEach_n(2);

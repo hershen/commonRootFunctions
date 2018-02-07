@@ -22,7 +22,7 @@ double Waveform::getStd(const size_t firstIdx, const size_t lastIdx) const {
 
 double Waveform::getMean(const size_t firstIdx, const size_t lastIdx) const {
   if (lastIdx - firstIdx == 0) {
-    return 0.0;
+    return m_samples.empty() ? 0.0 : m_samples[firstIdx];
   }
   return myFuncs::sampleMean(std::next(m_samples.begin(), firstIdx), std::next(m_samples.begin(), lastIdx + 1));
 }

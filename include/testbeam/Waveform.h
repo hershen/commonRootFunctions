@@ -34,6 +34,7 @@ public:
   inline double getStd() const { return myFuncs::sampleStd(m_samples.begin(), m_samples.end()); }
 
   // Get (sample!) mean between first and last
+  // No bounds checking on idices
   double getMean(const size_t firstIdx, const size_t lastIdx) const;
 
   inline double getMean() const { return myFuncs::sampleMean(m_samples.begin(), m_samples.end()); }
@@ -63,6 +64,12 @@ public:
 
   // Remove given pedestal from waveform
   void removePedestal(const double pedestal) { m_samples = myFuncs::addToVector(m_samples, -pedestal); }
+
+  // Get maxelement - average of first elementsForPedestal elements
+  // No bounds checking on elementsForPedestal
+  inline double getCrudeAmplitude(const size_t elementsForPedestal) {
+    return getMaximumIdx_value().second - getMean(0, elementsForPedestal - 1);
+  }
 
 private:
   std::vector<double> m_samples;
