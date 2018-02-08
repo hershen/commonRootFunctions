@@ -45,7 +45,7 @@ constexpr int muonColor = kRed;
 constexpr int pionColor = kGreen;
 
 static const std::unordered_map<int, int> c_pdgToColor{{11, elecColor}, {13, muonColor}, {211, pionColor}};
-
+static const std::unordered_map<int, std::string> c_channelToString{{1, "channel 1"}, {15, "channel 15"}, {16, "summed channels"}};
 //-----------------------------------------------------------
 // Return Nominal beam momentum string with units
 //-----------------------------------------------------------
