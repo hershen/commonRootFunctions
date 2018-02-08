@@ -67,9 +67,11 @@ public:
 
   // Get maxelement - average of first elementsForPedestal elements
   // No bounds checking on elementsForPedestal
-  inline double getMaxMinusPedestal(const size_t elementsForPedestal) {
+  inline double getMaxMinusPedestal(const size_t elementsForPedestal) const {
     return getMaximumIdx_value().second - getMean(0, elementsForPedestal - 1);
   }
+
+  inline size_t size() const { return m_samples.size(); }
 
 private:
   std::vector<double> m_samples;

@@ -21,6 +21,7 @@ TEST_CASE("Test empty Waveform", "[Waveform]") {
   Waveform waveform(vector, 1.5);
   CHECK(waveform.getSamples() == std::vector<double>());
   CHECK(waveform.getDt() == Approx(1.5));
+  CHECK(waveform.size() == 0);
 
   const auto MaximumIdx_value = waveform.getMaximumIdx_value();
   CHECK(MaximumIdx_value.first == 0);
@@ -45,6 +46,7 @@ TEST_CASE("Test non empty Waveform", "[Waveform]") {
     Waveform waveform(vectorInt, 1.5);
     CHECK(waveform.getSamples() == vectorDouble);
     CHECK(waveform.getDt() == Approx(1.5));
+    CHECK(waveform.size() == 5);
 
     const auto MaximumIdx_value = waveform.getMaximumIdx_value();
     CHECK(MaximumIdx_value.first == 4);
@@ -64,17 +66,20 @@ TEST_CASE("Test non empty Waveform", "[Waveform]") {
       averageEach_nWaveform.averageEach_n(2);
       CHECK(averageEach_nWaveform.getSamples() == std::vector<double>{1.5, 3.5});
       CHECK(averageEach_nWaveform.getDt() == Approx(3.0));
+      CHECK(averageEach_nWaveform.size() == 2);
 
       // Moving average
       averageEach_nWaveform.averageEach_n(1);
       CHECK(averageEach_nWaveform.getSamples() == std::vector<double>{1.5, 3.5});
       CHECK(averageEach_nWaveform.getDt() == Approx(3.0));
+      CHECK(averageEach_nWaveform.size() == 2);
 
       // Moving average
       auto averageEach_nWaveform2 = averageEach_nWaveform;
       averageEach_nWaveform2.averageEach_n(2);
       CHECK(averageEach_nWaveform2.getSamples() == std::vector<double>{2.5});
       CHECK(averageEach_nWaveform2.getDt() == Approx(6.0));
+      CHECK(averageEach_nWaveform2.size() == 1);
     }
   }
 }
@@ -85,6 +90,7 @@ TEST_CASE("timeShift", "[Waveform]") {
   SECTION("time shift + 0.5 bins") {
     waveform.timeShift(0.5 * 1.5);
     CHECK(waveform.getSamples() == std::vector<double>{1, 1.5, 2.5, 3.5, 4.5});
+    CHECK(waveform.size() == 5);
   }
   SECTION("time shift - 0.5 bins") {
     waveform.timeShift(-0.5 * 1.5);
