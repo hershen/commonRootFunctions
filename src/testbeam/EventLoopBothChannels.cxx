@@ -9,6 +9,7 @@
 
 // Mine
 #include "testbeam/testbeamFuncs.h"
+#include "testbeam/Waveform.h"
 
 using namespace myFuncs::testbeam;
 
@@ -16,6 +17,8 @@ bool EventLoopBothChannels::ProcessMidasEvent(TDataContainer &dataContainer) {
   TV1730RawData *v1730 = dataContainer.GetEventData<TV1730RawData>("V730");
   if (!v1730)
     return false;
+
+  Waveform channel1Waveform;
 
   for (auto measurement : v1730->GetMeasurements()) {
 
@@ -27,13 +30,13 @@ bool EventLoopBothChannels::ProcessMidasEvent(TDataContainer &dataContainer) {
     Waveform waveform(std::move(measurement.getSamples()), 2.0);
 
     if (channel == 1) {
-      m_channel1waveform = waveform;
+      channel1Waveform = waveform;
     } else if (channel == 15) {
       // combine channels
-      Waveform channel1aligned = m_channel1waveform;
+      Waveform channel1aligned = channel1Waveform;
       channel1aligned.timeShift(myFuncs::testbeam::c_channel1_channel15_timeDifference);
       Waveform combinedWaveforms = waveform + channel1aligned;
-      return processEvent(dataContainer, m_channel1waveform/*ch1*/, waveform/*ch15*/, combinedWaveforms/*combined*/);
+      return processEvent(dataContainer, channel1Waveform/*ch1*/, waveform/*ch15*/, combinedWaveforms/*combined*/);
     }
   }
 

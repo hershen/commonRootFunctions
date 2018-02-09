@@ -5,12 +5,13 @@
 
 // Mine
 #include "testbeam/EventLoopBase.h"
-#include "testbeam/Waveform.h"
 
 class TDataContainer;
 
 namespace myFuncs {
 namespace testbeam {
+
+class Waveform;
 
 //-----------------------------------------------------------
 //
@@ -27,8 +28,6 @@ public:
 private:
   virtual bool processEvent(TDataContainer &dataContainer, Waveform &waveformCh1, Waveform &waveformCh15,
                             Waveform &waveformCombined) = 0;
-
-  Waveform m_channel1waveform;
 };
 
 } // namespace testbeam
