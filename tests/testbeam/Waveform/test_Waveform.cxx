@@ -37,6 +37,19 @@ TEST_CASE("Test empty Waveform", "[Waveform]") {
   averageEach_nWaveform.averageEach_n(2);
   CHECK(averageEach_nWaveform.getSamples() == std::vector<double>());
   CHECK(averageEach_nWaveform.getDt() == Approx(3.0));
+
+  // setSamples
+  WHEN("setting samples") {
+    const std::vector<double> newSamples{1, 2, 3};
+    waveform.setSamples(newSamples);
+    THEN("waveform has new samples") { CHECK(waveform.getSamples() == newSamples); }
+  }
+  AND_WHEN("setting samples to empty vector") {
+    waveform.setSamples(std::vector<double>());
+    THEN("samples are empty") {
+      CHECK(waveform.getSamples() == std::vector<double>());
+    }
+  }
 }
 TEST_CASE("Test non empty Waveform", "[Waveform]") {
 

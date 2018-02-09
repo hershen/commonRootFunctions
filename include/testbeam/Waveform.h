@@ -6,6 +6,7 @@
 #include <vector>
 
 // Mine
+#include "filterFuncs.h"
 #include "mathFuncs.h"
 
 class TGraph;
@@ -40,6 +41,8 @@ public:
   inline double getMean() const { return myFuncs::sampleMean(m_samples.begin(), m_samples.end()); }
 
   inline const std::vector<double> &getSamples() const { return m_samples; }
+
+  inline void setSamples(const std::vector<double> newSamples) { m_samples = newSamples; }
 
   inline double getDt() const { return m_dt; }
 
@@ -78,5 +81,17 @@ private:
   double m_dt;
 };
 
+//Untested
+template <class coefficientType>
+void filter(const std::vector<coefficientType> &originalNominators, const std::vector<coefficientType> &originalDenominators,
+            Waveform &waveform) {
+  waveform.setSamples(myFuncs::DSP::filter(originalNominators, originalDenominators, waveform.getSamples()));
+}
+
+//Untested
+template <class coefficientType>
+void filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair, Waveform &waveform) {
+  waveform.setSamples(myFuncs::DSP::filter(coeficientPair, waveform.getSamples()));
+}
 } // namespace testbeam
 } // namespace myFuncs
