@@ -81,17 +81,22 @@ private:
   double m_dt;
 };
 
-//Untested
+} // namespace testbeam
+
+namespace DSP {
+// Untested
 template <class coefficientType>
 void filter(const std::vector<coefficientType> &originalNominators, const std::vector<coefficientType> &originalDenominators,
-            Waveform &waveform) {
+            myFuncs::testbeam::Waveform &waveform) {
   waveform.setSamples(myFuncs::DSP::filter(originalNominators, originalDenominators, waveform.getSamples()));
 }
 
-//Untested
+// Untested
 template <class coefficientType>
-void filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair, Waveform &waveform) {
+void filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair,
+            myFuncs::testbeam::Waveform &waveform) {
   waveform.setSamples(myFuncs::DSP::filter(coeficientPair, waveform.getSamples()));
 }
-} // namespace testbeam
+} // namespace DSP
+
 } // namespace myFuncs
