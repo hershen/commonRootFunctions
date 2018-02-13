@@ -94,6 +94,7 @@ std::vector<double> calcResiduals(const std::vector<xValType> &xValues, const st
   return calcResiduals(xValues, yValues, std::vector<double>(xValues.size(), std), modelFunc);
 }
 
+//Not tested
 std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &modelFunc);
 
 //--------------------------------------------------------------------------------------------

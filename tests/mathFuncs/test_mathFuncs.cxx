@@ -483,7 +483,7 @@ TEST_CASE("Test findMaxEvery_n_ThenBetween function", "[findMaxEvery_n_ThenBetwe
 }
 
 template <class T>
-void checkNonEmptyAverageEach_n(const std::vector<T>& vector) {
+void checkNonEmptyAverageEach_n(const std::vector<T> &vector) {
   SECTION("Average every 0") { CHECK(myFuncs::averageEach_n(vector, 0) == myFuncs::vectorToDouble(vector)); }
 
   SECTION("Average every 1") {
@@ -535,35 +535,75 @@ TEST_CASE("Test averageEach_n function", "[averageEach_n]") {
     std::vector<int> vectorDouble{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     checkNonEmptyAverageEach_n(vectorDouble);
   }
-
-
 }
 
-  TEST_CASE("Test sampleStd function", "[sampleStd]") {
-    SECTION("Empty vectors") {
-      std::vector<int> vectorInt;
-      std::vector<double> vectorDouble;
-      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+TEST_CASE("Test sampleStd function", "[sampleStd]") {
+  SECTION("Empty vectors") {
+    std::vector<int> vectorInt;
+    std::vector<double> vectorDouble;
+    CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+  }
+
+  SECTION("One element vectors") {
+    std::vector<int> vectorInt{1};
+    std::vector<double> vectorDouble{1};
+    CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
+    CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+  }
+
+  SECTION("Non Empty vectors") {
+    std::vector<int> vectorInt{1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<double> vectorDouble{1, 2, 3, 4, 5, 6, 7, 8};
+    CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(2.29128784747792));
+    CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(2.29128784747792));
+    CHECK(myFuncs::sampleStd(vectorInt) == Approx(2.29128784747792));
+    CHECK(myFuncs::sampleStd(vectorDouble) == Approx(2.29128784747792));
+  }
+}
+
+SCENARIO("calcResiduals", "[calcResiduals]") {
+  GIVEN("A parabola and x values") {
+    TF1 quadFunc("quadFunc", "x*x", -10, 10);
+    std::vector<double> xValues = {-3, -1, 0, 1, 5};
+    WHEN("x and y values are different sizes") {
+      std::vector<double> yValues = {1};
+      THEN("throw") { REQUIRE_THROWS_AS(myFuncs::calcResiduals(xValues, yValues, 0.5, quadFunc), std::invalid_argument); }
+    }
+    WHEN("x and stds are different sizes") {
+      std::vector<double> yValues(xValues.size());
+      std::vector<double> stds = {1};
+      THEN("throw") { REQUIRE_THROWS_AS(myFuncs::calcResiduals(xValues, yValues, stds, quadFunc), std::invalid_argument); }
+    }
+    WHEN("Checking residuals of exact values") {
+      std::vector<double> goodYvalues = {9, 1, 0, 1, 25};
+      std::vector<double> calculatedResiduals = myFuncs::calcResiduals<double, double>(xValues, goodYvalues, 0.5, quadFunc);
+      THEN("Residuals should be zeros") {
+        const std::vector<double> zeroResiduals(calculatedResiduals.size(), 0.0);
+        CHECK(calculatedResiduals == zeroResiduals);
+      }
+    }
+    WHEN("Checking y values different than function values, with constant standard deviation") {
+      std::vector<double> diferentYvalues = {8, 1, 3, -4, -1, 0, 0, 0}; // Larger on purpose
+      std::vector<double> calculatedResiduals = myFuncs::calcResiduals<double, double>(xValues, diferentYvalues, 0.5, quadFunc);
+      THEN("Residuals should be as expected") {
+        const std::vector<double> expectedResiduals = {2, 0, -6, 10, 52};
+        CHECK(calculatedResiduals == expectedResiduals);
+      }
     }
 
-    SECTION("One element vectors") {
-      std::vector<int> vectorInt {1};
-      std::vector<double> vectorDouble {1};
-      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorInt) == Approx(0));
-      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(0));
+    WHEN("Checking y values different than function values, with vector standard deviation") {
+      std::vector<double> diferentYvalues = {8, 1, 3, -4, -1, 0, 0, 0}; // Larger on purpose
+      std::vector<double> stds = {1, 0.5, 2, 3, 0.01, 0, 0, 0};         // Larger on purpose
+      std::vector<double> calculatedResiduals = myFuncs::calcResiduals<double, double>(xValues, diferentYvalues, stds, quadFunc);
+      THEN("Residuals should be as expected") {
+        const std::vector<double> expectedResiduals{1, 0, -3. / 2., 5. / 3., 2600.};
+        CHECK(calculatedResiduals == expectedResiduals);
+      }
     }
-
-    SECTION("Non Empty vectors") {
-      std::vector<int> vectorInt {1,2,3,4,5,6,7,8};
-      std::vector<double> vectorDouble {1,2,3,4,5,6,7,8};
-      CHECK(myFuncs::sampleStd(vectorInt.begin(), vectorInt.end()) == Approx(2.29128784747792));
-      CHECK(myFuncs::sampleStd(vectorDouble.begin(), vectorDouble.end()) == Approx(2.29128784747792));
-      CHECK(myFuncs::sampleStd(vectorInt) == Approx(2.29128784747792));
-      CHECK(myFuncs::sampleStd(vectorDouble) == Approx(2.29128784747792));
-    }
+  }
 }
