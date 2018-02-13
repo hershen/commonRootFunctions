@@ -24,7 +24,7 @@ public:
     }
   };
 
-  //TPrincipal only accepts doubles
+  // TPrincipal only accepts doubles
   void addVector(const std::vector<double> vector) {
 
     if (static_cast<int>(vector.size()) != GetCovarianceMatrix()->GetNcols()) {

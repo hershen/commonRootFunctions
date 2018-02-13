@@ -52,7 +52,7 @@ public:
   // Returns else otherwise
   // Dangerous - no bounds checking that m_timingChain does not overflow!!!
 
-  bool PreFilter(TDataContainer &dataContainer) override final;
+  bool PreFilter(TDataContainer& dataContainer) override final;
 
   // Once before running.
   // Reads first entry in TOF chain.
@@ -69,7 +69,7 @@ public:
   inline double timeCrystalFromTOFerror_ns() const { return *m_timeAtCrystalError_ns; }
 
   // Get Midas event number
-  inline uint32_t getEventNum(const TDataContainer &dataContainer) const {
+  inline uint32_t getEventNum(const TDataContainer& dataContainer) const {
     return dataContainer.GetMidasEvent().GetSerialNumber();
   }
 
@@ -115,7 +115,7 @@ private:
   // Sets ups the TOF chain.
   // Looks for all .root files in TOFfilesPath containg getRunNum() in their filename.
   // There should be only one file
-  void setupTOFchain(const std::string &TOFfilesPath);
+  void setupTOFchain(const std::string& TOFfilesPath);
 
   inline void setTimingValid(const bool timingValid) { m_timingValid = timingValid; }
 };

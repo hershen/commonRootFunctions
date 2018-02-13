@@ -21,7 +21,7 @@ template <class FwItir, class T>
 FwItir findFirstBigger(FwItir first, FwItir last, T threshold) {
   return std::find_if(first, last, [threshold](typename std::iterator_traits<FwItir>::value_type value) {
     return value > threshold;
-  }); //first element greater than threshold
+  }); // first element greater than threshold
 }
 
 //----------------------------------------------------------

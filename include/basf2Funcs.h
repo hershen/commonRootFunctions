@@ -17,7 +17,7 @@ const std::vector<detectorRegion> ECLdetectorRegions = {
 };
 
 std::string getECLdetectorRegion(const double theta) {
-  for (const auto &ECLdetectorRegion : ECLdetectorRegions)
+  for (const auto& ECLdetectorRegion : ECLdetectorRegions)
     if (theta > ECLdetectorRegion.min && theta < ECLdetectorRegion.max)
       return ECLdetectorRegion.name;
 

@@ -20,10 +20,10 @@ class Waveform {
 public:
   Waveform() = default;
 
-  Waveform(const std::vector<double> &samples, const double dt);
+  Waveform(const std::vector<double>& samples, const double dt);
 
   template <class T>
-  Waveform(const std::vector<T> &samples, const double dt) : Waveform(std::vector<double>(), dt) {
+  Waveform(const std::vector<T>& samples, const double dt) : Waveform(std::vector<double>(), dt) {
     m_samples.reserve(m_samples.size());
     std::for_each(samples.begin(), samples.end(), [&](const T element) { m_samples.push_back(static_cast<double>(element)); });
   }
@@ -40,7 +40,7 @@ public:
 
   inline double getMean() const { return myFuncs::sampleMean(m_samples.begin(), m_samples.end()); }
 
-  inline const std::vector<double> &getSamples() const { return m_samples; }
+  inline const std::vector<double>& getSamples() const { return m_samples; }
 
   inline void setSamples(const std::vector<double> newSamples) { m_samples = newSamples; }
 
@@ -52,7 +52,7 @@ public:
 
   // Access element idx.
   // No bounds checking!
-  double &operator[](size_t idx) { return m_samples[idx]; }
+  double& operator[](size_t idx) { return m_samples[idx]; }
   double operator[](size_t idx) const { return m_samples[idx]; }
 
   // Average each n samples (n=0,1 does nothing)
@@ -63,7 +63,7 @@ public:
 
   inline void timeShift(const double shift) { m_samples = myFuncs::shiftVector(m_samples, shift, getDt()); }
 
-  Waveform operator+(const Waveform &rWaveform) const;
+  Waveform operator+(const Waveform& rWaveform) const;
 
   // Remove given pedestal from waveform
   void removePedestal(const double pedestal) { m_samples = myFuncs::addToVector(m_samples, -pedestal); }
@@ -86,15 +86,15 @@ private:
 namespace DSP {
 // Untested
 template <class coefficientType>
-void filter(const std::vector<coefficientType> &originalNominators, const std::vector<coefficientType> &originalDenominators,
-            myFuncs::testbeam::Waveform &waveform) {
+void filter(const std::vector<coefficientType>& originalNominators, const std::vector<coefficientType>& originalDenominators,
+            myFuncs::testbeam::Waveform& waveform) {
   waveform.setSamples(myFuncs::DSP::filter(originalNominators, originalDenominators, waveform.getSamples()));
 }
 
 // Untested
 template <class coefficientType>
-void filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair,
-            myFuncs::testbeam::Waveform &waveform) {
+void filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>>& coeficientPair,
+            myFuncs::testbeam::Waveform& waveform) {
   waveform.setSamples(myFuncs::DSP::filter(coeficientPair, waveform.getSamples()));
 }
 } // namespace DSP

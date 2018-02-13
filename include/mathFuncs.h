@@ -21,9 +21,8 @@
 
 class TGraphErrors;
 
-
-//Todo
-//Think what happens if sampleMean, sampleStd have unsigned numbers (what happens with minuses?)
+// Todo
+// Think what happens if sampleMean, sampleStd have unsigned numbers (what happens with minuses?)
 
 namespace myFuncs {
 
@@ -56,8 +55,8 @@ TF1 analytical_RC_CRn(int n, double tau = 500., double amplitude = 1., double st
 //--------------------------------------------------------------------------------------------
 // Not implemented with boost zip itirators because ROOT doesn't compile Boost libraries well.
 template <typename xValType, typename yValType>
-std::vector<double> calcResiduals(const std::vector<xValType> &xValues, const std::vector<yValType> &yValues,
-                                  const std::vector<double> &stds, const TF1 &modelFunc) {
+std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues,
+                                  const std::vector<double>& stds, const TF1& modelFunc) {
   // ------------------------------------------------------------------
   // Sanity checks
   // ------------------------------------------------------------------
@@ -89,19 +88,19 @@ std::vector<double> calcResiduals(const std::vector<xValType> &xValues, const st
 
 // Overloaded
 template <typename xValType, typename yValType>
-std::vector<double> calcResiduals(const std::vector<xValType> &xValues, const std::vector<yValType> &yValues, const double std,
-                                  const TF1 &modelFunc) {
+std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const std::vector<yValType>& yValues, const double std,
+                                  const TF1& modelFunc) {
   return calcResiduals(xValues, yValues, std::vector<double>(xValues.size(), std), modelFunc);
 }
 
-//Not tested
-std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &modelFunc);
+// Not tested
+std::vector<double> calcResiduals(const TGraphErrors& graphErrors, const TF1& modelFunc);
 
 //--------------------------------------------------------------------------------------------
 // convertArray2TF1Internal
 //********************************************************************************************
 // Internal function for convertVector2TF1.
-double convertArray2TF1Internal(double *var, double *params);
+double convertArray2TF1Internal(double* var, double* params);
 
 //--------------------------------------------------------------------------------------------
 // convertVector2TF1
@@ -119,7 +118,7 @@ double convertArray2TF1Internal(double *var, double *params);
 //--------------------------------------------------------------------------------------------
 TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift);
 
-double CFDfuncInternal(double *var, double *params);
+double CFDfuncInternal(double* var, double* params);
 
 //--------------------------------------------------------------------------------------------
 // CFD
@@ -157,7 +156,7 @@ std::vector<double> addGaussianNoise(std::vector<Type> inputValues, double mean,
 // sigma*xMaxFracOfSigma) where mean and sigma are taken from the first fit. I.e., the fit can be run again in the range (mean -
 // 2std, mean + 2std).  The function returns the fit result in fitResult
 //--------------------------------------------------------------------------------------------
-TF1 getGaussianFit(TH1D hist, TFitResultPtr &fitResult, double xMinInitial, double xMaxInitial, double xMinFracOfSigma,
+TF1 getGaussianFit(TH1D hist, TFitResultPtr& fitResult, double xMinInitial, double xMaxInitial, double xMinFracOfSigma,
                    double xMaxFracOfSigma);
 
 //--------------------------------------------------------------------------------------------
@@ -174,7 +173,7 @@ inline TF1 getGaussianFit(TH1D hist, double xMinInitial, double xMaxInitial, dou
 // I.e. M_ij = M_ij / sqrt(M_ii) / sqrt(M_jj)
 // If one of the diagonal elements M_ii is zero, return original matrix
 //--------------------------------------------------------------------------------------------
-TMatrixD getCorrelationMatrix(const TMatrixD &covarianceMatrix);
+TMatrixD getCorrelationMatrix(const TMatrixD& covarianceMatrix);
 
 //--------------------------------------------------------------------------------------------
 // printMatrix
@@ -185,8 +184,8 @@ TMatrixD getCorrelationMatrix(const TMatrixD &covarianceMatrix);
 // aligh - align to left, right, etc.
 // precision - the precision syntax to be used (as in printf )
 //--------------------------------------------------------------------------------------------
-void printMatrix(const TMatrixD matrix, const std::vector<std::string> &headings, int width = 10,
-                 std::ios_base &align(std::ios_base &str) = std::left, const std::string &precision = ".3g");
+void printMatrix(const TMatrixD matrix, const std::vector<std::string>& headings, int width = 10,
+                 std::ios_base& align(std::ios_base& str) = std::left, const std::string& precision = ".3g");
 
 //--------------------------------------------------------------------------------------------
 // drawMatrix
@@ -196,9 +195,9 @@ void printMatrix(const TMatrixD matrix, const std::vector<std::string> &headings
 // precision - the precision syntax to be used (as in printf )
 // zMin, zMax - used to set z axis limits
 //--------------------------------------------------------------------------------------------
-TCanvas *drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string> &xAxisHeadings,
-                    const std::vector<std::string> &yAxisHeadings, const double zMin = 0.0, const double zMax = 0.0,
-                    const std::string &precision = ".3g");
+TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string>& xAxisHeadings,
+                    const std::vector<std::string>& yAxisHeadings, const double zMin = 0.0, const double zMax = 0.0,
+                    const std::string& precision = ".3g");
 
 //--------------------------------------------------------------------------------------------
 // sumVector
@@ -208,7 +207,7 @@ TCanvas *drawMatrix(const TMatrixD matrix, std::string title, const std::vector<
 // int.
 //--------------------------------------------------------------------------------------------
 template <typename T>
-T sumVector(const std::vector<T> &vector, const T &initialValue = 0.0) {
+T sumVector(const std::vector<T>& vector, const T& initialValue = 0.0) {
   return std::accumulate(vector.begin(), vector.end(), initialValue);
 }
 
@@ -218,17 +217,17 @@ T sumVector(const std::vector<T> &vector, const T &initialValue = 0.0) {
 // Returns sum(x[i]*x[i])
 //--------------------------------------------------------------------------------------------
 template <typename T>
-T sumVectorSquared(const std::vector<T> &vector, const T &initialValue = 0.0) {
+T sumVectorSquared(const std::vector<T>& vector, const T& initialValue = 0.0) {
   auto sum = initialValue;
 
-  for (auto &element : vector)
+  for (auto& element : vector)
     sum += element * element;
 
   return sum;
 }
 
 template <class T1, class T2, class outputT>
-std::vector<outputT> sumVectors(const std::vector<T1> &v1, const std::vector<T2> &v2) {
+std::vector<outputT> sumVectors(const std::vector<T1>& v1, const std::vector<T2>& v2) {
 
   const size_t outputSize = std::min(v1.size(), v2.size());
 
@@ -242,12 +241,12 @@ std::vector<outputT> sumVectors(const std::vector<T1> &v1, const std::vector<T2>
 }
 
 template <class T>
-std::vector<T> sumVectors(const std::vector<T> &v1, const std::vector<T> &v2) {
+std::vector<T> sumVectors(const std::vector<T>& v1, const std::vector<T>& v2) {
   return sumVectors<T, T, T>(v1, v2);
 }
 
 template <class T>
-std::vector<T> scaleVector(const std::vector<T> &input, const T factor) {
+std::vector<T> scaleVector(const std::vector<T>& input, const T factor) {
 
   // output vector
   std::vector<T> output;
@@ -262,7 +261,7 @@ std::vector<T> scaleVector(const std::vector<T> &input, const T factor) {
 
 // Maybe can use generate algorithm
 template <class T>
-std::vector<T> addToVector(const std::vector<T> &vector, const T val) {
+std::vector<T> addToVector(const std::vector<T>& vector, const T val) {
   // Create output vector
   std::vector<T> output;
   output.reserve(vector.size());
@@ -288,7 +287,7 @@ double novosibirsk(const double x, const double norm, const double peak, const d
 TF1 getNovosibirskTF1(const double minValue, const double maxValue);
 
 double getNovosibirskAmplitude(const double normalization, const double eta);
-inline double getNovosibirskAmplitude(const TF1 &novo) {
+inline double getNovosibirskAmplitude(const TF1& novo) {
   return getNovosibirskAmplitude(novo.GetParameter("Normalization"), novo.GetParameter("#eta"));
 }
 
@@ -342,7 +341,7 @@ double sampleMean(InputIt first, InputIt last) {
 }
 
 template <class T>
-double sampleMean(const std::vector<T> &values) {
+double sampleMean(const std::vector<T>& values) {
   return sampleMean(values.begin(), values.end());
 }
 
@@ -362,7 +361,7 @@ double sampleStd(InputIt first, InputIt last) {
 }
 
 template <class T>
-double sampleStd(const std::vector<T> &values) {
+double sampleStd(const std::vector<T>& values) {
   return sampleStd(values.begin(), values.end());
 }
 
@@ -370,7 +369,7 @@ double sampleStd(const std::vector<T> &values) {
 // If size of two input vectors is different, throw.
 // Taken from https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Dealing_with_variance
 template <class T>
-std::pair<double, double> weightedAverageAndStd(const std::vector<T> &values, const std::vector<double> &stds) {
+std::pair<double, double> weightedAverageAndStd(const std::vector<T>& values, const std::vector<double>& stds) {
   if (values.size() != stds.size()) {
     std::cout << "mathFuncs::weightedAverageAndStd : Error : size values (" << values.size() << ") != size stds(" << stds.size()
               << ")" << std::endl;
@@ -393,7 +392,7 @@ std::pair<double, double> weightedAverageAndStd(const std::vector<T> &values, co
 // the variance!!)  https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation
 
 template <class T>
-std::vector<double> vectorToDouble(const std::vector<T> &input) {
+std::vector<double> vectorToDouble(const std::vector<T>& input) {
   std::vector<double> output;
   output.reserve(input.size());
 
@@ -470,16 +469,16 @@ inline double parabola_maxValue(const T p0, const T p1, const T p2) {
   return p0 + p1 * xMax + p2 * xMax * xMax;
 }
 
-inline double parabola_xMax(const TFitResultPtr &fitResult) { return parabola_xMax(fitResult->Value(1), fitResult->Value(2)); }
+inline double parabola_xMax(const TFitResultPtr& fitResult) { return parabola_xMax(fitResult->Value(1), fitResult->Value(2)); }
 
 //----------------------------------------------
 // parabola using root TFitResult
 //----------------------------------------------
-inline double parabola_maxValue(const TFitResultPtr &fitResult, const double xMax) {
+inline double parabola_maxValue(const TFitResultPtr& fitResult, const double xMax) {
   return fitResult->Value(0) + fitResult->Value(1) * xMax + fitResult->Value(2) * xMax * xMax;
 }
 
-inline double parabola_maxValue(const TFitResultPtr &fitResult) { return parabola_maxValue(fitResult, parabola_xMax(fitResult)); }
+inline double parabola_maxValue(const TFitResultPtr& fitResult) { return parabola_maxValue(fitResult, parabola_xMax(fitResult)); }
 
 //----------------------------------------------
 // linear = p0 + p1*x
@@ -496,7 +495,7 @@ inline double linear_crossValue(const Tfunction p0, const Tfunction p1, const Tv
 // Return when linear line crosses value
 // Assumes fitResult is valid
 template <class Tvalue>
-inline double linear_crossValue(const TFitResultPtr &fitResult, const Tvalue value) {
+inline double linear_crossValue(const TFitResultPtr& fitResult, const Tvalue value) {
   return linear_crossValue(fitResult->Value(0), fitResult->Value(1), value);
 }
 
@@ -504,7 +503,7 @@ inline double linear_crossValue(const TFitResultPtr &fitResult, const Tvalue val
 // Element by element sum of 2 vectors
 //----------------------------------------------
 template <class T1, class T2>
-std::vector<decltype(T1() * T2())> sumElementByElement(const std::vector<T1> &inputs1, const std::vector<T2> &inputs2) {
+std::vector<decltype(T1() * T2())> sumElementByElement(const std::vector<T1>& inputs1, const std::vector<T2>& inputs2) {
   std::vector<decltype(T1() * T2())> outputs;
   outputs.reserve(inputs1.size());
   std::transform(inputs1.begin(), inputs1.end(), inputs2.begin(), std::back_inserter(outputs),
@@ -535,7 +534,7 @@ ForwardIt findMaxEvery_n(ForwardIt first, ForwardIt last, const size_t n) {
 }
 
 template <class T>
-typename T::const_iterator findMaxEvery_n(const T &container, const size_t n) {
+typename T::const_iterator findMaxEvery_n(const T& container, const size_t n) {
   return findMaxEvery_n(container.begin(), container.end(), n);
 }
 
@@ -563,12 +562,12 @@ ForwardIt findMaxEvery_n_ThenBetween(ForwardIt first, ForwardIt last, const size
   return findMaxEvery_n(newFirst, newLast, 1);
 }
 template <class T>
-typename T::const_iterator findMaxEvery_n_ThenBetween(const T &container, const size_t n) {
+typename T::const_iterator findMaxEvery_n_ThenBetween(const T& container, const size_t n) {
   return findMaxEvery_n_ThenBetween(container.begin(), container.end(), n);
 }
 
 template <class T>
-std::vector<double> averageEach_n(const std::vector<T> &vector, const size_t n) {
+std::vector<double> averageEach_n(const std::vector<T>& vector, const size_t n) {
   std::vector<double> output;
 
   if (n == 0) {

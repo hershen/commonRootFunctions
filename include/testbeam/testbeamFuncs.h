@@ -8,15 +8,15 @@
 #include <dirent.h>
 
 // ROOT
-#include "TColor.h"
 #include "TCanvas.h"
+#include "TColor.h"
 
 // Boost
 #include "boost/format.hpp"
 
 // Mine
-#include "testbeam/constants.h"
 #include "histFuncs.h"
+#include "testbeam/constants.h"
 
 class TGraphErrors;
 class TF1;
@@ -45,7 +45,8 @@ constexpr int muonColor = kRed;
 constexpr int pionColor = kGreen;
 
 static const std::unordered_map<int, int> c_pdgToColor{{11, elecColor}, {13, muonColor}, {211, pionColor}};
-static const std::unordered_map<int, std::string> c_channelToString{{1, "channel 1"}, {15, "channel 15"}, {16, "summed channels"}};
+static const std::unordered_map<int, std::string> c_channelToString{
+    {1, "channel 1"}, {15, "channel 15"}, {16, "summed channels"}};
 //-----------------------------------------------------------
 // Return Nominal beam momentum string with units
 //-----------------------------------------------------------
@@ -77,7 +78,7 @@ inline std::string getRunParamsString(const int runNum) {
 // Get a filename (may include directories) and return the run number string.
 // This is without the partial run number.
 //--------------------------------------------------------------------------------------------
-inline std::string getRunNum(const std::string &filename) {
+inline std::string getRunNum(const std::string& filename) {
   std::string trimLeft = filename.substr(filename.find("00000", 0) + 5);
   return trimLeft.substr(0, trimLeft.find("_000"));
 }
@@ -90,8 +91,8 @@ std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, con
 inline bool isCrystalChannel(const int channel) { return (channel == 1 or channel == 15); }
 
 // Return TGraphErrors with voltage as function of time
-std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double> &voltage,
-                                               const std::vector<double> &errors = std::vector<double>());
+std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltage,
+                                               const std::vector<double>& errors = std::vector<double>());
 
 // Get PaveText of run parameters, channel and event num
 std::unique_ptr<myFuncs::PaveText> getRunChannelEventPaveText(const int runNum, const int channelNum, const int eventNum);
@@ -113,17 +114,17 @@ bool isCsI(const int runNum);
 
 int getV1730waveformLength(const int runNum);
 
-std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string &filename);
+std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string& filename);
 
-static inline int getGeantFilePdg(const std::string &filename) {
+static inline int getGeantFilePdg(const std::string& filename) {
   return std::lround(getGeantFileSimParamers(filename).at("primaryPdg"));
 }
 
-static inline double getGeantFilePrimaryMeanMomentum(const std::string &filename) {
+static inline double getGeantFilePrimaryMeanMomentum(const std::string& filename) {
   return getGeantFileSimParamers(filename).at("primaryMeanMomentum");
 }
 
-static inline double getGeantFileMomentumResolution(const std::string &filename) {
+static inline double getGeantFileMomentumResolution(const std::string& filename) {
   return getGeantFileSimParamers(filename).at("momentumResolution");
 }
 
@@ -151,8 +152,8 @@ inline std::string getTestbeamDir() {
 }
 
 template <class... Tdrawable>
-std::unique_ptr<TCanvas> drawWaveforms(const std::string &saveFilename, const bool waitDoubleClick,
-                                       Tdrawable &... drawableObjects) {
+std::unique_ptr<TCanvas> drawWaveforms(const std::string& saveFilename, const bool waitDoubleClick,
+                                       Tdrawable&... drawableObjects) {
   static int iDummy = 0;
   std::unique_ptr<TCanvas> canvas(new TCanvas(("canvas_" + std::to_string(iDummy)).data(), "", 0, 0, 1200, 900));
 
@@ -169,7 +170,7 @@ std::unique_ptr<TCanvas> drawWaveforms(const std::string &saveFilename, const bo
   return canvas;
 }
 
-//Return a function which describes the pedestal as a function of event number
+// Return a function which describes the pedestal as a function of event number
 TF1 getPedestalFitFunction(const int runNum, const int channel);
 
 std::vector<double> getTimes(const size_t size, const double dt);

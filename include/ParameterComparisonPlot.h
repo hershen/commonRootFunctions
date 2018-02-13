@@ -27,16 +27,16 @@ public:
   ParameterComparisonPlot();
   ~ParameterComparisonPlot();
 
-  void addEntry(const std::string &experiment, const double parValue, const double parError, const bool drawRectangle = false);
+  void addEntry(const std::string& experiment, const double parValue, const double parError, const bool drawRectangle = false);
 
-  void Draw(const std::string &options = "");
+  void Draw(const std::string& options = "");
 
-  std::vector<myFuncs::PaveText *> getValueLabels() const { return m_valueLabels; }
+  std::vector<myFuncs::PaveText*> getValueLabels() const { return m_valueLabels; }
 
   void setDrawValueLabels(const bool drawValueLabels) { m_drawValueLabels = drawValueLabels; }
   bool getDrawValueLabels() const { return m_drawValueLabels; }
 
-  std::vector<TPaveText *> getRectangles() const { return m_rectangles; }
+  std::vector<TPaveText*> getRectangles() const { return m_rectangles; }
 
   std::vector<double> getParameterValues() const { return m_parValues; }
   std::vector<double> getParameterStds() const { return m_parErrors; }
@@ -49,16 +49,16 @@ private:
 
   // Vector that holds the value lables (value +- error) above the markers
   // Can't be a shared pointer because root will delete them when program ends
-  std::vector<myFuncs::PaveText *> m_valueLabels;
+  std::vector<myFuncs::PaveText*> m_valueLabels;
 
   // Vector that holds the value lables (value +- error) above the markers
-  std::vector<myFuncs::PaveText *> m_yAxisLabels;
+  std::vector<myFuncs::PaveText*> m_yAxisLabels;
 
   // Vector that holds a bool to indicate if to draw a rectangle for that entry
   std::vector<bool> m_drawRectangles;
 
   // Vector that holds rectangles
-  std::vector<TPaveText *> m_rectangles;
+  std::vector<TPaveText*> m_rectangles;
 
   bool m_drawValueLabels;
 

@@ -15,15 +15,15 @@ ParameterComparisonPlot::ParameterComparisonPlot() : TGraphErrors(), m_drawValue
 ParameterComparisonPlot::~ParameterComparisonPlot() {
 
   // Delete value labels
-  for (auto &label : m_valueLabels)
+  for (auto& label : m_valueLabels)
     delete label;
 
   // Delete y axis labels
-  for (auto &label : m_yAxisLabels)
+  for (auto& label : m_yAxisLabels)
     delete label;
 }
 
-void ParameterComparisonPlot::addEntry(const std::string &experiment, const double parValue, const double parError,
+void ParameterComparisonPlot::addEntry(const std::string& experiment, const double parValue, const double parError,
                                        const bool drawRectangle) {
   m_experiments.push_back(experiment);
   m_parValues.push_back(parValue);
@@ -46,7 +46,7 @@ void ParameterComparisonPlot::drawValueLabels(const double textLabelSize) {
     const double error = this->GetErrorX(iPoint);
 
     // This is a memory leak, but I plan to change this into regular objects, so I'm not bothering
-    myFuncs::PaveText *pt =
+    myFuncs::PaveText* pt =
         new myFuncs::PaveText(x, y - 0.25 * getYlengthPerPoint(), x + 0.5 * xAxisRange, y + 0.35 * getYlengthPerPoint(), "NB");
 
     pt->SetTextSize(textLabelSize * gPad->GetWNDC() / 1.5);
@@ -77,7 +77,7 @@ void ParameterComparisonPlot::drawYaxisLabels(const double textLabelSize) {
     this->GetPoint(iPoint, x, y);
 
     // This is a memory leak, but I plan to change this into regular objects, so I'm not bothering
-    myFuncs::PaveText *pt =
+    myFuncs::PaveText* pt =
         new myFuncs::PaveText(myFuncs::xNdcToUser(0), y - 0.25 * getYlengthPerPoint(), myFuncs::xNdcToUser(gPad->GetLeftMargin()),
                               y + 0.35 * getYlengthPerPoint(), "NB");
 
@@ -111,7 +111,7 @@ void ParameterComparisonPlot::drawRectangle(const int entry) {
   const double yAxisRange = this->GetYaxis()->GetXmax() - this->GetYaxis()->GetXmin();
   const double xTickLength = this->GetXaxis()->GetTickLength() * yAxisRange;
 
-  TPaveText *rectangle = new TPaveText(xParValue - xParError, gPad->GetUymin() + xTickLength, xParValue + xParError,
+  TPaveText* rectangle = new TPaveText(xParValue - xParError, gPad->GetUymin() + xTickLength, xParValue + xParError,
                                        gPad->GetUymax() - xTickLength, "NB");
 
   rectangle->Draw();
@@ -119,7 +119,7 @@ void ParameterComparisonPlot::drawRectangle(const int entry) {
   m_rectangles.push_back(rectangle);
 }
 
-void ParameterComparisonPlot::Draw(const std::string &options) {
+void ParameterComparisonPlot::Draw(const std::string& options) {
 
   // Populate TGraphErrors
   for (uint iEntry = 0; iEntry < m_experiments.size(); ++iEntry) {

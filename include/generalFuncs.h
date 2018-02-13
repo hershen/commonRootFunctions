@@ -13,7 +13,7 @@ namespace myFuncs {
 // If the map doesn't contain the provided key, a new one will be added with value deltaValue (i.e. assuming value starts at 0).
 //--------------------------------------------------------------------------------------------
 template <typename keyType, typename valueType>
-void increaseMapValue(std::unordered_map<keyType, valueType> &map, const keyType key, const valueType deltaValue) {
+void increaseMapValue(std::unordered_map<keyType, valueType>& map, const keyType key, const valueType deltaValue) {
   auto returnPair = map.emplace(key, deltaValue);
 
   // returnPair.second is bool (true if key was added).
@@ -22,24 +22,24 @@ void increaseMapValue(std::unordered_map<keyType, valueType> &map, const keyType
 }
 
 template <typename keyType, typename valueType>
-std::vector<std::pair<keyType, valueType>> sortMapByValue(const std::unordered_map<keyType, valueType> &map) {
+std::vector<std::pair<keyType, valueType>> sortMapByValue(const std::unordered_map<keyType, valueType>& map) {
   std::vector<std::pair<keyType, valueType>> pairs;
   for (auto pair : map)
     pairs.push_back(pair);
 
   std::sort(pairs.begin(), pairs.end(),
-            [=](std::pair<keyType, valueType> &a, std::pair<keyType, valueType> &b) { return a.second < b.second; });
+            [=](std::pair<keyType, valueType>& a, std::pair<keyType, valueType>& b) { return a.second < b.second; });
 
   return pairs;
 }
 
 template <class T>
-std::vector<T> multiplyElementByElement(const std::vector<T> &vec) {
+std::vector<T> multiplyElementByElement(const std::vector<T>& vec) {
   return vec;
 }
 
 template <class T1, class T2>
-std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &vec1, const std::vector<T2> &vec2) {
+std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1>& vec1, const std::vector<T2>& vec2) {
   std::vector<decltype(T1() * T2())> returnVec;
   returnVec.reserve(vec1.size());
   std::transform(vec1.begin(), vec1.end(),
@@ -52,12 +52,12 @@ std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1
 // I don't know how to extract the type of T1*T2*Ts[0]*Ts[1]...
 // won't work if (for example) vector<int>, vector<int>, vector<double>.
 template <class T1, class T2, class... Ts>
-std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1> &first, const std::vector<T2> &second,
-                                                            Ts &... others) {
+std::vector<decltype(T1() * T2())> multiplyElementByElement(const std::vector<T1>& first, const std::vector<T2>& second,
+                                                            Ts&... others) {
   return multiplyElementByElement(multiplyElementByElement(first, second), others...);
 }
 
 // transforms a vector of strings into a vector of doubles
-std::vector<double> changeStringsToDoubles(const std::vector<std::string> &strings);
+std::vector<double> changeStringsToDoubles(const std::vector<std::string>& strings);
 
 } // namespace myFuncs

@@ -25,7 +25,7 @@ namespace DSP {
 
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau = 1., const double T = 0.);
+std::vector<double> filterCR_RC(const std::vector<Type>& xs, const double tau = 1., const double T = 0.);
 
 //----------------------------------------------------------
 // filterCR_RC2
@@ -39,7 +39,7 @@ std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau = 
 
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau = 1., const double T = 0.);
+std::vector<double> filterCR_RC2(const std::vector<Type>& xs, const double tau = 1., const double T = 0.);
 
 //----------------------------------------------------------
 // filterCR_RC4
@@ -53,18 +53,18 @@ std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau =
 
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau = 1., const double T = 0.);
+std::vector<double> filterCR_RC4(const std::vector<Type>& xs, const double tau = 1., const double T = 0.);
 
 template <typename Type>
-std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size_t numToBrick, const Type valueToBrick = 0);
+std::vector<double> filterBrickwall(const std::vector<Type>& xs, const std::size_t numToBrick, const Type valueToBrick = 0);
 
 //----------------------------------------------------------
 // filterByTransferFunction
 // Multiply the fft of timeDomainValues by transferFunction and return the transform back to time domain.
 //----------------------------------------------------------
 template <class timeType, class transferType>
-std::vector<double> filterByTransferFunction(const std::vector<timeType> &timeDomainValues,
-                                             const std::vector<transferType> &transferFunction) {
+std::vector<double> filterByTransferFunction(const std::vector<timeType>& timeDomainValues,
+                                             const std::vector<transferType>& transferFunction) {
   auto fftPair = myFuncs::fftR2C(timeDomainValues);
 
   std::vector<std::complex<double>> fftComplex;
@@ -75,16 +75,16 @@ std::vector<double> filterByTransferFunction(const std::vector<timeType> &timeDo
   return myFuncs::fftC2R(timeDomainValues.size(), myFuncs::multiplyElementByElement(fftComplex, transferFunction));
 }
 template <class timeType, class... Ts>
-std::vector<double> filterByTransferFunction(const std::vector<timeType> &timeDomainValues, Ts &... others) {
+std::vector<double> filterByTransferFunction(const std::vector<timeType>& timeDomainValues, Ts&... others) {
   return filterByTransferFunction(timeDomainValues, myFuncs::multiplyElementByElement(others...));
 }
 
 // Based on Discrete time signal processing,Oppenheim, Schafer, 3rd edition, eq. 3.66 on page 133.
 // y[n] = -sum_{k=1}^N(a_k/a_0)y[n-k] + sum_{k=0}^M(b_k/a_0)x[n-k]
 template <class coefficientType, class inputType>
-std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<coefficientType> &originalNominators,
-                                                              const std::vector<coefficientType> &originalDenominators,
-                                                              const std::vector<inputType> &inputs) {
+std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<coefficientType>& originalNominators,
+                                                              const std::vector<coefficientType>& originalDenominators,
+                                                              const std::vector<inputType>& inputs) {
   using returnType = decltype(coefficientType() * inputType());
   std::vector<returnType> outputs;
   outputs.reserve(inputs.size());
@@ -99,14 +99,14 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
   scaledNominators.reserve(originalNominators.size());
   const auto ov_denom0 = static_cast<double>(1) / originalDenominators.front();
   std::for_each(originalNominators.begin(), originalNominators.end(),
-                [&](const auto &denom) { scaledNominators.push_back(denom * ov_denom0); });
+                [&](const auto& denom) { scaledNominators.push_back(denom * ov_denom0); });
 
   // Scale denominators by originalDenominators[0]
   // scaledDenominators has originalDenominators.size() - 1 elements!
   std::vector<coefficientType> scaledDenominators;
   scaledDenominators.reserve(originalDenominators.size() - 1);
   std::for_each(originalDenominators.begin() + 1, originalDenominators.end(),
-                [&](const auto &nom) { scaledDenominators.push_back(nom * ov_denom0); });
+                [&](const auto& nom) { scaledDenominators.push_back(nom * ov_denom0); });
 
   const auto term1 = [&]() {
     return outputs.size() >= scaledDenominators.size()
@@ -135,16 +135,16 @@ std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<
 }
 
 template <class coefficientType, class inputType>
-std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<coefficientType> &originalNominators,
+std::vector<decltype(coefficientType() * inputType())> filter(const std::vector<coefficientType>& originalNominators,
                                                               const coefficientType originalDenominator,
-                                                              const std::vector<inputType> &inputs) {
+                                                              const std::vector<inputType>& inputs) {
   return myFuncs::DSP::filter(originalNominators, std::vector<coefficientType>{originalDenominator}, inputs);
 }
 
 template <class coefficientType, class inputType>
 std::vector<decltype(coefficientType() * inputType())>
-filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>> &coeficientPair,
-       const std::vector<inputType> &inputs) {
+filter(const std::pair<std::vector<coefficientType>, std::vector<coefficientType>>& coeficientPair,
+       const std::vector<inputType>& inputs) {
   return myFuncs::DSP::filter(coeficientPair.first, coeficientPair.second, inputs);
 }
 
@@ -159,9 +159,9 @@ std::pair<std::vector<double>, std::vector<double>> getCR_RCnCoefficients(const 
 // zero-phase forward and backward filtering.
 // Inspiration form MATLASB's filtfilt (R2017a)
 template <class coefficientType, class inputType>
-std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType> &nominators,
-                                                                const std::vector<coefficientType> &denominators,
-                                                                const std::vector<inputType> &inputs) {
+std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType>& nominators,
+                                                                const std::vector<coefficientType>& denominators,
+                                                                const std::vector<inputType>& inputs) {
 
   const int filterOrder = std::max(nominators.size(), denominators.size());
   const uint nfact = std::max(1, 3 * (filterOrder - 1));
@@ -193,9 +193,9 @@ std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vecto
 
   std::for_each(
       std::make_reverse_iterator(inputs.begin() + nfact + 1), inputs.rend() - 1,
-      [&firstInputTimes2, &adjustedInputs](const inputType &input) { adjustedInputs.push_back(firstInputTimes2 - input); });
+      [&firstInputTimes2, &adjustedInputs](const inputType& input) { adjustedInputs.push_back(firstInputTimes2 - input); });
   adjustedInputs.insert(adjustedInputs.end(), inputs.begin(), inputs.end());
-  std::for_each(inputs.rbegin() + 1, inputs.rbegin() + nfact + 1, [&lastInputTimes2, &adjustedInputs](const inputType &input) {
+  std::for_each(inputs.rbegin() + 1, inputs.rbegin() + nfact + 1, [&lastInputTimes2, &adjustedInputs](const inputType& input) {
     adjustedInputs.push_back(lastInputTimes2 - input);
   });
 
@@ -213,9 +213,9 @@ std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vecto
 }
 
 template <class coefficientType, class inputType>
-std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType> &nominators,
+std::vector<decltype(coefficientType() * inputType())> filtfilt(const std::vector<coefficientType>& nominators,
                                                                 const coefficientType denominator,
-                                                                const std::vector<inputType> &inputs) {
+                                                                const std::vector<inputType>& inputs) {
   return myFuncs::DSP::filtfilt(nominators, std::vector<coefficientType>{denominator}, inputs);
 }
 

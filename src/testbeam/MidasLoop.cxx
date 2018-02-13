@@ -27,7 +27,7 @@ MidasLoop::MidasLoop(const std::string midasFilesPath, const int runNum)
             << std::endl;
 }
 
-bool MidasLoop::PreFilter(TDataContainer &dataContainer) {
+bool MidasLoop::PreFilter(TDataContainer& dataContainer) {
 
   // Only process eventId = 1 - others are 15,100 - don't know what they are.
   if (dataContainer.GetMidasEvent().GetEventId() != 1)
@@ -45,7 +45,7 @@ void MidasLoop::run(const std::string options) {
 
   // Reserve array of filenames
   constexpr int maxArgs = 100;
-  std::array<char *, maxArgs> argv;
+  std::array<char*, maxArgs> argv;
 
   // Populate array. array.fill is not good because all elements will point to the same place.
   constexpr int maxCharPerFile = 200;
@@ -59,7 +59,7 @@ void MidasLoop::run(const std::string options) {
 
   // Fill options
   if (isOptions)
-    strcpy(argv[1], const_cast<char *>(options.c_str()));
+    strcpy(argv[1], const_cast<char*>(options.c_str()));
 
   // Upper bound on number of files to process
   const int upperBoundNumFiles =
@@ -88,7 +88,7 @@ void MidasLoop::run(const std::string options) {
                 << std::endl;
       throw;
     }
-    strcpy(argv[iFileIdx], const_cast<char *>(m_midasFilenames[iFile].c_str()));
+    strcpy(argv[iFileIdx], const_cast<char*>(m_midasFilenames[iFile].c_str()));
     ++iFileIdx;
   }
 

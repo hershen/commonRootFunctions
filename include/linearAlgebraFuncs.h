@@ -15,7 +15,7 @@
 namespace myFuncs {
 
 // Returns the contents of a TMatrix in an Eigen matrix.
-Eigen::MatrixXd TMatrixToEigenMatrix(TMatrixD &matrix) {
+Eigen::MatrixXd TMatrixToEigenMatrix(TMatrixD& matrix) {
   typedef Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> MapType;
   MapType m2map(matrix.GetMatrixArray(), matrix.GetNrows(), matrix.GetNcols());
   return m2map;
@@ -23,13 +23,13 @@ Eigen::MatrixXd TMatrixToEigenMatrix(TMatrixD &matrix) {
 
 // Save Eigen matrix into TTree
 template <typename EigenType>
-void saveToFile(EigenType &matrix, const std::string &filename, const std::string &treeName = "tree",
-                const std::string &options = "RECREATE") {
+void saveToFile(EigenType& matrix, const std::string& filename, const std::string& treeName = "tree",
+                const std::string& options = "RECREATE") {
   TFile f(filename.c_str(), options.c_str());
   TTree tree(treeName.c_str(), "");
   const size_t numElements = matrix.rows() * matrix.cols();
 
-  double *matrixData = matrix.data();
+  double* matrixData = matrix.data();
   int rows = matrix.rows();
   int cols = matrix.cols();
   tree.Branch("matrixArray", matrixData, ("matrixArray[" + std::to_string(numElements) + "]/D").c_str());
@@ -41,9 +41,9 @@ void saveToFile(EigenType &matrix, const std::string &filename, const std::strin
 }
 
 // Load Eigen matrix from TTree
-Eigen::MatrixXd loadFromFile(const std::string &filename, const std::string &treeName = "tree") {
+Eigen::MatrixXd loadFromFile(const std::string& filename, const std::string& treeName = "tree") {
   TFile f(filename.c_str(), "READ");
-  TTree *tree = (TTree *)f.Get(treeName.c_str());
+  TTree* tree = (TTree*)f.Get(treeName.c_str());
   int rows;
   int cols;
   tree->SetBranchAddress("matrixRows", &rows);
@@ -73,7 +73,7 @@ Eigen::MatrixXd loadFromFile(const std::string &filename, const std::string &tre
 }
 
 template <class EigenType>
-TMatrixD EigenToTMatrix(const EigenType &eigenMatrix) {
+TMatrixD EigenToTMatrix(const EigenType& eigenMatrix) {
   return TMatrixD(eigenMatrix.rows(), eigenMatrix.cols(), eigenMatrix.data(), "F"); //"F" is for column wise
 }
 } // namespace myFuncs

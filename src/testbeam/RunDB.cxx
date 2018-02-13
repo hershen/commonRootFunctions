@@ -220,7 +220,7 @@ RunDB::RunDB()
            ) // initialization list
 {}           // constructor
 
-const RunParams &RunDB::operator[](const int runNum) const {
+const RunParams& RunDB::operator[](const int runNum) const {
   try {
     return m_DB.at(runNum);
   } catch (std::out_of_range) {

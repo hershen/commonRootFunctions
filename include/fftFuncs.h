@@ -1,8 +1,8 @@
 #pragma once
 
+#include <complex>
 #include <string>
 #include <vector>
-#include <complex>
 
 // ROOT
 #include "TComplex.h"
@@ -20,7 +20,7 @@ namespace myFuncs {
 // Insperation taken from CDMS's PulseTools::RealToComplexFFT
 // Which in turn was taken from MATLAB's "Power Spectral Density Estimates Using FFT" example (I think)
 //--------------------------------------------
-std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<double> &input, const std::string &options = "ES");
+std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<double>& input, const std::string& options = "ES");
 
 //--------------------------------------------
 // Does the complex to real FFT.
@@ -29,12 +29,12 @@ std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<dou
 // Requires the number of points in the time domain (they are unrecoverable because of the rounding down of N/2 +1 freq domain
 // points)
 //--------------------------------------------
-std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double> &realParts, const std::vector<double> &imagParts,
-                           const std::string &options = "ES");
+std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double>& realParts, const std::vector<double>& imagParts,
+                           const std::string& options = "ES");
 
 template <class T>
 std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<std::complex<T>> fftComplex,
-                           const std::string &options = "ES") {
+                           const std::string& options = "ES") {
   std::vector<double> realParts;
   realParts.reserve(fftComplex.size());
   std::vector<double> imagParts;
@@ -58,7 +58,7 @@ std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<std::co
 // Insperation taken from CDMS's PulseTools::RealToComplexFFT
 // Which in turn was taken from MATLAB's "Power Spectral Density Estimates Using FFT" example (I think)
 //--------------------------------------------
-std::vector<double> realSequence2psd(const std::vector<double> &input, const double sampleingFrequency = 1.0);
+std::vector<double> realSequence2psd(const std::vector<double>& input, const double sampleingFrequency = 1.0);
 
 //--------------------------------------------
 // Get the frequencies (x-axis) corresponding to a real fft
@@ -75,7 +75,7 @@ std::vector<double> getRealFftfrequencies(const size_t N, const double samplingF
 // If newSize < vector.size(), function won't do anything
 //--------------------------------------------
 template <typename T>
-std::vector<T> padWithZeros(const std::vector<T> &vector, const size_t newSize) {
+std::vector<T> padWithZeros(const std::vector<T>& vector, const size_t newSize) {
   std::vector<T> padded(vector);
   padded.reserve(newSize);
   while (padded.size() < padded.capacity())

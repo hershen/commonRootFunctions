@@ -46,6 +46,6 @@ const static std::unordered_map<int, double> electronBetaSigma = {{-100, 0.02803
 const static std::unordered_map<int, double> muonBetaSigma = {{-100, 0.013659}, {-120, 0.015451}, {-140, 0.017359}};
 const static std::unordered_map<int, double> pionBetaSigma = {{-100, 0.010849}, {-120, 0.011701}, {-140, 0.013979}};
 
-const static std::unordered_map<int, double> c_max_min_maximumValue { {1,37}, {15, 40}};
+const static std::unordered_map<int, double> c_max_min_maximumValue{{1, 37}, {15, 40}};
 } // namespace testbeam
 } // namespace myFuncs

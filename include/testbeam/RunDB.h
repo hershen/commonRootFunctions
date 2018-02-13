@@ -20,8 +20,8 @@ struct pedestalFitParams {
 //-----------------------------------------------------------
 class RunParams {
 public:
-  constexpr RunParams(const int runNum, const pedestalFitParams &fitParams_channel1, const pedestalFitParams &fitParams_channel15,
-                      const pedestalFitParams &fitParams_summedChannels, const Crystal crystal, const double sourceDistance,
+  constexpr RunParams(const int runNum, const pedestalFitParams& fitParams_channel1, const pedestalFitParams& fitParams_channel15,
+                      const pedestalFitParams& fitParams_summedChannels, const Crystal crystal, const double sourceDistance,
                       const double HV, const double nominalBeamMomentum, const double measuredBeamMomentum,
                       const double crystalFrontFaceToIncubatorSideWallDistance)
       : m_runNum(runNum), m_fitParams_channel1(fitParams_channel1), m_fitParams_channel15(fitParams_channel15),
@@ -88,7 +88,7 @@ public:
   //-----------------------------------------------------------
   // Get instance to singleton
   //-----------------------------------------------------------
-  static RunDB &instance() {
+  static RunDB& instance() {
     static RunDB instance; // Guaranteed to be destroyed.
                            // Instantiated on first use.
     return instance;
@@ -98,11 +98,11 @@ private:
   RunDB();
 
 public:
-  RunDB(RunDB const &) = delete;
-  void operator=(RunDB const &) = delete;
+  RunDB(RunDB const&) = delete;
+  void operator=(RunDB const&) = delete;
 
   // access RunParams with run number runNum
-  const RunParams &operator[](const int runNum) const;
+  const RunParams& operator[](const int runNum) const;
 
 private:
   // This holds the DB

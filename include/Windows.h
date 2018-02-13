@@ -27,7 +27,7 @@ public:
   // Take inputs and multiply by window value.
   // output[n] = input[n] * window[n]
   template <typename T>
-  std::vector<double> windowAnInput(const std::vector<T> &inputs) const {
+  std::vector<double> windowAnInput(const std::vector<T>& inputs) const {
     std::vector<double> outputs;
     outputs.reserve(inputs.size());
 
@@ -41,7 +41,7 @@ public:
   // output[n] = input[n] / window[n]
   // If window[n] == 0, output[n] = 0.
   template <typename T>
-  std::vector<double> unwindowAnInput(const std::vector<T> &inputs) const {
+  std::vector<double> unwindowAnInput(const std::vector<T>& inputs) const {
     std::vector<double> outputs;
     outputs.reserve(inputs.size());
 

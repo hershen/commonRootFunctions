@@ -9,7 +9,7 @@
 
 namespace myFuncs {
 
-std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<double> &input, const std::string &options) {
+std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<double>& input, const std::string& options) {
 
   // Should be const, but can't because TVirtualFFT::FFT needs to accept non-const pointer
   // This has units of cycles per sample
@@ -50,7 +50,7 @@ std::pair<std::vector<double>, std::vector<double>> fftR2C(const std::vector<dou
   return std::make_pair(real, imag);
 }
 
-std::vector<double> realSequence2psd(const std::vector<double> &input, const double sampleingFrequency) {
+std::vector<double> realSequence2psd(const std::vector<double>& input, const double sampleingFrequency) {
 
   if (input.size() == 0) {
     std::cerr << "fftFuncs::realFft2psd - ERROR! empty input passed into this function" << std::endl;
@@ -65,7 +65,7 @@ std::vector<double> realSequence2psd(const std::vector<double> &input, const dou
   psd.reserve(fft.first.size());
 
   // We assume input is fft of real values. Therefore, Y_0 = Y_N, and only (N/2)+1 complex numbers were calculated. N is the size
-  // of input.  This means that when calculating the PSD, we need to take into account all the frequencies that were "dropped".  We
+  // of input.  This means that when calculating the PSD, we need to take into account all the frequencies that were "dropped". We
   // do this by multiplying all their corresponding frequencies by 2.  The DC component and the Nyquist component for N odd are
   // never "dropped", so we don't multiply them by 2.
 
@@ -102,8 +102,8 @@ std::vector<double> getRealFftfrequencies(const size_t N, const double samplingF
   return xValues;
 }
 
-std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double> &realParts, const std::vector<double> &imagParts,
-                           const std::string &options) {
+std::vector<double> fftC2R(const size_t numTimePoints, const std::vector<double>& realParts, const std::vector<double>& imagParts,
+                           const std::string& options) {
 
   // Non suitable variable because that's what root forces us to use
   int numPoints = numTimePoints;

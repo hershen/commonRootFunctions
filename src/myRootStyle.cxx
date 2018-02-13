@@ -10,8 +10,8 @@ void SetBelle2Style();
 
 namespace myFuncs {
 
-TStyle *MyRootStyle() {
-  TStyle *myRootStyle = new TStyle("myRootStyle", "My Root style");
+TStyle* MyRootStyle() {
+  TStyle* myRootStyle = new TStyle("myRootStyle", "My Root style");
 
   // use plain black on white colors
   Int_t icol = 0; // WHITE
@@ -90,7 +90,7 @@ TStyle *MyRootStyle() {
 }
 
 void setMyRootStyle() {
-  static TStyle *myRootStyle = nullptr;
+  static TStyle* myRootStyle = nullptr;
   std::cout << "\nApplying myRootStyle\n" << std::endl;
   if (!myRootStyle)
     myRootStyle = MyRootStyle();

@@ -49,8 +49,8 @@ void EventLoopBase::setupTOFchain(const std::string& TOFfilesPath) {
   const std::vector<std::string> branchNames = {"eventNumber", "beta", "betaError", "timeAtCrystal_ns", "timeAtCrystalError_ns"};
 
   // Define vector of pointer addresses
-  const std::vector<void *> pointers = {m_TOFeventNumber.get(), m_beta.get(), m_betaError.get(), m_timeAtCrystal_ns.get(),
-                                        m_timeAtCrystalError_ns.get()};
+  const std::vector<void*> pointers = {m_TOFeventNumber.get(), m_beta.get(), m_betaError.get(), m_timeAtCrystal_ns.get(),
+                                       m_timeAtCrystalError_ns.get()};
 
   // Create chain of files
   m_timingChain = std::shared_ptr<TChain>(myFuncs::openChain_setBranch(timingFilenames, "tree", branchNames, pointers));
@@ -64,7 +64,7 @@ void EventLoopBase::Initialize(void) {
     m_timingChain->GetEntry(m_timingEntry);
 }
 
-bool EventLoopBase::PreFilter(TDataContainer &dataContainer) {
+bool EventLoopBase::PreFilter(TDataContainer& dataContainer) {
 
   // Only process eventId = 1 - others are 15,100 - don't know what they are.
   if (dataContainer.GetMidasEvent().GetEventId() != 1)
@@ -98,7 +98,7 @@ void EventLoopBase::run(const std::string options) {
 
   // Reserve array of filenames
   constexpr int maxArgs = 100;
-  std::array<char *, maxArgs> argv;
+  std::array<char*, maxArgs> argv;
 
   // Populate array. array.fill is not good because all elements will point to the same place.
   constexpr int maxCharPerFile = 200;
@@ -112,7 +112,7 @@ void EventLoopBase::run(const std::string options) {
 
   // Fill options
   if (isOptions)
-    strcpy(argv[1], const_cast<char *>(options.c_str()));
+    strcpy(argv[1], const_cast<char*>(options.c_str()));
 
   // Upper bound on number of files to process
   const int upperBoundNumFiles =
@@ -141,7 +141,7 @@ void EventLoopBase::run(const std::string options) {
                 << std::endl;
       throw;
     }
-    strcpy(argv[iFileIdx], const_cast<char *>(m_midasFilenames[iFile].c_str()));
+    strcpy(argv[iFileIdx], const_cast<char*>(m_midasFilenames[iFile].c_str()));
     ++iFileIdx;
   }
 

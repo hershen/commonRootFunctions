@@ -24,10 +24,10 @@
 
 namespace myFuncs {
 
-TChain *openChain(const std::string &treeName, const std::string &fileNamesString) {
+TChain* openChain(const std::string& treeName, const std::string& fileNamesString) {
 
   // create chain
-  TChain *chain = new TChain(treeName.data());
+  TChain* chain = new TChain(treeName.data());
 
   // Add files
   int numOfFiles = chain->Add(fileNamesString.data());
@@ -62,7 +62,7 @@ TChain *openChain(const std::string &treeName, const std::string &fileNamesStrin
   return chain;
 }
 
-int setChainBranch(TChain *chain, const std::string &branchName, void *pointer) {
+int setChainBranch(TChain* chain, const std::string& branchName, void* pointer) {
   if (!chain) {
     std::cout << "fileFuncs::setChainBranch: Error - empty TChain given. Aborting." << std::endl;
     return 100;
@@ -90,7 +90,7 @@ int setChainBranch(TChain *chain, const std::string &branchName, void *pointer) 
   return returnVal; // should be 0
 }
 
-int setChainBranch(TChain *chain, const std::vector<std::string> &branchNamesV, std::vector<void *> pointerV) {
+int setChainBranch(TChain* chain, const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV) {
   if (!chain) {
     std::cout << "fileFuncs::setChainBranch: Error - empty TChain given. Aborting." << std::endl;
     return 1000;
@@ -123,10 +123,10 @@ int setChainBranch(TChain *chain, const std::vector<std::string> &branchNamesV, 
   return returnVal; // shoud be 0
 }
 
-TChain *openChain_setBranch(const std::string &fileNameString, const std::string &treeName, const std::string &branchName,
-                            void *pointer) {
+TChain* openChain_setBranch(const std::string& fileNameString, const std::string& treeName, const std::string& branchName,
+                            void* pointer) {
   // create chain
-  TChain *chain = openChain(treeName, fileNameString);
+  TChain* chain = openChain(treeName, fileNameString);
   if (!chain) {
     std::cout << "fileFuncs::openChain_setBranch: Could not open chain. Aborting" << std::endl;
     return 0;
@@ -144,8 +144,8 @@ TChain *openChain_setBranch(const std::string &fileNameString, const std::string
   return chain;
 }
 
-TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, const std::string &treeName,
-                            const std::string &branchName, void *pointer) {
+TChain* openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName,
+                            const std::string& branchName, void* pointer) {
 
   if (fileNameStringV.empty()) {
     std::cout << "fileFuncs::openChain_setBranch: fileNameStringV is empty. Aborting" << std::endl;
@@ -155,7 +155,7 @@ TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, con
   // ------------------------------------------------------------------
   // Create chain
   // ------------------------------------------------------------------
-  TChain *chain = openChain_setBranch(fileNameStringV[0], treeName, branchName, pointer);
+  TChain* chain = openChain_setBranch(fileNameStringV[0], treeName, branchName, pointer);
 
   if (!chain) {
     std::cout << "fileFuncs::openChain_setBranch: Error - Could not open chain. Aborting" << std::endl;
@@ -175,10 +175,10 @@ TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, con
   return chain;
 }
 
-TChain *openChain_setBranch(const std::string &fileNameString, const std::string &treeName,
-                            const std::vector<std::string> &branchNamesV, std::vector<void *> pointerV) {
+TChain* openChain_setBranch(const std::string& fileNameString, const std::string& treeName,
+                            const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV) {
   // create chain
-  TChain *chain = openChain(treeName, fileNameString);
+  TChain* chain = openChain(treeName, fileNameString);
   if (!chain) {
     std::cout << "fileFuncs::openChain_setBranch: Could not open chain. Aborting" << std::endl;
     return 0;
@@ -196,8 +196,8 @@ TChain *openChain_setBranch(const std::string &fileNameString, const std::string
   return chain;
 }
 
-TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, const std::string &treeName,
-                            const std::vector<std::string> &branchNamesV, std::vector<void *> pointerV) {
+TChain* openChain_setBranch(const std::vector<std::string>& fileNameStringV, const std::string& treeName,
+                            const std::vector<std::string>& branchNamesV, std::vector<void*> pointerV) {
   if (fileNameStringV.empty()) {
     std::cout << "fileFuncs::openChain_setBranch: fileNameStringV is empty. Aborting" << std::endl;
     return 0;
@@ -206,7 +206,7 @@ TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, con
   // ------------------------------------------------------------------
   // Create chain
   // ------------------------------------------------------------------
-  TChain *chain = openChain_setBranch(fileNameStringV[0], treeName, branchNamesV, pointerV);
+  TChain* chain = openChain_setBranch(fileNameStringV[0], treeName, branchNamesV, pointerV);
 
   if (!chain) {
     std::cout << "fileFuncs::openChain_setBranch: Error - Could not open chain. Aborting" << std::endl;
@@ -226,14 +226,14 @@ TChain *openChain_setBranch(const std::vector<std::string> &fileNameStringV, con
   return chain;
 }
 
-std::vector<std::string> getFilesEndingWith(const std::string &dirString, const std::string &ending) {
+std::vector<std::string> getFilesEndingWith(const std::string& dirString, const std::string& ending) {
   //     #include "dirent.h"
   std::vector<std::string> rootFilesVec;
 
-  DIR *dir;
+  DIR* dir;
   if ((dir = opendir(dirString.data())) != NULL) {
     /* print all the files and directories within directory */
-    struct dirent *dirEntry;
+    struct dirent* dirEntry;
     while ((dirEntry = readdir(dir)) != NULL) {
       std::string fileNameString(dirEntry->d_name);
       if (myFuncs::endsWith(fileNameString, ending))
@@ -249,8 +249,8 @@ std::vector<std::string> getFilesEndingWith(const std::string &dirString, const 
   return rootFilesVec;
 }
 
-TFile *openFile(const std::string &filename, const std::string &options) {
-  TFile *file = new TFile(filename.data(), options.data());
+TFile* openFile(const std::string& filename, const std::string& options) {
+  TFile* file = new TFile(filename.data(), options.data());
   if (!file || file->IsZombie()) {
     std::cout << "openFile::Cannot open file  " << filename << ". Aborting" << std::endl;
     return nullptr;
@@ -258,7 +258,7 @@ TFile *openFile(const std::string &filename, const std::string &options) {
   return file;
 }
 
-std::ifstream openIfstream(const std::string &filename, const int numHeaders) {
+std::ifstream openIfstream(const std::string& filename, const int numHeaders) {
   std::ifstream file(filename);
 
   if (!file.is_open()) {
@@ -273,7 +273,7 @@ std::ifstream openIfstream(const std::string &filename, const int numHeaders) {
   return file;
 }
 
-std::unordered_map<std::string, std::string> getParams(const std::string &filename, const int numHeaders) {
+std::unordered_map<std::string, std::string> getParams(const std::string& filename, const int numHeaders) {
   std::ifstream file = myFuncs::openIfstream(filename, numHeaders);
 
   std::string paramName;
@@ -287,7 +287,7 @@ std::unordered_map<std::string, std::string> getParams(const std::string &filena
   return params;
 }
 
-std::vector<std::string> readFile(const std::string &filename, const int numHeaders) {
+std::vector<std::string> readFile(const std::string& filename, const int numHeaders) {
   std::ifstream file = myFuncs::openIfstream(filename, numHeaders);
 
   std::string line;
@@ -300,15 +300,15 @@ std::vector<std::string> readFile(const std::string &filename, const int numHead
   return outputs;
 }
 
-void copyTTreeFromFileToFile(const std::string &treename, const std::string &fromFilename, const std::string &toFilename) {
+void copyTTreeFromFileToFile(const std::string& treename, const std::string& fromFilename, const std::string& toFilename) {
   TFile fromFile(fromFilename.c_str(), "READ");
-  TTree *oldtree = (TTree *)fromFile.Get(treename.c_str());
+  TTree* oldtree = (TTree*)fromFile.Get(treename.c_str());
 
-  //Clone tree to new file
+  // Clone tree to new file
   TFile toFile(toFilename.c_str(), "UPDATE");
   oldtree->CloneTree();
 
-  //Cleanup
+  // Cleanup
   toFile.Write();
   fromFile.Close();
   toFile.Close();

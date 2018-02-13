@@ -5,17 +5,17 @@
 #include "TMath.h"
 #include "TRandom3.h"
 
+#include "TApplication.h"
 #include "TF1.h"
 #include "TFrame.h"
 #include "TPaveText.h"
-#include "TApplication.h"
 
-bool compareHistMaximum(const TH1 *hist1, const TH1 *hist2) {
+bool compareHistMaximum(const TH1* hist1, const TH1* hist2) {
   return hist1->GetBinContent(hist1->GetMaximumBin()) < hist2->GetBinContent(hist2->GetMaximumBin());
 }
 
 namespace myFuncs {
-void drawHistograms_highestFirst(const std::vector<TH1 *> &histVector) {
+void drawHistograms_highestFirst(const std::vector<TH1*>& histVector) {
 
   if (histVector.size() < 1)
     return;
@@ -36,7 +36,7 @@ void drawHistograms_highestFirst(const std::vector<TH1 *> &histVector) {
   }
 }
 
-TCanvas *newCanvas(std::string canvasName) {
+TCanvas* newCanvas(std::string canvasName) {
   if (canvasName != "")
     return new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
 
@@ -46,21 +46,21 @@ TCanvas *newCanvas(std::string canvasName) {
   return new TCanvas(canvasName.data(), "", 10, 10, 1920, 985);
 }
 
-TCanvas *drawNewCanvas(TH1 *hist) {
+TCanvas* drawNewCanvas(TH1* hist) {
   std::string canvasName = std::string(hist->GetName()) + "Canvas";
-  TCanvas *canvas = new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
+  TCanvas* canvas = new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
   hist->Draw();
   return canvas;
 }
 
-TCanvas *drawNewCanvas(TGraph *graph) {
+TCanvas* drawNewCanvas(TGraph* graph) {
   std::string canvasName = std::string(graph->GetName()) + "Canvas";
-  TCanvas *canvas = new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
+  TCanvas* canvas = new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
   graph->Draw("AP");
   return canvas;
 }
 
-void putLabelAboveBin(const TH1 *hist, const size_t bin, const std::string &text, const double textHeight, const double yOffset) {
+void putLabelAboveBin(const TH1* hist, const size_t bin, const std::string& text, const double textHeight, const double yOffset) {
   gPad->Update();
   double binWidth = hist->GetBinWidth(bin);
   double epsilon = binWidth * 0.05;
@@ -91,13 +91,13 @@ void putLabelAboveBin(const TH1 *hist, const size_t bin, const std::string &text
     yMax = std::pow(10, yMax);
   }
 
-  TPaveText *paveText = new TPaveText(xMin, yMin, xMax, yMax, "NB");
+  TPaveText* paveText = new TPaveText(xMin, yMin, xMax, yMax, "NB");
   paveText->AddText(text.data());
   paveText->SetFillColorAlpha(kWhite, 0); // 0 - fully transparent. Not working for some reason...
   paveText->Draw();
 }
 
-double integrateTGraph(const TGraph &graph) {
+double integrateTGraph(const TGraph& graph) {
   // Graph needs at least 2 points.
   if (graph.GetN() < 2)
     return 0.0;
@@ -137,7 +137,7 @@ double integrateTGraph(const TGraph &graph) {
   return sum;
 }
 
-void normalize(TGraph &graph, const double area) {
+void normalize(TGraph& graph, const double area) {
   if (area == 0.0)
     return;
 
@@ -166,7 +166,7 @@ void normalize(TGraph &graph, const double area) {
   }
 }
 
-void normalize(TH1D &hist, const double area, const std::string &options) {
+void normalize(TH1D& hist, const double area, const std::string& options) {
   if (area == 0.0)
     return;
 
@@ -179,9 +179,9 @@ void normalize(TH1D &hist, const double area, const std::string &options) {
   hist.Scale(area / integral);
 }
 
-void binGraph(const TGraph &graph, TH1 &hist, const bool errorOnMean) {
+void binGraph(const TGraph& graph, TH1& hist, const bool errorOnMean) {
   // Histogram to store number of points in each bin.
-  TH1 *numEntriesHist = static_cast<TH1 *>(hist.Clone());
+  TH1* numEntriesHist = static_cast<TH1*>(hist.Clone());
   numEntriesHist->FillN(graph.GetN(), graph.GetX(), nullptr);
 
   // Fill histogram with points from graph.
@@ -211,7 +211,7 @@ void binGraph(const TGraph &graph, TH1 &hist, const bool errorOnMean) {
   delete numEntriesHist;
 }
 
-TGraphErrors histToGraph(const TH1 &hist) {
+TGraphErrors histToGraph(const TH1& hist) {
   TGraphErrors graph;
 
 // Prevent warning of unsigned integer expression because TGraph::GetN returns int isntead of unsigned int
@@ -227,7 +227,7 @@ TGraphErrors histToGraph(const TH1 &hist) {
   return graph;
 }
 
-double FWHM(const TH1 &hist) {
+double FWHM(const TH1& hist) {
   const double halfMaximum = hist.GetMaximum() / 2.;
   const auto firstBin = hist.FindFirstBinAbove(halfMaximum);
   const auto lastBin = hist.FindLastBinAbove(halfMaximum);
@@ -262,7 +262,7 @@ double getHistOverlapChi2(TH1D hist0, TH1D hist1, const double minVal, const dou
   return chi2;
 }
 
-void setNovosibirskParams(TF1 &novosibirskTF1, const TH1 &hist) {
+void setNovosibirskParams(TF1& novosibirskTF1, const TH1& hist) {
   const double norm = hist.GetMaximum();
   const double peak = hist.GetBinCenter(hist.GetMaximumBin());
   const double width = myFuncs::FWHM(hist);

@@ -4,7 +4,7 @@
 
 namespace myFuncs {
 
-TStyle *MyRootStyle();
+TStyle* MyRootStyle();
 
 void setMyRootStyle();
 

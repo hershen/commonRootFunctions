@@ -8,11 +8,10 @@
 #include "TH1D.h"
 
 // Mine
-#include "testbeam/constants.h"
-#include "testbeam/testbeamFuncs.h"
 #include "fileFuncs.h"
 #include "testbeam/RunDB.h"
-
+#include "testbeam/constants.h"
+#include "testbeam/testbeamFuncs.h"
 
 using namespace myFuncs::testbeam;
 
@@ -27,8 +26,8 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum)
       m_branchNames({"eventNumber", "TOFch4Time", "TOFch4TimeError", "TOFch6Time", "TOFch6TimeError", "TOFch12Time",
                      "TOFch12TimeError", "TOFch13Time", "TOFch13TimeError"}) {
   // Define vector of pointer addresses
-  std::vector<void *> pointers = {m_eventNumber.get(), m_ch4Time.get(),   m_ch4Error.get(), m_ch6Time.get(),  m_ch6Error.get(),
-                                  m_ch12Time.get(),    m_ch12Error.get(), m_ch13Time.get(), m_ch13Error.get()};
+  std::vector<void*> pointers = {m_eventNumber.get(), m_ch4Time.get(),   m_ch4Error.get(), m_ch6Time.get(),  m_ch6Error.get(),
+                                 m_ch12Time.get(),    m_ch12Error.get(), m_ch13Time.get(), m_ch13Error.get()};
 
   // Sort filenames so that event numbers are contiguous
   auto runFilenames = getFilesRelatedToRun(pathToFiles, getRunNum());
@@ -40,7 +39,8 @@ TOFtiming::TOFtiming(const std::string pathToFiles, const int runNum)
 
 // Do linear fit and return fit result
 TFitResultPtr TOFtiming::fitTOF(const bool boundBeta) const {
-  // x values																								//y values
+  // x values																								//y
+  // values
   // //y values errors
   TGraphErrors graph(3, (std::array<double, 3>{getX0(), getX1(), getX2()}).data(),
                      (std::array<double, 3>{getT0(), getT1(), getT2()}).data(), 0,

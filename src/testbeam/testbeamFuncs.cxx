@@ -72,7 +72,7 @@ std::vector<std::string> getFilesRelatedToRun(const std::string pathToFiles, con
   return filenames;
 }
 
-std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double> &voltage, const std::vector<double> &errors) {
+std::unique_ptr<TGraphErrors> getWaveformGraph(const std::vector<double>& voltage, const std::vector<double>& errors) {
 
   // Create time vector
   std::vector<double> times;
@@ -136,13 +136,13 @@ bool isCsI(const int runNum) {
     return false;
 }
 
-std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string &filename) {
+std::unordered_map<std::string, double> getGeantFileSimParamers(const std::string& filename) {
 
   const std::vector<std::string> branches{"beamParticle_pdgID", "nominalParticleMomentum_Mev_c", "particleMomentumResolution"};
   int pdg = 0;                    // Initialized so clang doesn't complain
   double primaryMeanMomentum = 0; // Initialized so clang doesn't complain
   double momentumResolution = 0;  // Initialized so clang doesn't complain
-  const std::vector<void *> pointers{&pdg, &primaryMeanMomentum, &momentumResolution};
+  const std::vector<void*> pointers{&pdg, &primaryMeanMomentum, &momentumResolution};
 
   std::unique_ptr<TChain> chain(myFuncs::openChain_setBranch(filename, "simParameters", branches, pointers));
 

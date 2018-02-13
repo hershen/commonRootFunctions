@@ -54,7 +54,7 @@ TF1 analytical_RC_CRn(int n, double tau, double amplitude, double startTime, dou
   return analytical;
 }
 
-std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &modelFunc) {
+std::vector<double> calcResiduals(const TGraphErrors& graphErrors, const TF1& modelFunc) {
   const auto xValues = std::vector<double>(graphErrors.GetX(), graphErrors.GetX() + graphErrors.GetN());
   const auto yValues = std::vector<double>(graphErrors.GetY(), graphErrors.GetY() + graphErrors.GetN());
   const auto stds = std::vector<double>(graphErrors.GetEY(), graphErrors.GetEY() + graphErrors.GetN());
@@ -66,7 +66,7 @@ std::vector<double> calcResiduals(const TGraphErrors &graphErrors, const TF1 &mo
 //********************************************************************************************
 // Internal function for convertVector2TF1.
 
-double convertArray2TF1Internal(double *var, double *params) {
+double convertArray2TF1Internal(double* var, double* params) {
   int numOfAdditionalParams = 2;
   double timeShift = params[0];
   double dT = params[1];
@@ -117,7 +117,7 @@ TF1 convertVector2TF1(double dT, std::vector<double> vecValues, double timeShift
   return convertArray2TF1;
 }
 
-double CFDfuncInternal(double *var, double *params) {
+double CFDfuncInternal(double* var, double* params) {
   double DLY = params[0];
   double fraction = params[1];
   double x = var[0];
@@ -212,7 +212,7 @@ template std::vector<double> addGaussianNoise<double>(std::vector<double> inputV
 // sigma*xMaxFracOfSigma) where mean and sigma are taken from the first fit. I.e., the fit can be run again in the range (mean -
 // 2std, mean + 2std).  The function returns the fit result in fitResult
 //--------------------------------------------------------------------------------------------
-TF1 getGaussianFit(TH1D hist, TFitResultPtr &fitResult, double xMinInitial = 0., double xMaxInitial = 0.,
+TF1 getGaussianFit(TH1D hist, TFitResultPtr& fitResult, double xMinInitial = 0., double xMaxInitial = 0.,
                    double xMinFracOfSigma = 0., double xMaxFracOfSigma = 0.) {
 
   TF1 gausFunc("gausFunc", "gaus", xMinInitial, xMaxInitial); // hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
@@ -256,7 +256,7 @@ inline TF1 getGaussianFit(TH1D hist, double xMinInitial = 0., double xMaxInitial
 //********************************************************************************************
 // getCorrelationMatrix
 //********************************************************************************************
-TMatrixD getCorrelationMatrix(const TMatrixD &covarianceMatrix) {
+TMatrixD getCorrelationMatrix(const TMatrixD& covarianceMatrix) {
 
   // Check if matrix is square
   if (covarianceMatrix.GetNcols() != covarianceMatrix.GetNrows()) {
@@ -289,8 +289,8 @@ TMatrixD getCorrelationMatrix(const TMatrixD &covarianceMatrix) {
 //********************************************************************************************
 // printMatrix
 //********************************************************************************************
-void printMatrix(const TMatrixD matrix, const std::vector<std::string> &headings, int width,
-                 std::ios_base &align(std::ios_base &str), const std::string &precision) {
+void printMatrix(const TMatrixD matrix, const std::vector<std::string>& headings, int width,
+                 std::ios_base& align(std::ios_base& str), const std::string& precision) {
   std::string formatArg = "%1$" + precision;
 
   std::cout << std::setw(width) << align << "";
@@ -321,9 +321,9 @@ void printMatrix(const TMatrixD matrix, const std::vector<std::string> &headings
 //********************************************************************************************
 // drawMatrix
 //********************************************************************************************
-TCanvas *drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string> &xAxisHeadings,
-                    const std::vector<std::string> &yAxisHeadings, const double zMin, const double zMax,
-                    const std::string &precision) {
+TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<std::string>& xAxisHeadings,
+                    const std::vector<std::string>& yAxisHeadings, const double zMin, const double zMax,
+                    const std::string& precision) {
 // Prevent warning of unsigned integer expression because TMatrixD::GetNcols returns int isntead of unsigned int
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -346,7 +346,7 @@ TCanvas *drawMatrix(const TMatrixD matrix, std::string title, const std::vector<
     return new TCanvas();
   }
 
-  TH2D *hist =
+  TH2D* hist =
       new TH2D(title.data(), title.data(), matrix.GetNcols(), 0, matrix.GetNcols(), matrix.GetNrows(), 0, matrix.GetNrows());
 
   for (auto i = 0; i < matrix.GetNcols(); ++i)
@@ -360,13 +360,13 @@ TCanvas *drawMatrix(const TMatrixD matrix, std::string title, const std::vector<
   }
 
   // Set precision format for text labels
-  const char *originalPaintTextFormat = gStyle->GetPaintTextFormat();
+  const char* originalPaintTextFormat = gStyle->GetPaintTextFormat();
   gStyle->SetPaintTextFormat(precision.data());
 
   hist->LabelsOption("d"); // Draw x axis labels pointing down
   hist->SetStats(false);   // No stat box
 
-  TCanvas *canvas = myFuncs::newCanvas(title + "Canvas");
+  TCanvas* canvas = myFuncs::newCanvas(title + "Canvas");
   canvas->SetGrid();
   canvas->SetTicks();
 

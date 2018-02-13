@@ -18,7 +18,7 @@ namespace myFuncs {
 template <class topType>
 class ResidualCanvas {
 public:
-  ResidualCanvas(TCanvas &canvas, topType &topObject, TF1 &function)
+  ResidualCanvas(TCanvas& canvas, topType& topObject, TF1& function)
       : m_canvas(canvas), m_topObject(topObject), m_function(function) {
 
     prepareCanvas();
@@ -39,17 +39,17 @@ public:
     m_residualGraph.Draw("AP");
   }
 
-  TPad *getTopPad() const { return m_topPad; }
-  TPad *getBottomPad() const { return m_bottomPad; }
+  TPad* getTopPad() const { return m_topPad; }
+  TPad* getBottomPad() const { return m_bottomPad; }
   TGraph getResidualGraph() const { return m_residualGraph; }
 
 private:
-  TCanvas &m_canvas;
-  topType &m_topObject;
-  TF1 &m_function;
+  TCanvas& m_canvas;
+  topType& m_topObject;
+  TF1& m_function;
   TGraph m_residualGraph;
-  TPad *m_topPad;
-  TPad *m_bottomPad;
+  TPad* m_topPad;
+  TPad* m_bottomPad;
 
   void prepareCanvas() {
     const double topBottomSpace = 0.045;

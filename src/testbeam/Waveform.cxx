@@ -6,7 +6,7 @@
 namespace myFuncs {
 namespace testbeam {
 
-Waveform::Waveform(const std::vector<double> &samples, const double dt) : m_samples(samples), m_dt(dt) {
+Waveform::Waveform(const std::vector<double>& samples, const double dt) : m_samples(samples), m_dt(dt) {
   if (m_dt <= 0.0) {
     throw std::invalid_argument("testbeam::Waveform::Waveform: dt = " + std::to_string(m_dt) + " <= 0");
   }
@@ -35,7 +35,7 @@ std::pair<size_t, double> Waveform::getMaximumIdx_value(const size_t every) cons
   return std::make_pair(std::distance(m_samples.begin(), maxItr), *maxItr);
 }
 
-Waveform Waveform::operator+(const Waveform &rWaveform) const {
+Waveform Waveform::operator+(const Waveform& rWaveform) const {
   if (getDt() != rWaveform.getDt()) {
     throw std::invalid_argument("Waveform::operator+: own dt = " + std::to_string(getDt()) +
                                 ", received waveform dt = " + std::to_string(rWaveform.getDt()));

@@ -16,7 +16,7 @@ namespace DSP {
 // filterCR_RC
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau, const double T) {
+std::vector<double> filterCR_RC(const std::vector<Type>& xs, const double tau, const double T) {
 
   //---------------------------
   // xs.size() == 0
@@ -67,15 +67,15 @@ std::vector<double> filterCR_RC(const std::vector<Type> &xs, const double tau, c
 }
 
 // Declare all usefule implementations in order to avoid linker problems!
-template std::vector<double> filterCR_RC<double>(const std::vector<double> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC<int>(const std::vector<int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC<double>(const std::vector<double>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC<unsigned int>(const std::vector<unsigned int>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC<int>(const std::vector<int>& xs, const double tau, const double T);
 
 //----------------------------------------------------------
 // filterCR_RC2
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau, const double T) {
+std::vector<double> filterCR_RC2(const std::vector<Type>& xs, const double tau, const double T) {
   //---------------------------
   // xs.size() == 0
   //---------------------------
@@ -142,15 +142,15 @@ std::vector<double> filterCR_RC2(const std::vector<Type> &xs, const double tau, 
 } // namespace DSP
 
 // Declare all usefule implementations in order to avoid linker problems!
-template std::vector<double> filterCR_RC2<double>(const std::vector<double> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC2<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC2<int>(const std::vector<int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC2<double>(const std::vector<double>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC2<unsigned int>(const std::vector<unsigned int>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC2<int>(const std::vector<int>& xs, const double tau, const double T);
 
 //----------------------------------------------------------
 // filterCR_RC4
 //----------------------------------------------------------
 template <typename Type>
-std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, const double T) {
+std::vector<double> filterCR_RC4(const std::vector<Type>& xs, const double tau, const double T) {
   //---------------------------
   // xs.size() == 0
   //---------------------------
@@ -245,12 +245,12 @@ std::vector<double> filterCR_RC4(const std::vector<Type> &xs, const double tau, 
 } // namespace myFuncs
 
 // Declare all usefule implementations in order to avoid linker problems!
-template std::vector<double> filterCR_RC4<double>(const std::vector<double> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC4<unsigned int>(const std::vector<unsigned int> &xs, const double tau, const double T);
-template std::vector<double> filterCR_RC4<int>(const std::vector<int> &xs, const double tau, const double T);
+template std::vector<double> filterCR_RC4<double>(const std::vector<double>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC4<unsigned int>(const std::vector<unsigned int>& xs, const double tau, const double T);
+template std::vector<double> filterCR_RC4<int>(const std::vector<int>& xs, const double tau, const double T);
 
 template <typename Type>
-std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size_t numToBrick, const Type valueToBrick) {
+std::vector<double> filterBrickwall(const std::vector<Type>& xs, const std::size_t numToBrick, const Type valueToBrick) {
   auto fft = myFuncs::fftR2C(xs);
   for (size_t i = 0; i < numToBrick; ++i) {
     fft.first[i] = valueToBrick;
@@ -259,7 +259,7 @@ std::vector<double> filterBrickwall(const std::vector<Type> &xs, const std::size
 
   return myFuncs::fftC2R(xs.size(), fft.first, fft.second);
 }
-template std::vector<double> filterBrickwall<double>(const std::vector<double> &xs, const std::size_t numToBrick,
+template std::vector<double> filterBrickwall<double>(const std::vector<double>& xs, const std::size_t numToBrick,
                                                      const double valueToBrick);
 // template std::vector<double> filterBrickwall<unsigned int>(const std::vector<unsigned int> &xs, const std::size_t numToBrick,
 // const unsigned int valueToBrick); template std::vector<double> filterBrickwall<int>(const std::vector<int> &xs, const
