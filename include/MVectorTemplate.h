@@ -54,7 +54,7 @@ public:
   // vector added.
   TFitResult addVector(const std::vector<double>& newVector, const double std, TF1& function);
 
-  inline TF1* getTF1() { return &m_tF1; }
+  TF1* getTF1();
 
   inline int getDebugLevel() const { return m_debugLevel; }
   inline void setDebugLevel(const int newDebugLevel) { m_debugLevel = newDebugLevel; }

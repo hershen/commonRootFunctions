@@ -37,7 +37,7 @@ MVectorTemplate::MVectorTemplate()
       m_pedestalFitEnabled(true), m_xShiftFitEnabled(true), m_useAmplitudeLimits(false), m_useXshiftLimits(false),
       m_usePedestalLimits(false) {}
 
-MVectorTemplate::MVectorTemplate(const std::vector<double> &newVec, const double newDx) : MVectorTemplate() {
+MVectorTemplate::MVectorTemplate(const std::vector<double>& newVec, const double newDx) : MVectorTemplate() {
   setDx(newDx);
   addVector(newVec, 0, m_tF1);
 }
@@ -72,7 +72,7 @@ void MVectorTemplate::setXvalueOfFirstTemplateEntry(const double xValueOfFirstTe
   resetTemplateRange();
 }
 
-double MVectorTemplate::calcSimplePedestal(const std::vector<double> &vector, const double percentage) const {
+double MVectorTemplate::calcSimplePedestal(const std::vector<double>& vector, const double percentage) const {
 
   const long numElementsToAverage = std::distance(vector.begin(), vector.begin() + (vector.size() * percentage));
 
@@ -82,7 +82,7 @@ double MVectorTemplate::calcSimplePedestal(const std::vector<double> &vector, co
   return std::accumulate(vector.begin(), vector.begin() + numElementsToAverage, 0.0) / numElementsToAverage;
 }
 
-double MVectorTemplate::getAmplitudeGuess(const std::vector<double> &vector, const double pedestal) const {
+double MVectorTemplate::getAmplitudeGuess(const std::vector<double>& vector, const double pedestal) const {
   // Search for maximum around m_peakIdx
   const int elementsBeforeAfter = vector.size() * 0.1;
 
@@ -123,7 +123,7 @@ size_t MVectorTemplate::getEffPeakIdx() const {
   return effPeakIdx;
 }
 
-void MVectorTemplate::addFirstVector(const std::vector<double> &newVector) {
+void MVectorTemplate::addFirstVector(const std::vector<double>& newVector) {
   // ------------------------------------------------------------------
   // Take pedestal as first 5% of entries
   // ------------------------------------------------------------------
@@ -172,7 +172,7 @@ void MVectorTemplate::addFirstVector(const std::vector<double> &newVector) {
   std::cout << "MVectorTemplate::addFirstVector : remember to setXvalueOfFirstTemplateEntry!" << std::endl;
 }
 
-bool MVectorTemplate::goodFit(const TFitResultPtr &fitResult) const {
+bool MVectorTemplate::goodFit(const TFitResultPtr& fitResult) const {
   const double fittedAmplitude = fitResult->Parameter(0);
   const double fittedPedestal = fitResult->Parameter(1);
   const double fittedXshift = fitResult->Parameter(2);
@@ -228,7 +228,7 @@ bool MVectorTemplate::goodFit(const TFitResultPtr &fitResult) const {
   return true;
 }
 
-TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double> &vector, const double std, TF1 &function) {
+TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double>& vector, const double std, TF1& function) {
 
   // Histrogram with entries of vector - used to fit the template
 
@@ -287,7 +287,7 @@ TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double> &vecto
   return *fitResult;
 }
 
-std::vector<double> MVectorTemplate::getTimeAlignedVector(const std::vector<double> &newVector, const double xOfNewVector_0) {
+std::vector<double> MVectorTemplate::getTimeAlignedVector(const std::vector<double>& newVector, const double xOfNewVector_0) {
 
   std::vector<double> alignedVector;
   alignedVector.reserve(getTemplateSize());
@@ -356,7 +356,7 @@ void MVectorTemplate::clipTemplateEnds(const double xOfNewVector_0, const size_t
 
   resetTemplateRange();
 }
-TFitResult MVectorTemplate::addVector(const std::vector<double> &newVector, const double std, TF1 &function) {
+TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, const double std, TF1& function) {
   // TODO implement with TMinuit
   // TODO average using a weighted average
   // ------------------------------------------------------------------
@@ -508,7 +508,7 @@ firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
   return fitResult;
 }
 
-TFitResultPtr MVectorTemplate::fitTemplate(TH1D &fitHist, TF1 &function) {
+TFitResultPtr MVectorTemplate::fitTemplate(TH1D& fitHist, TF1& function) {
 
   // Attempt to fit at current x.
 
@@ -558,7 +558,7 @@ TFitResultPtr MVectorTemplate::fitTemplate(TH1D &fitHist, TF1 &function) {
   return fitResult;
 }
 
-bool MVectorTemplate::fitGood(const TFitResultPtr &fitResult) const {
+bool MVectorTemplate::fitGood(const TFitResultPtr& fitResult) const {
 
   const int fitStatus = fitResult;
 
@@ -589,7 +589,7 @@ void MVectorTemplate::enableXshiftFit(const bool enableXshiftFit) {
   setTF1Parameters();
 }
 
-double MVectorTemplate::TF1Eval(double *var, double *params) {
+double MVectorTemplate::TF1Eval(double* var, double* params) {
   //   double amplitude = params[0];
   //   double pedestal = params[1];
   //   double xShift = params[2];
@@ -618,27 +618,24 @@ double MVectorTemplate::TF1Eval(double *var, double *params) {
   return params[1] + params[0] * linearInterpolate(x1, x2, y1, y2, effectiveX);
 }
 
-void MVectorTemplate::setTF1Parameters(TF1 &function, const double amplitude, const double pedestal, const double xShift) {
+void MVectorTemplate::setTF1Parameters(TF1& function, const double amplitude, const double pedestal, const double xShift) {
   if (!function.IsValid())
     return;
 
   if (m_amplitudeFitEnabled) {
     function.SetParameter(0, amplitude);
     function.SetParLimits(0, m_minAmplitudeLimit, m_maxAmplitudeLimit);
-  } else
-    function.FixParameter(0, amplitude);
+  }
 
   if (m_pedestalFitEnabled) {
     function.SetParameter(1, pedestal);
     function.SetParLimits(1, m_minPedestalLimit, m_maxPedestalLimit);
-  } else
-    function.FixParameter(1, pedestal);
+  }
 
   if (m_xShiftFitEnabled) {
     function.SetParameter(2, xShift);
     function.SetParLimits(2, m_minXshiftLimit, m_maxXshiftLimit);
-  } else
-    function.FixParameter(2, xShift);
+  }
 }
 
 void MVectorTemplate::setTF1Parameters() {
@@ -677,7 +674,7 @@ void MVectorTemplate::setPedestalLimits(const double newMinPedestalLimit, const 
   setTF1Parameters();
 }
 
-int MVectorTemplate::saveTemplateToTFile(const std::string &fullFileName, const std::string &treeDescription) {
+int MVectorTemplate::saveTemplateToTFile(const std::string& fullFileName, const std::string& treeDescription) {
 
   std::cout << "MVectorTemplate::saveTemplateToTFile: Saving template to " << fullFileName << std::endl;
 
@@ -700,7 +697,7 @@ int MVectorTemplate::saveTemplateToTFile(const std::string &fullFileName, const 
   // ------------------------------------------------------------------
   // Create pointers to variables that will be saved
   // ------------------------------------------------------------------
-  std::vector<double> *templateValuesPointer = &m_templateValues;
+  std::vector<double>* templateValuesPointer = &m_templateValues;
 
   // ------------------------------------------------------------------
   // Create branches
@@ -720,13 +717,13 @@ int MVectorTemplate::saveTemplateToTFile(const std::string &fullFileName, const 
   return 0;
 }
 
-int MVectorTemplate::loadTemplateFromTFile(const std::string &fullFileName) {
+int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
 
   std::vector<std::string> branchNamesV = {m_templateValuesBranchName.data(), m_dxBranchName.data(), m_peakIdxBranchName.data(),
                                            m_numAveragedFuncsBranchName.data()};
-  std::vector<double> *m_templateValuesPointer = 0;
+  std::vector<double>* m_templateValuesPointer = 0;
 
-  std::vector<void *> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs};
+  std::vector<void*> pointerV = {&m_templateValuesPointer, &m_dx, &m_peakIdx, &m_numAveragedFuncs};
 
   std::unique_ptr<TChain> inputChain(
       myFuncs::openChain_setBranch(fullFileName.data(), m_treeName.data(), branchNamesV, pointerV));
@@ -769,7 +766,7 @@ void MVectorTemplate::normalizeAndZeroTemplateValues() {
     m_templateValues[iTemplateIdx] = (m_templateValues[iTemplateIdx] - pedestal) / (peakVal - pedestal);
 }
 
-TH1D MVectorTemplate::getHistogramForFit(const std::vector<double> &vector, const double std) {
+TH1D MVectorTemplate::getHistogramForFit(const std::vector<double>& vector, const double std) {
   // Center of each bin corresponds to correct x value (that's why there's a -m_dx/2. term)
   TH1D fitHist("fitHist", "fitHist", vector.size(), -m_dx / 2.0, vector.size() * m_dx - m_dx / 2.0);
   for (size_t idx = 1; idx <= vector.size(); ++idx) {
@@ -777,6 +774,13 @@ TH1D MVectorTemplate::getHistogramForFit(const std::vector<double> &vector, cons
     fitHist.SetBinError(idx, std);
   }
   return fitHist;
+}
+
+TF1* MVectorTemplate::getTF1() {
+  if (!m_tF1.IsValid()) {
+    std::cout << "MVectorTemplate::getTF1: WARNING - TF1 is not valid!" << std::endl;
+  }
+  return &m_tF1;
 }
 
 } // namespace myFuncs
