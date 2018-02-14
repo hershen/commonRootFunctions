@@ -112,11 +112,15 @@ filter(std::vector<coefficientType> nominators, std::vector<coefficientType> den
   };
 
   const auto term2 = [&nominators, &denominators, &inputs](const uint n) {
-    return inputs.size() >= nominators.size()
-               ? std::inner_product(nominators.begin(), nominators.end(),
-                                    std::make_reverse_iterator(std::next(inputs.begin(), n + 1)), returnType(0))
-               : std::inner_product(std::make_reverse_iterator(std::next(inputs.begin(), n + 1)), inputs.rend(),
-                                    nominators.begin(), returnType(0));
+    const size_t numTerms = std::min({static_cast<size_t>(n + 1), nominators.size(), inputs.size()});
+
+    // Had problems when trying to implement with std::inner_product because of either reverse iterator problems, or when some
+    // containers are empty
+    double term2 = 0.0;
+    for (size_t idx = 0; idx < numTerms; ++idx) {
+      term2 += nominators[idx] * inputs[n - idx];
+    }
+    return term2;
   };
 
   // Take care of y[0]
