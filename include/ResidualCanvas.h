@@ -67,7 +67,7 @@ private:
     m_topPad->Draw();
 
     // can't set margins with m_topPad->Set__Margin() for some reason. Have to go through m_canvas.cd(x)...
-    m_canvas.cd(1)->SetBottomMargin(0.005);
+    m_canvas.cd(1)->SetBottomMargin(0.01);
     // Change to canvas before creating second pad
     m_canvas.cd();
 
