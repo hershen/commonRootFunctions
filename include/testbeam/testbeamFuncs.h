@@ -175,5 +175,7 @@ TF1 getPedestalFitFunction(const int runNum, const int channel);
 
 std::vector<double> getTimes(const size_t size, const double dt);
 
+int reductionFactorToEntriesToChop(const size_t reductionFactor);
+
 } // namespace testbeam
 } // namespace myFuncs

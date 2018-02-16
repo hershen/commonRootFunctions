@@ -25,3 +25,11 @@ SCENARIO("Test getTimes class", "[getTimes]") {
     }
   }
 }
+
+SCENARIO("Test reductionFactorToEntriesToChop", "reductionFactorToEntriesToChop") {
+  CHECK(reductionFactorToEntriesToChop(1) == 2800);
+  CHECK(reductionFactorToEntriesToChop(20) == 140);
+  CHECK(reductionFactorToEntriesToChop(25) == 110);
+  CHECK(reductionFactorToEntriesToChop(100) == 0);
+  CHECK(reductionFactorToEntriesToChop(-1) == 0);
+}

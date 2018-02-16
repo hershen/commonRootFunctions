@@ -174,6 +174,23 @@ std::vector<double> getTimes(const size_t size, const double dt) {
 
   return times;
 }
+
+int reductionFactorToEntriesToChop(const size_t reductionFactor) {
+  if (reductionFactor == 1) {
+    return 2800;
+  }
+  if (reductionFactor == 20) {
+    return 140;
+  }
+  if (reductionFactor == 25) {
+    return 110;
+  }
+
+  std::cerr << "myFuncs::testbeam::reductionFactorToEntriesToChop: Does not support reduction factor of " << reductionFactor
+            << "\n";
+  return 0;
+}
+
 } // namespace testbeam
 
 } // namespace myFuncs
