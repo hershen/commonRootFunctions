@@ -112,6 +112,7 @@ public:
 
 private:
   void resetTemplateRange();
+
   void setTF1ParNames();
 
   bool goodFit(const TFitResultPtr& fitResult) const;
@@ -201,5 +202,8 @@ private:
   mutable bool m_useXshiftLimits;
   mutable bool m_usePedestalLimits;
 };
+
+//Shift the current template func rangeby xShift
+void shiftFuncRange(TF1& function, const double xShift);
 
 } // namespace myFuncs

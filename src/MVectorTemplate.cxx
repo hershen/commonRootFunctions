@@ -14,6 +14,7 @@
 #include "TVirtualFitter.h"
 
 #include "fileFuncs.h"
+#include "histFuncs.h"
 #include "mathFuncs.h"
 
 #define cline std::cout << "line = " << __LINE__ << std::endl;
@@ -103,8 +104,8 @@ double MVectorTemplate::getAmplitudeGuess(const std::vector<double>& vector, con
   if (getDebugLevel() > 15)
     std::cout << "MVectorTemplate::getAmplitudeGuess: maxElement = " << maxElement << std::endl;
 
-  // Amplitude initial guess is the value of vector where the template maximum is. This will not work for fast varying functions,
-  // or if the xShift is large
+  // Amplitude initial guess is the value of vector where the template maximum is. This will not work for fast varying
+  // functions, or if the xShift is large
   double amplitudeGuess = (maxElement - pedestal);
 
   // Make sure amplitude guess is not out of limits
@@ -255,6 +256,9 @@ TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double>& vecto
 
   TH1D fitHist = getHistogramForFit(vector, std);
 
+  // Adjust function range according to xShiftGuess. Important if xShiftGuess != 0.
+  shiftFuncRange(function, xShiftGuess);
+
   // ------------------------------------------------------------------
   // Fit!
   // ------------------------------------------------------------------
@@ -262,24 +266,25 @@ TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double>& vecto
   // First fit is used to find the xShift
   TFitResultPtr fitResult = fitTemplate(fitHist, function);
 
+  // If we disabled fitting xShift, we're done. Return function range to what it was (not sure why this is needed)
+  if (!isXshiftFitEnabled()) {
+    // shiftFuncRange(-xShiftGuess);
+    return *fitResult;
+  }
+
   if (!goodFit(fitResult))
     return TFitResult();
 
-  // We then Change the function range so it takes into account the xShift. Otherwise, the ends of the function are not correctly
-  // represented and the averaging is not good.
-  double minRange, maxRange;
-  function.GetRange(minRange, maxRange);
-  if (getDebugLevel() > 15)
-    std::cout << "MVectorTemplate::fitFunctionToVector : About to fit in the range = (" << minRange + fitResult->Parameter(2)
-              << "," << maxRange + fitResult->Parameter(2) << ")" << std::endl;
-
-  function.SetRange(minRange + fitResult->Parameter(2), maxRange + fitResult->Parameter(2));
+  // If we did fit xShift, we change the function range so it takes into account the xShift. Otherwise, the ends of the function
+  // are not correctly represented and the averaging is not good.
+  // const auto savedFirstFittedXshift = fitResult->Parameter(2);
+  shiftFuncRange(function, fitResult->Parameter(2));
 
   // Redo the fit
   fitResult = fitTemplate(fitHist, function);
 
   // Set back the correct function range
-  function.SetRange(minRange, maxRange);
+  // shiftFuncRange(function, -savedFirstFittedXshift); //I don't think this is needed
 
   if (!goodFit(fitResult))
     return TFitResult();
@@ -420,18 +425,21 @@ TFitResult MVectorTemplate::addVector(const std::vector<double>& newVector, cons
   // be averaged.
   clipTemplateEnds(xOfNewVector_0, newVector.size());
 
+  // Shift function range according to fit result, because clipTemplateEnds resets function range.
+  shiftFuncRange(function, fittedXshift);
+
   assert(getXvalueOfFirstTemplateEntry() >= xOfNewVector_0);
 
   // newAlignedVector has it's values time aligned to template values, time of 0'th element of newTimeAlignedVector has same
   // time as templateVlaues[0]
   std::vector<double> newTimeAlignedVector = getTimeAlignedVector(newVector, xOfNewVector_0);
 
+  // clang-format off
   /*
 if(getXvalueOfFirstTemplateEntry >= xOfNewVector_0 )
 {
-template:                      Idx0---------Idx1---------Idx2
-Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)-------------Idx(size-1) newVector:
-Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1) In this example both
+template:                      Idx0---------Idx1---------Idx2           Idx(size-4)-------------Idx(size-3)-------------Idx(size-2)-------------Idx(size-1)
+newVector: Idx0---------Idx1---------Idx2---------Idx3     Idx(size-3)-------------Idx(size-2)-------------Idx(size-1) In this example both
 vectors are same length and xOfNewVector_0 = getXvalueOfFirstTemplateEntry - 1.5m_dx firstTemplateIdx = 0, lastTemplateIdx =
 newVector.size()-3
   }
@@ -442,6 +450,7 @@ newVector:                   Idx0--------Idx1                Idx(size-3)--------
 In this example both vectors are same length and xOfNewVector_0 = getXvalueOfFirstTemplateEntry + 1.5m_dx
 firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
 }*/
+  // clang-format on
 
   if (getDebugLevel() > 10)
     std::cout << "MVectorTemplate::addVector : About to average in the range (" << getXvalueOfFirstTemplateEntry() << ","
@@ -597,7 +606,7 @@ double MVectorTemplate::TF1Eval(double* var, double* params) {
   const double effectiveX = var[0] - params[2] - getXvalueOfFirstTemplateEntry();
 
   if (effectiveX <= 0)
-    return params[1]; // + params[0]*m_templateValues[0];
+    return params[1] + params[0] * m_templateValues.front();
   if (effectiveX >= m_dx * static_cast<double>(m_templateValues.size() - 1))
     return params[1] + params[0] * m_templateValues.back();
 
@@ -740,7 +749,8 @@ int MVectorTemplate::loadTemplateFromTFile(const std::string& fullFileName) {
     return -2;
   }
 
-  // Add xValueOfFirstTemplateEntry branch. Earlier versions of MVectorTemplate didn't have it so it's addition is not automatic.
+  // Add xValueOfFirstTemplateEntry branch. Earlier versions of MVectorTemplate didn't have it so it's addition is not
+  // automatic.
   myFuncs::setChainBranch(inputChain.get(), "xValueOfFirstTemplateEntry", &m_xValueOfFirstTemplateEntry);
 
   inputChain->GetEntry(0);
@@ -783,4 +793,9 @@ TF1* MVectorTemplate::getTF1() {
   return &m_tF1;
 }
 
+void shiftFuncRange(TF1& function, const double xShift) {
+  double minRange, maxRange;
+  function.GetRange(minRange, maxRange);
+  function.SetRange(minRange + xShift, maxRange + xShift);
+}
 } // namespace myFuncs
