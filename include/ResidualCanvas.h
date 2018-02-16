@@ -2,6 +2,7 @@
 
 // STL
 #include <memory>
+#include <iostream>
 
 // Root
 #include "TCanvas.h"
@@ -21,6 +22,10 @@ public:
   ResidualCanvas(TCanvas& canvas, topType& topObject, TF1& function)
       : m_canvas(canvas), m_topObject(topObject), m_function(function) {
 
+    if(!function.IsValid()) {
+      std::cerr << "ResidualCanvas::ResidualCanvas: function isn't valid. Will probably crash soon...\n";
+    }
+
     prepareCanvas();
 
     const auto residuals(myFuncs::calcResiduals(m_topObject, m_function));
@@ -31,11 +36,11 @@ public:
   }
 
   void draw() {
-    m_canvas.cd(1);
-    m_topPad->SetTopMargin(0.7);
-    m_topObject.Draw();
+    m_topPad->cd();
+    m_topObject.Draw("AP");
+    m_function.Draw("Same");
 
-    m_canvas.cd(2);
+    m_bottomPad->cd();
     m_residualGraph.Draw("AP");
   }
 
@@ -52,24 +57,26 @@ private:
   TPad* m_bottomPad;
 
   void prepareCanvas() {
-    const double topBottomSpace = 0.045;
+
+    const double bottomPadYpercentage = 0.22;
+    const double bottomTopSeperation = 0.05;
 
     m_canvas.cd();
-    m_topPad = new TPad((m_canvas.GetName() + std::string("_topPad")).data(), "", 0, 0.25, 1, 1);
+    m_topPad = new TPad((m_canvas.GetName() + std::string("_topPad")).data(), "", 0, bottomPadYpercentage, 1, 1);
     m_topPad->SetNumber(1);
-    m_topPad->SetTopMargin(0.7); // gStyle->GetPadTopMargin());
-    // std::cout << m_topPad->GetTopMargin() << std::endl;
-    m_topPad->SetBottomMargin(0.01); // For some reason 0.0 doesn't look good
     m_topPad->Draw();
 
+    // can't set margins with m_topPad->Set__Margin() for some reason. Have to go through m_canvas.cd(x)...
+    m_canvas.cd(1)->SetBottomMargin(0.005);
     // Change to canvas before creating second pad
     m_canvas.cd();
 
-    m_bottomPad = new TPad((m_canvas.GetName() + std::string("_bottomPad")).data(), "", 0, 0.0, 1, 0.25);
+    m_bottomPad = new TPad((m_canvas.GetName() + std::string("_bottomPad")).data(), "", 0, 0, 1, bottomPadYpercentage);
     m_bottomPad->SetNumber(2);
-    m_bottomPad->SetTopMargin(topBottomSpace);
+
     m_bottomPad->Draw();
-    m_bottomPad->SetBottomMargin(0.7); // So that title isn't cut out
+    m_canvas.cd(2)->SetTopMargin(bottomTopSeperation);
+    m_canvas.cd(2)->SetBottomMargin(gStyle->GetPadBottomMargin() * 1.5);
     m_bottomPad->SetGridy();
 
     m_canvas.cd();
@@ -78,6 +85,7 @@ private:
   // Prepare objects for drawing in a prettyResidualGraph
   void prepareObjects() {
     m_topObject.GetXaxis()->SetLabelSize(0.0); // Don't draw x labels on top object
+    // m_topObject.GetXaxis()->SetTitleSize(0.0); // Don't draw x title on top object
 
     // Set axis label and Title size to absolute
     m_topObject.GetYaxis()->SetLabelFont(43);     // Absolute font size in pixel (precision 3)
@@ -103,12 +111,28 @@ private:
     m_topObject.GetYaxis()->SetTitleSize(titleSize);
 
     // Set title offsets
-    m_residualGraph.GetXaxis()->SetTitleOffset(3.25);
+    m_residualGraph.GetXaxis()->SetTitleOffset(3.75);
 
     // Set bottom x title
     m_residualGraph.GetXaxis()->SetTitle(m_topObject.GetXaxis()->GetTitle());
     // Set y title
     m_residualGraph.GetYaxis()->SetTitle("Residual (#sigma)");
+
+    // Set residual y axis divisions
+    const auto maxResidual =
+        std::abs(*std::max_element(m_residualGraph.GetY(), m_residualGraph.GetY() + m_residualGraph.GetN() - 1,
+                                   [](const double residual1, const double residual2) { // find max absolute value residual
+                                     return std::abs(residual1) < std::abs(residual2);
+                                   }));
+    m_residualGraph.SetMaximum(std::ceil(maxResidual));
+    m_residualGraph.SetMinimum(-std::ceil(maxResidual));
+    const int maxDivisions = std::min(5., std::ceil(maxResidual));
+    m_residualGraph.GetYaxis()->SetNdivisions(maxDivisions, false); // false - no optimization - forces current value
+
+    // Set marker size
+    double markerSize = myFuncs::linearInterpolate(100, 17500, 1.2, 0.1, m_residualGraph.GetN());
+    // markerSize = std::min(static_cast<double>(gStyle->GetMarkerSize()), markerSize);
+    m_residualGraph.SetMarkerSize(markerSize);
   }
 };
 
