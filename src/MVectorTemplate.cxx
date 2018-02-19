@@ -198,12 +198,16 @@ bool MVectorTemplate::goodFit(const TFitResultPtr& fitResult) const {
     return false;
   }
 
-  if (m_debugLevel > 10)
+  if (m_debugLevel > 10) {
     std::cout << "MVectorTemplate::goodFit : fittedAmplitude = " << fittedAmplitude << ", fittedPedestal = " << fittedPedestal
               << ", fittedXshift = " << fittedXshift << ", chi2 / NDF = " << chi2_ndf << std::endl;
+    std::cout << "fittedAmplitude = " << fittedAmplitude << "m_minAmplitudeLimit = " << m_minAmplitudeLimit
+              << ", std::abs(fittedAmplitude - m_minAmplitudeLimit) = " << std::abs(fittedAmplitude - m_minAmplitudeLimit)
+              << std::endl;
+  }
 
-  if (m_useAmplitudeLimits and (std::abs(fittedAmplitude - m_minAmplitudeLimit) < m_doubleNumbersEqualThershold ||
-                                std::abs(fittedAmplitude - m_maxAmplitudeLimit) < m_doubleNumbersEqualThershold)) {
+  if (m_useAmplitudeLimits and (std::abs(fittedAmplitude - m_minAmplitudeLimit) < 1e-5 * m_minAmplitudeLimit ||
+                                std::abs(fittedAmplitude - m_maxAmplitudeLimit) < 1e-5 * m_maxAmplitudeLimit)) {
     if (m_debugLevel > 10)
       std::cerr << "MVectorTemplate::goodFit : fit failed, reached amplitude limit. fittedAmplitude = " << fittedAmplitude
                 << ". limits are (" << m_minAmplitudeLimit << "," << m_maxAmplitudeLimit << "). Not adding vector!" << std::endl;
@@ -266,14 +270,14 @@ TFitResult MVectorTemplate::fitFunctionToVector(const std::vector<double>& vecto
   // First fit is used to find the xShift
   TFitResultPtr fitResult = fitTemplate(fitHist, function);
 
+  if (!goodFit(fitResult))
+    return TFitResult();
+
   // If we disabled fitting xShift, we're done. Return function range to what it was (not sure why this is needed)
   if (!isXshiftFitEnabled()) {
     // shiftFuncRange(-xShiftGuess);
     return *fitResult;
   }
-
-  if (!goodFit(fitResult))
-    return TFitResult();
 
   // If we did fit xShift, we change the function range so it takes into account the xShift. Otherwise, the ends of the function
   // are not correctly represented and the averaging is not good.
