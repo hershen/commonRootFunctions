@@ -60,6 +60,16 @@ struct FilterInfo {
   std::vector<double> fir1Coeficients;
 };
 
+struct ChannelInfo {
+  int num;
+  std::string stringWithSpace;
+  std::string stringNoSpace;
+};
+
+const ChannelInfo channel1Info{1, "channel 1", "channel1"};
+const ChannelInfo channel15Info{15, "channel 15", "channel15"};
+const ChannelInfo summedChannelsInfo{16, "summed cannels", "summedChannels"};
+
 //-----------------------------------------------------------
 // Return Nominal beam momentum string with units
 //-----------------------------------------------------------
