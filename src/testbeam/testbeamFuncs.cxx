@@ -10,7 +10,6 @@
 #include "fileFuncs.h"
 #include "histFuncs.h" //for PaveText
 #include "testbeam/RunDB.h"
-#include "generalFuncs.h"
 
 namespace myFuncs {
 namespace testbeam {
@@ -176,61 +175,6 @@ std::vector<double> getTimes(const size_t size, const double dt) {
   return times;
 }
 
-int reductionFactorToEntriesToChop(const size_t reductionFactor) {
-  if (reductionFactor == 1) {
-    return 2800;
-  }
-  if (reductionFactor == 20) {
-    return 140;
-  }
-  if (reductionFactor == 25) {
-    return 110;
-  }
-
-  std::cerr << "myFuncs::testbeam::reductionFactorToEntriesToChop: Does not support reduction factor of " << reductionFactor
-            << "\n";
-  return 0;
-}
-
-// Load filtering parameters
-FilterInfo loadFilteringParams(const std::string& filterParamsFilename) {
-  FilterInfo filterInfo;
-  const auto params(myFuncs::getParams(filterParamsFilename));
-
-  // CR-RC4
-  if (params.find("CR_RC4_timeConstant_ns") != params.end()) {
-    filterInfo.CR_RC4_timeConstant_ns = std::atof(params.at("CR_RC4_timeConstant_ns").c_str());
-    filterInfo.figureText += (boost::format("CR-RC^{4} (%.0f ns)") % filterInfo.CR_RC4_timeConstant_ns).str();
-    filterInfo.fileText += (boost::format("CR-RC4_%.0fns") % filterInfo.CR_RC4_timeConstant_ns).str();
-  } else {
-    filterInfo.CR_RC4_timeConstant_ns = 0.0;
-  }
-
-  // HPF
-  if (params.find("HPF_coefficientFile") != params.end()) {
-    filterInfo.HPF_CoeficientFile = params.at("HPF_coefficientFile");
-    filterInfo.HPF_filterOrder = std::atof(params.at("HPF_filterOrder").c_str());
-    filterInfo.HPFcutoffFreq_GHz = std::atof(params.at("HPF_cutOff").c_str());
-    filterInfo.fir1Coeficients = myFuncs::changeStringsToDoubles(myFuncs::readFile(filterInfo.HPF_CoeficientFile));
-  } else {
-    filterInfo.HPF_CoeficientFile = "";
-    filterInfo.HPF_filterOrder = 0.0;
-    filterInfo.HPFcutoffFreq_GHz = 0.0;
-  }
-
-  // reductionFactor
-  if (params.find("reductionFactor") != params.end()) {
-    filterInfo.reductionFactor = std::atoi(params.at("reductionFactor").c_str());
-  }
-  else {
-    filterInfo.reductionFactor = 1;
-  }
-  if (filterInfo.reductionFactor > 1) {
-    filterInfo.fileText += "_reduction" + std::to_string(filterInfo.reductionFactor);
-  }
-
-  return filterInfo;
-}
 } // namespace testbeam
 
 } // namespace myFuncs
