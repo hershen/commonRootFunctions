@@ -188,7 +188,9 @@ TF1 getPedestalFitFunction(const int runNum, const int channel);
 
 std::vector<double> getTimes(const size_t size, const double dt);
 
-int reductionFactorToEntriesToChop(const size_t reductionFactor);
+inline int reductionFactorToEntriesToChop(const size_t reductionFactor) {
+  return std::floor(2800/reductionFactor);
+}
 
 // Load filtering parameters
 FilterInfo loadFilteringParams(const std::string& filterParamsFilename);
