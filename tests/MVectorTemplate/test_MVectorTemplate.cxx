@@ -76,11 +76,11 @@ SCENARIO("Check adding same shape vector", "[MVectorTemplate]") {
   GIVEN("A template from a constant vector with a few element different than the constant") {
     const double dt = 2.0;
     const double mainAmplitude = 300;
-    std::vector<double> fewNonZero(1e3, 10.0);
+    std::vector<double> oneNonZero(1e3, 10.0);
     for (int i = 495; i <= 505; ++i) {
-      fewNonZero[i] = mainAmplitude;
+      oneNonZero[i] = mainAmplitude;
     }
-    MVectorTemplate myTemplate(fewNonZero, dt);
+    MVectorTemplate myTemplate(oneNonZero, dt);
     // myTemplate.setDebugLevel(16);
     WHEN("Adding a similar vector, offset in time and with a different pedestal and amplitude") {
       const double offsetPedestal = -5;
@@ -99,7 +99,7 @@ SCENARIO("Check adding same shape vector", "[MVectorTemplate]") {
           CHECK(myTemplate.getNumAveragedFuncs() == iAdd + 1);
         }
         CHECK(myTemplate.getXvalueOfFirstTemplateEntry() == Approx(0));
-        CHECK(myTemplate.getTemplateSize() == fewNonZero.size() - binsOffset - 1); //-1 to account for if xShift is not exactly binOffset but a bit less
+        CHECK(myTemplate.getTemplateSize() == oneNonZero.size() - binsOffset);
       }
     }
 
@@ -119,8 +119,8 @@ SCENARIO("Check adding same shape vector", "[MVectorTemplate]") {
           CHECK(fitResult.Value(2) == Approx(binsOffset * dt));
           CHECK(myTemplate.getNumAveragedFuncs() == iAdd + 1);
         }
-        CHECK(myTemplate.getXvalueOfFirstTemplateEntry() == Approx((-binsOffset + 1) * dt));//-1 to account for if xShift is not exactly binOffset but a bit less
-        CHECK(myTemplate.getTemplateSize() == fewNonZero.size() - std::abs(binsOffset - 1));//-1 to account for if xShift is not exactly binOffset but a bit less
+        CHECK(myTemplate.getXvalueOfFirstTemplateEntry() == Approx(-binsOffset * dt));
+        CHECK(myTemplate.getTemplateSize() == oneNonZero.size() - std::abs(binsOffset));
       }
     }
   }
