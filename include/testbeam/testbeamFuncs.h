@@ -47,6 +47,19 @@ constexpr int pionColor = kGreen;
 static const std::unordered_map<int, int> c_pdgToColor{{11, elecColor}, {13, muonColor}, {211, pionColor}};
 static const std::unordered_map<int, std::string> c_channelToString{
     {1, "channel 1"}, {15, "channel 15"}, {16, "summed channels"}};
+
+// struct to save filter info
+struct FilterInfo {
+  double CR_RC4_timeConstant_ns;
+  int reductionFactor;
+  std::string figureText;
+  std::string fileText;
+  double HPF_filterOrder;
+  double HPFcutoffFreq_GHz;
+  std::string HPF_CoeficientFile;
+  std::vector<double> fir1Coeficients;
+};
+
 //-----------------------------------------------------------
 // Return Nominal beam momentum string with units
 //-----------------------------------------------------------
@@ -175,10 +188,10 @@ TF1 getPedestalFitFunction(const int runNum, const int channel);
 
 std::vector<double> getTimes(const size_t size, const double dt);
 
-//Currently works only for CR-RC4 tau = 500 ns
-inline int reductionFactorToEntriesToChop(const size_t reductionFactor) {
-  return std::floor(2800/reductionFactor);
-}
+int reductionFactorToEntriesToChop(const size_t reductionFactor);
+
+// Load filtering parameters
+FilterInfo loadFilteringParams(const std::string& filterParamsFilename);
 
 } // namespace testbeam
 } // namespace myFuncs
