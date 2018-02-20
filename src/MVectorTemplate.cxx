@@ -192,7 +192,7 @@ bool MVectorTemplate::goodFit(const TFitResultPtr& fitResult) const {
   const double chi2_ndf = fitResult->Chi2() / fitResult->Ndf();
 
   if (chi2_ndf < m_minChi2_NdfLimit || chi2_ndf > m_maxChi2_NdfLimit) {
-    if (m_debugLevel > 0)
+    if (m_debugLevel > 1)
       std::cerr << "MVectorTemplate::goodFit : fit failed, Chi2/NDF of fit = " << chi2_ndf << " is out of limits. limits are ("
                 << m_minChi2_NdfLimit << "," << m_maxChi2_NdfLimit << "). Not adding vector!" << std::endl;
     return false;
