@@ -472,34 +472,41 @@ firstTemplateIdx = 2, lastTemplateIdx = m_templateValues.size()-1
   const double fittedAmplitude = fitResult.Parameter(0);
   const double fittedPedestal = fitResult.Parameter(1);
 
-  for (size_t iTemplateIdx = 0; iTemplateIdx < getTemplateSize(); ++iTemplateIdx) {
-    double newVectorValue = newTimeAlignedVector[iTemplateIdx];
-
-    if (getAverageMode() == noWeight) {
-
+  if (getAverageMode() == noWeight) {
+    for (size_t iTemplateIdx = 0; iTemplateIdx < getTemplateSize(); ++iTemplateIdx) {
       // Normalize newVectorValue so it can be added to template values.
-      newVectorValue = (newVectorValue - fittedPedestal) / fittedAmplitude;
+      const double newVectorValue = (newTimeAlignedVector[iTemplateIdx] - fittedPedestal) / fittedAmplitude;
 
       // average vectors
       m_templateValues[iTemplateIdx] += newVectorValue;
-    } else if (getAverageMode() == keepWeight) { // This assumes the result will later be normalized so peak is at 1.
+
+      // Store maximum value (used to normalize later) and its index
+      if (m_templateValues[iTemplateIdx] > peakVal) {
+        peakVal = m_templateValues[iTemplateIdx];
+        m_peakIdx = iTemplateIdx;
+      }
+    }
+  } else if (getAverageMode() == keepWeight) { // This assumes the result will later be normalized so peak is at 1.
+    for (size_t iTemplateIdx = 0; iTemplateIdx < getTemplateSize(); ++iTemplateIdx) {
+
       const double templateValue = fittedPedestal + fittedAmplitude * m_templateValues[iTemplateIdx];
       m_templateValues[iTemplateIdx] =
-          (templateValue * static_cast<double>(m_numAveragedFuncs) + newVectorValue) * ov_numAveragedFuncsP1;
-    }
+          (templateValue * static_cast<double>(m_numAveragedFuncs) + newTimeAlignedVector[iTemplateIdx]) * ov_numAveragedFuncsP1;
 
-    if (getDebugLevel() > 30) {
-      std::cout << "MVectorTemplate::addVector : Averaging template iTemplateIdx " << iTemplateIdx
-                << ", time = " << getXvalueOfFirstTemplateEntry() + iTemplateIdx * m_dx << ". newVectorValue = " << newVectorValue
-                << ", m_templateValues[iTemplateIdx] after averaging = " << m_templateValues[iTemplateIdx] << std::endl;
-    }
-
-    // Store maximum value (used to normalize later) and its index
-    if (m_templateValues[iTemplateIdx] > peakVal) {
-      peakVal = m_templateValues[iTemplateIdx];
-      m_peakIdx = iTemplateIdx;
+      // Store maximum value (used to normalize later) and its index
+      if (m_templateValues[iTemplateIdx] > peakVal) {
+        peakVal = m_templateValues[iTemplateIdx];
+        m_peakIdx = iTemplateIdx;
+      }
     }
   }
+
+  // if (getDebugLevel() > 30) {
+  //   std::cout << "MVectorTemplate::addVector : Averaging template iTemplateIdx " << iTemplateIdx
+  //             << ", time = " << getXvalueOfFirstTemplateEntry() + iTemplateIdx * m_dx << ". newVectorValue = " <<
+  //             newVectorValue
+  //             << ", m_templateValues[iTemplateIdx] after averaging = " << m_templateValues[iTemplateIdx] << std::endl;
+  // }
 
   // ------------------------------------------------------------------
   // re-Normalize vector - keep peak == 1

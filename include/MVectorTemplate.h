@@ -110,9 +110,9 @@ public:
   // Normalize peak m_templateValues to 1. And make sure pedestal is 0.
   void normalizeAndZeroTemplateValues();
 
-private:
   void resetTemplateRange();
 
+private:
   void setTF1ParNames();
 
   bool goodFit(const TFitResultPtr& fitResult) const;
@@ -203,7 +203,7 @@ private:
   mutable bool m_usePedestalLimits;
 };
 
-//Shift the current template func rangeby xShift
+// Shift the current template func rangeby xShift
 void shiftFuncRange(TF1& function, const double xShift);
 
 } // namespace myFuncs
