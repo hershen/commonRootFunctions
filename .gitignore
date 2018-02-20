@@ -39,3 +39,10 @@ figureDump/
 
 #Catch2 compiled
 catch2Compiled/tests-main.o
+
+#jetbrains
+.idea
+
+#cmak
+CMAKE*
+cmake*
