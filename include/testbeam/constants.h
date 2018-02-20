@@ -31,7 +31,7 @@ constexpr double c_crystalLength = 0.3; // meters
 constexpr double c_channel1_channel15_timeDifference = 1.088; // ns.
 
 using CrystalAdc2meV = std::unordered_map<int, double>;
-const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV{{1, 0.7073}, {15, 0.7209}}; // [ADC counts / MeV]
+const static CrystalAdc2meV c_CsI_Tl_Belle_Adc2MeV{{1, 0.7073}, {15, 0.7209}}; // [MeV / ADC counts]
 const static std::map<Crystal, CrystalAdc2meV> c_crystal2_adc2mev{
     {Crystal::CsI_Tl_Belle, c_CsI_Tl_Belle_Adc2MeV}}; // Unordered map doesn't currently work with enums. Maybe with c++14
 
