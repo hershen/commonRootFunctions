@@ -112,10 +112,10 @@ public:
 
   void resetTemplateRange();
 
+  bool goodFit(const TFitResultPtr& fitResult) const;
+
 private:
   void setTF1ParNames();
-
-  bool goodFit(const TFitResultPtr& fitResult) const;
 
   // Overloaded
   void setTF1Parameters();
