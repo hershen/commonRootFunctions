@@ -204,6 +204,7 @@ inline int reductionFactorToEntriesToChop(const size_t reductionFactor) {
 
 // Load filtering parameters
 FilterInfo loadFilteringParams(const std::string& filterParamsFilename);
+FilterInfo loadFilteringParamsFromTTree(const std::string& filename);
 
 } // namespace testbeam
 } // namespace myFuncs

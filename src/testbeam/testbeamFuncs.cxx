@@ -8,9 +8,9 @@
 
 // Mine
 #include "fileFuncs.h"
+#include "generalFuncs.h"
 #include "histFuncs.h" //for PaveText
 #include "testbeam/RunDB.h"
-#include "generalFuncs.h"
 
 namespace myFuncs {
 namespace testbeam {
@@ -205,14 +205,28 @@ FilterInfo loadFilteringParams(const std::string& filterParamsFilename) {
   // reductionFactor
   if (params.find("reductionFactor") != params.end()) {
     filterInfo.reductionFactor = std::atoi(params.at("reductionFactor").c_str());
-  }
-  else {
+  } else {
     filterInfo.reductionFactor = 1;
   }
   if (filterInfo.reductionFactor > 1) {
     filterInfo.fileText += "_reduction" + std::to_string(filterInfo.reductionFactor);
   }
 
+  return filterInfo;
+}
+FilterInfo loadFilteringParamsFromTTree(const std::string& filename) {
+  TFile file(filename.c_str(),"READ");
+  TTree* paramsTree = (TTree*)file.Get("params");
+  char filterCharStar[100];
+  FilterInfo filterInfo;
+  paramsTree->SetBranchAddress("filter", &filterCharStar);
+  paramsTree->SetBranchAddress("reductionFactor", &filterInfo.reductionFactor);
+  paramsTree->SetBranchAddress("CR_RC4_timeConstant_ns", &filterInfo.CR_RC4_timeConstant_ns);
+  paramsTree->SetBranchAddress("HPForder", &filterInfo.HPF_filterOrder);
+  paramsTree->SetBranchAddress("HPFcutoffFreq_GHz", &filterInfo.HPFcutoffFreq_GHz);
+  paramsTree->GetEntry(0);
+
+  filterInfo.fileText = filterCharStar;
   return filterInfo;
 }
 } // namespace testbeam
