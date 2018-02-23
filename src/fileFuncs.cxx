@@ -300,9 +300,25 @@ std::vector<std::string> readFile(const std::string& filename, const int numHead
   return outputs;
 }
 
-void copyTTreeFromFileToFile(const std::string& treename, const std::string& fromFilename, const std::string& toFilename) {
-  TFile fromFile(fromFilename.c_str(), "READ");
-  TTree* oldtree = (TTree*)fromFile.Get(treename.c_str());
+void copyTTreeFromFileToFile(const std::string& treename, const std::string& fromPattern, const std::string& toFilename) {
+
+  // Use TChain in case
+  TChain chain(treename.c_str(), "READ");
+  const int numFiles = chain.Add(fromPattern.c_str());
+  if (numFiles > 1) {
+    std::cout << "copyTTreeFromFileToFile: found " << numFiles << " matching patter" << fromPattern << std::endl;
+  }
+  chain.GetEntries();
+
+  // Try to get filename from chain
+  const auto fromFile = chain.GetCurrentFile();
+
+  if(!fromFile){
+    std::cerr << "copyTTreeFromFileToFile: can't open file " << fromPattern << std::endl;
+    return;
+  }
+
+  TTree* oldtree = (TTree*)fromFile->Get(treename.c_str());
 
   // Clone tree to new file
   TFile toFile(toFilename.c_str(), "UPDATE");
@@ -310,7 +326,6 @@ void copyTTreeFromFileToFile(const std::string& treename, const std::string& fro
 
   // Cleanup
   toFile.Write();
-  fromFile.Close();
   toFile.Close();
 }
 } // namespace myFuncs
