@@ -43,7 +43,15 @@ void saveToFile(EigenType& matrix, const std::string& filename, const std::strin
 // Load Eigen matrix from TTree
 Eigen::MatrixXd loadFromFile(const std::string& filename, const std::string& treeName = "tree") {
   TFile f(filename.c_str(), "READ");
+  if(f.IsZombie()) {
+    std::cerr << "linearAlgebra::loadFromFile: cannot find file " << filename << std::endl;
+    return Eigen::MatrixXd();
+  }
   TTree* tree = (TTree*)f.Get(treeName.c_str());
+  if(!tree) {
+    std::cerr << "linearAlgebra::loadFromFile: cannot find tree " << treeName << " in file " << filename << std::endl;
+    return Eigen::MatrixXd();
+  }
   int rows;
   int cols;
   tree->SetBranchAddress("matrixRows", &rows);
