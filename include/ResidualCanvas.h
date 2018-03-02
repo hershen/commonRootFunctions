@@ -116,7 +116,7 @@ private:
     // Set bottom x title
     m_residualGraph.GetXaxis()->SetTitle(m_topObject.GetXaxis()->GetTitle());
     // Set y title
-    m_residualGraph.GetYaxis()->SetTitle("Residual (#sigma)");
+    m_residualGraph.GetYaxis()->SetTitle("Pull (#sigma)");
 
     // Set residual y axis divisions
     const auto maxResidual =
