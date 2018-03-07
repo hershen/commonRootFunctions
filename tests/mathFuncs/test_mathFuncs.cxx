@@ -591,7 +591,7 @@ SCENARIO("calcResiduals", "[calcResiduals]") {
       std::vector<double> diferentYvalues = {8, 1, 3, -4, -1, 0, 0, 0}; // Larger on purpose
       std::vector<double> calculatedResiduals = myFuncs::calcResiduals<double, double>(xValues, diferentYvalues, 0.5, quadFunc);
       THEN("Residuals should be as expected") {
-        const std::vector<double> expectedResiduals = {2, 0, -6, 10, 52};
+        const std::vector<double> expectedResiduals = {-2, 0, 6, -10, -52};
         CHECK(calculatedResiduals == expectedResiduals);
       }
     }
@@ -601,7 +601,7 @@ SCENARIO("calcResiduals", "[calcResiduals]") {
       std::vector<double> stds = {1, 0.5, 2, 3, 0.01, 0, 0, 0};         // Larger on purpose
       std::vector<double> calculatedResiduals = myFuncs::calcResiduals<double, double>(xValues, diferentYvalues, stds, quadFunc);
       THEN("Residuals should be as expected") {
-        const std::vector<double> expectedResiduals{1, 0, -3. / 2., 5. / 3., 2600.};
+        const std::vector<double> expectedResiduals{-1, 0, 3. / 2., -5. / 3., -2600.};
         CHECK(calculatedResiduals == expectedResiduals);
       }
     }

@@ -77,7 +77,7 @@ std::vector<double> calcResiduals(const std::vector<xValType>& xValues, const st
   // Loop on num elements = xValues.size()
   while (xIt != xValues.end()) {
     // 			std::cout << "xVal = " << *xIt << ", yVal = " << *yIt << std::endl;
-    residuals.push_back((modelFunc.Eval(*xIt) - static_cast<double>(*yIt)) / *stdIt);
+    residuals.push_back((static_cast<double>(*yIt) - modelFunc.Eval(*xIt)) / *stdIt);
     ++xIt;
     ++yIt;
     ++stdIt;
