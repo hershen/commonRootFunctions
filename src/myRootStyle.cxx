@@ -86,6 +86,9 @@ TStyle* MyRootStyle() {
   // This may change the statistics box frame line color
   // 	myRootStyle->SetLineColor(kBlue);
 
+  // Default hist line color
+  myRootStyle->SetHistLineColor(kAzure+4);
+
   return myRootStyle;
 }
 
