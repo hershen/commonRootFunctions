@@ -55,6 +55,14 @@ inline const std::string getBinWidth(const TH1& hist, const std::string& precisi
   return boost::str(boost::format("%1$" + precision) % hist.GetBinWidth(1));
 }
 
+inline void setHistNominalYtitle(TH1& hist, const std::string& units = "", const std::string& precision = "g") {
+  std::string title = "Entries / " + getBinWidth(hist, precision);
+  if(!units.empty()) {
+    title = title + " " + units;
+  }
+  hist.GetYaxis()->SetTitle(title.data());
+}
+
 /**
  * Extract a root object rootObjName from a root file file. The file is assumed to be not zombie. If rootObjName doesn't exist in
  * file, print error. rootClass should be a pointer (unless you figure out how to use it otherwise).
@@ -107,7 +115,7 @@ inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename, con
 inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename) {
   mySaveCanvas(canvas, filename, "png");
   mySaveCanvas(canvas, filename, "pdf");
-  mySaveCanvas(canvas, filename, "C");
+  mySaveCanvas(canvas, filename, "root");
 }
 
 inline void mySaveCanvas(const TCanvas* canvas) { mySaveCanvas(canvas, canvas->GetName()); }
