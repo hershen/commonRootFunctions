@@ -21,7 +21,7 @@
 namespace myFuncs {
 
 // Draw histograms so that the one with the largest maximum is drawn first and the rest afterwards on the same canvas
-void drawHistograms_highestFirst(const std::vector<TH1*>& histVector);
+void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std::string& options = "");
 
 TCanvas* newCanvas(std::string canvasName = "");
 
@@ -57,7 +57,7 @@ inline const std::string getBinWidth(const TH1& hist, const std::string& precisi
 
 inline void setHistNominalYtitle(TH1& hist, const std::string& units = "", const std::string& precision = "g") {
   std::string title = "Entries / " + getBinWidth(hist, precision);
-  if(!units.empty()) {
+  if (!units.empty()) {
     title = title + " " + units;
   }
   hist.GetYaxis()->SetTitle(title.data());

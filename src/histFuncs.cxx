@@ -15,7 +15,7 @@ bool compareHistMaximum(const TH1* hist1, const TH1* hist2) {
 }
 
 namespace myFuncs {
-void drawHistograms_highestFirst(const std::vector<TH1*>& histVector) {
+void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std::string& options) {
 
   if (histVector.size() < 1)
     return;
@@ -26,13 +26,13 @@ void drawHistograms_highestFirst(const std::vector<TH1*>& histVector) {
     return; // histVector is empty
 
   // Draw highest histogram
-  (*highestHist)->Draw();
+  (*highestHist)->Draw(options.data());
 
   // Draw rest of histograms
   for (auto hist : histVector) {
     if (hist == *highestHist)
       continue;
-    hist->Draw("SAME");
+    hist->Draw(("SAME" + options).data());
   }
 }
 
