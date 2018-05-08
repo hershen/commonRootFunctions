@@ -3,6 +3,8 @@
 #include <iostream>
 #include <limits>
 
+#include <glob.h>
+
 // For getParams
 #include <fstream>
 
@@ -313,7 +315,7 @@ void copyTTreeFromFileToFile(const std::string& treename, const std::string& fro
   // Try to get filename from chain
   const auto fromFile = chain.GetCurrentFile();
 
-  if(!fromFile){
+  if (!fromFile) {
     std::cerr << "copyTTreeFromFileToFile: can't open file " << fromPattern << std::endl;
     return;
   }
@@ -328,4 +330,21 @@ void copyTTreeFromFileToFile(const std::string& treename, const std::string& fro
   toFile.Write();
   toFile.Close();
 }
+
+// Inspired by https://stackoverflow.com/questions/8401777/simple-glob-in-c-on-unix-system
+std::vector<std::string> myGlob(const std::string& pattern) {
+  glob_t globResult;
+  const auto rv = glob(pattern.data(), GLOB_TILDE_CHECK, NULL, &globResult);
+  if (rv != 0 and rv != GLOB_NOMATCH) {
+    std::cout << "fileFuncs::myGlob: got non zero return value " << rv << std::endl;
+  }
+
+  std::vector<std::string> results;
+  for (uint idx = 0; idx < globResult.gl_pathc; ++idx) {
+    results.push_back(std::string(globResult.gl_pathv[idx]));
+  }
+  globfree(&globResult);
+  return results;
+}
+
 } // namespace myFuncs
