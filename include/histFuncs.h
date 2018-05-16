@@ -6,6 +6,7 @@
 
 // Boost
 #include "boost/format.hpp"
+#include <boost/filesystem.hpp>
 
 // Root
 #include "TCanvas.h"
@@ -17,6 +18,8 @@
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TSystem.h"
+
+using path = boost::filesystem::path;
 
 namespace myFuncs {
 
@@ -105,8 +108,18 @@ TGraphErrors histToGraph(const TH1& hist);
 // Save canvas as fileType, inside figureDump folder.
 // Overwrites files if they exist
 inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename, const std::string& fileType) {
-  // Create figure dump dir. If already exists, or there's a problem, it returns -1.
-  gSystem->mkdir("figureDump");
+
+  //Create directory, if it doesn't exist
+  const boost::filesystem::path dir("figureDump" / boost::filesystem::path(filename).parent_path());
+  std::cout << dir << std::endl;
+  if(!boost::filesystem::is_directory(dir)) {
+    const auto success = boost::filesystem::create_directories(dir);
+    if(!success) {
+      std::cout << "mySaveCanvas::WARNING: Couldn't create directory for " << filename << std::endl;
+    }
+  }
+
+  //Save canvas
   canvas->SaveAs(("figureDump/" + filename + "." + fileType).data());
 }
 
