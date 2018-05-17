@@ -36,16 +36,6 @@ void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std:
   }
 }
 
-TCanvas* newCanvas(std::string canvasName) {
-  if (canvasName != "")
-    return new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);
-
-  TRandom3 rand3(0);
-  double randNum = rand3.Uniform();
-  canvasName = "canvas" + std::to_string(int(randNum * 1000));
-  return new TCanvas(canvasName.data(), "", 10, 10, 1920, 985);
-}
-
 TCanvas* drawNewCanvas(TH1* hist) {
   std::string canvasName = std::string(hist->GetName()) + "Canvas";
   TCanvas* canvas = new TCanvas(canvasName.data(), canvasName.data(), 10, 10, 1920, 985);

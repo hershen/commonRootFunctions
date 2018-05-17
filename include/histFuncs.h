@@ -2,6 +2,7 @@
 
 // std
 #include <iostream>
+#include <memory>
 #include <numeric> //for iota
 
 // Boost
@@ -19,14 +20,28 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-using path = boost::filesystem::path;
+#include <X11/Xlib.h>
 
 namespace myFuncs {
 
+// Make a new TCanvas that's the height of the screen
+TCanvas* makeCanvas(const std::string& name, const std::string& title = "") {
+  // Didn't manage to make this work with shared_ptr - the mySaveCanvas always saved a corrupted file after I did
+  // mySaveCanvas(ptr->get(),"name")
+
+  // X11 magic
+  Display* disp = XOpenDisplay(NULL);
+  Screen* screen = DefaultScreenOfDisplay(disp);
+
+  // Screen width
+  const auto height = screen->height * 0.9; // 0.9 to account for taskbar, etc.
+
+  // Return shared ptr
+  return new TCanvas(name.data(), title.data(), 0, 0, height * 1.33, height);
+}
+
 // Draw histograms so that the one with the largest maximum is drawn first and the rest afterwards on the same canvas
 void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std::string& options = "");
-
-TCanvas* newCanvas(std::string canvasName = "");
 
 // Draw histogram on new canvas. Canvas name is <histname>Canvas
 TCanvas* drawNewCanvas(TH1* hist);
@@ -109,17 +124,16 @@ TGraphErrors histToGraph(const TH1& hist);
 // Overwrites files if they exist
 inline void mySaveCanvas(const TCanvas* canvas, const std::string& filename, const std::string& fileType) {
 
-  //Create directory, if it doesn't exist
+  // Create directory, if it doesn't exist
   const boost::filesystem::path dir("figureDump" / boost::filesystem::path(filename).parent_path());
-  std::cout << dir << std::endl;
-  if(!boost::filesystem::is_directory(dir)) {
+  if (!boost::filesystem::is_directory(dir)) {
     const auto success = boost::filesystem::create_directories(dir);
-    if(!success) {
+    if (!success) {
       std::cout << "mySaveCanvas::WARNING: Couldn't create directory for " << filename << std::endl;
     }
   }
 
-  //Save canvas
+  // Save canvas
   canvas->SaveAs(("figureDump/" + filename + "." + fileType).data());
 }
 
