@@ -18,9 +18,6 @@
 #include "TRandom3.h"
 #include "TStyle.h"
 
-// Mine
-#include "histFuncs.h"
-
 namespace myFuncs {
 
 TF1 globalFunc;
@@ -366,7 +363,7 @@ TCanvas* drawMatrix(const TMatrixD matrix, std::string title, const std::vector<
   hist->LabelsOption("d"); // Draw x axis labels pointing down
   hist->SetStats(false);   // No stat box
 
-  TCanvas* canvas = myFuncs::newCanvas(title + "Canvas");
+  TCanvas* canvas = myFuncs::makeCanvas(title + "Canvas");
   canvas->SetGrid();
   canvas->SetTicks();
 
