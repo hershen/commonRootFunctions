@@ -25,20 +25,7 @@
 namespace myFuncs {
 
 // Make a new TCanvas that's the height of the screen
-TCanvas* makeCanvas(const std::string& name, const std::string& title = "") {
-  // Didn't manage to make this work with shared_ptr - the mySaveCanvas always saved a corrupted file after I did
-  // mySaveCanvas(ptr->get(),"name")
-
-  // X11 magic
-  Display* disp = XOpenDisplay(NULL);
-  Screen* screen = DefaultScreenOfDisplay(disp);
-
-  // Screen width
-  const auto height = screen->height * 0.9; // 0.9 to account for taskbar, etc.
-
-  // Return shared ptr
-  return new TCanvas(name.data(), title.data(), 0, 0, height * 1.33, height);
-}
+TCanvas* makeCanvas(const std::string& name, const std::string& title = "");
 
 // Draw histograms so that the one with the largest maximum is drawn first and the rest afterwards on the same canvas
 void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std::string& options = "");
@@ -278,5 +265,12 @@ TGraph getGraph(const std::vector<T>& yValues, const std::string& title) {
   std::iota(xValues.begin(), xValues.end(), T(0));
   return getGraph(xValues, yValues, title);
 }
+
+//Convert an axis to have "constant" width bins on a log scale
+//********************************
+//MUST BE CALLED BEFORE HISTOGRAM IS FILLED!!!!!!!!!
+//********************************
+//Does not support axes with minimum value <= 0.
+void makeConstWidthOnLogScale(TAxis* axis);
 
 } // namespace myFuncs

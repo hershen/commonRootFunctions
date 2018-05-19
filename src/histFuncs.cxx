@@ -6,6 +6,7 @@
 #include "TRandom3.h"
 
 #include "TApplication.h"
+#include "TAxis.h"
 #include "TF1.h"
 #include "TFrame.h"
 #include "TPaveText.h"
@@ -15,6 +16,21 @@ bool compareHistMaximum(const TH1* hist1, const TH1* hist2) {
 }
 
 namespace myFuncs {
+TCanvas* makeCanvas(const std::string& name, const std::string& title) {
+  // Didn't manage to make this work with shared_ptr - the mySaveCanvas always saved a corrupted file after I did
+  // mySaveCanvas(ptr->get(),"name")
+
+  // X11 magic
+  Display* disp = XOpenDisplay(NULL);
+  Screen* screen = DefaultScreenOfDisplay(disp);
+
+  // Screen width
+  const auto height = screen->height * 0.9; // 0.9 to account for taskbar, etc.
+
+  // Return shared ptr
+  return new TCanvas(name.data(), title.data(), 0, 0, height * 1.33, height);
+}
+
 void drawHistograms_highestFirst(const std::vector<TH1*>& histVector, const std::string& options) {
 
   if (histVector.size() < 1)
@@ -280,6 +296,42 @@ void waitForDoubleClick() {
     }
     gSystem->Sleep(10);
   }
+}
+
+void makeConstWidthOnLogScale(TAxis* axis) {
+  if (!axis) {
+    std::cerr << "histFuncs::makeConstWidthOnLogScale: Empty pointer" << std::endl;
+    return;
+  }
+
+  // Get minimum axis value
+  const double minVal = axis->GetXmin();
+
+  // Sanity check
+  if (minVal <= 0.0) {
+    std::cerr << "histFuncs::makeConstWidthOnLogScale: Can't convert when min axis value is " << minVal << ". Aborting"
+              << std::endl;
+    return;
+  }
+
+  const int numBins = axis->GetNbins();
+
+  const double maxVal = axis->GetXmax();
+
+  // Calculate bin "width"
+  const double width = std::pow(maxVal / minVal, 1. / numBins);
+
+  std::vector<double> bins;
+  bins.reserve(numBins + 1);
+
+  // Calculate low edges of bins
+  // Calculation: lowEdge[i] = minVal * width^i
+  for (int i = 0; i <= numBins; i++) {
+    bins.push_back(minVal * std::pow(width, i));
+  }
+
+  // Set bins
+  axis->Set(numBins, bins.data());
 }
 
 } // namespace myFuncs
