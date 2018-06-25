@@ -15,6 +15,12 @@ SHARED_DIR=lib
 TB_DIR=testbeam
 EXEC_DIR=executables
 
+#python binding
+PYHTON_DIR=pythonBindings
+PYTHON_SRC=$(PYHTON_DIR)/src
+PYTHON_OBJ=$(PYHTON_DIR)/obj
+PYTHON_LIB=$(PYHTON_DIR)/lib
+
 #rootana
 ifdef ROOTANASYS
 ROOTANAINC = -I$(ROOTANASYS)/include
@@ -37,22 +43,36 @@ TEXT_RESET=tput sgr0;
 OBJ_FILES=$(patsubst $(SRC_DIR)/%.cxx,$(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.cxx))
 TEST_EXEC_FILES=$(patsubst $(TEST_DIR)/%.cxx,$(TEST_DIR)/$(EXEC_DIR)/%.exe, $(shell find $(TEST_DIR)/ -type f -name '*.cxx'))
 TB_OBJ_FILES=$(patsubst $(SRC_DIR)/$(TB_DIR)/%.cxx,$(OBJ_DIR)/$(TB_DIR)/%.o,$(wildcard $(SRC_DIR)/$(TB_DIR)/*.cxx))
+PYTHON_LIB_FILES=$(patsubst $(PYTHON_SRC)/%.cxx,$(PYTHON_LIB)/%.so,$(wildcard $(PYTHON_SRC)/*.cxx))
 
 #Inspired by https://stackoverflow.com/questions/2394609/makefile-header-dependencies
 DEP = $(TEST_EXEC_FILES:%.exe=%.d)
 
-all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so
+all: $(OBJ_FILES) $(TB_OBJ_FILES) $(SHARED_DIR)/libbasf2Tools.so $(SHARED_DIR)/libtestBeam.so $(PYTHON_LIB_FILES)
+
+$(info $(wildcard $(PYTHON_SRC)/*.cxx))
 
 clean:
 	-@rm $(OBJ_DIR)/* || true
 	-@rm -r $(OBJ_DIR)/$(TB_DIR)/* || true
 	-@rm $(SHARED_DIR)/* || true
 	-@rm -r $(TEST_DIR)/$(EXEC_DIR)/* || true
+	#python bindings
+	-@rm $(PYTHON_OBJ)/* || true
+	-@rm $(PYTHON_LIB)/* || true
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -fPIC -o $@ $<
 	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
+
+#Python bindings
+$(PYTHON_OBJ)/%.o: $(PYTHON_SRC)/%.cxx
+	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -I/usr/include/python3.6 -fPIC -o $@ $<
+
+#python shared libraries
+$(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
+	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python -lboost_system
 
 # $(OBJ_DIR)/rootDictionalry.o:
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h
