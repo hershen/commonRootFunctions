@@ -13,6 +13,8 @@
 #include "TMath.h"
 #include "TMatrixD.h"
 #include "TRandom3.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
 
 // For TMiuit2
 // #include "Math/Minimizer.h"
@@ -584,5 +586,18 @@ std::vector<double> averageEach_n(const std::vector<T>& vector, const size_t n) 
     it = nextIt;
   }
   return output;
+}
+
+inline TVector3 magCosthPhi_Vec3(const double mag, const double cosTheta, const double phi) {
+  TVector3 vec3;
+  vec3.SetMagThetaPhi(mag, std::acos(cosTheta), phi);
+  return vec3;
+}
+
+// based on BAD522_6, p. 120, eq. 141
+inline double cosHelicity(const TLorentzVector& P, const TLorentzVector& Q, const TLorentzVector& D) {
+
+  return ((P * D) * Q.M2() - (P * Q) * (Q * D)) /
+         std::sqrt(((P * Q) * (P * Q) - Q.M2() * P.M2()) * ((Q * D) * (Q * D) - Q.M2() * D.M2()));
 }
 } // namespace myFuncs
