@@ -1,11 +1,11 @@
 CC=g++
 CLANG_TIDY=clang-tidy
 DEBUG=-Wall -Wextra -Wpedantic -Wunused-variable
-CXX11=-std=c++1y
 OPTIM=-O3
+CXXVERSION=`root-config --cflags`
 CATCH_TESTS=catch2Compile/tests-main.o
 
-CCT=$(CC) $(OPTIM) $(DEBUG) $(CXX11) #-fsanitize=address -fno-omit-frame-pointer -g
+CCT=$(CC) $(OPTIM) $(DEBUG) $(CXXVERSION) #-fsanitize=address -fno-omit-frame-pointer -g
 
 SRC_DIR=src
 OBJ_DIR=obj
@@ -64,7 +64,6 @@ clean:
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -fPIC -o $@ $<
-	clang-check $< -- $(INC) $(ROOT_HEADERS) $(CXX11)
 
 #Python bindings
 $(PYTHON_OBJ)/%.o: $(PYTHON_SRC)/%.cxx
@@ -72,7 +71,7 @@ $(PYTHON_OBJ)/%.o: $(PYTHON_SRC)/%.cxx
 
 #python shared libraries
 $(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
-	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python -lboost_system
+	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python3 -lboost_system
 
 # $(OBJ_DIR)/rootDictionalry.o:
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h
@@ -85,8 +84,10 @@ $(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
 $(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/LHEreader.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/generalFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o $(OBJ_DIR)/alpFuncs.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs` -lX11
 
-$(SHARED_DIR)/libtestBeam.so: $(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBothChannels.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o
-	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
+$(SHARED_DIR)/libtestBeam.so: 
+
+#$(OBJ_DIR)/$(TB_DIR)/testbeamFuncs.o $(OBJ_DIR)/$(TB_DIR)/RunDB.o $(OBJ_DIR)/$(TB_DIR)/TOFtiming.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBothChannels.o $(OBJ_DIR)/$(TB_DIR)/EventLoopBase.o $(OBJ_DIR)/$(TB_DIR)/MidasLoop.o $(OBJ_DIR)/$(TB_DIR)/Waveform.o
+#	$(CCT)  -shared -o $@ $^ -lbasf2Tools -L$(ROOTANASYS)/lib -lrootana `root-config --glibs` -lXMLParser -lXMLIO #XML libraries are for rootana
 
 
 ##################################
