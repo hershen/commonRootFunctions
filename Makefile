@@ -71,7 +71,7 @@ $(PYTHON_OBJ)/%.o: $(PYTHON_SRC)/%.cxx
 
 #python shared libraries
 $(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
-	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python3 -lboost_system
+	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python37 -lboost_system
 
 # $(OBJ_DIR)/rootDictionalry.o:
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h
