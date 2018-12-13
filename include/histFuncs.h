@@ -20,8 +20,6 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-#include <X11/Xlib.h>
-
 namespace myFuncs {
 
 // Make a new TCanvas that's the height of the screen

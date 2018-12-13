@@ -11,6 +11,8 @@
 #include "TFrame.h"
 #include "TPaveText.h"
 
+#include <X11/Xlib.h> //For Display
+
 bool compareHistMaximum(const TH1* hist1, const TH1* hist2) {
   return hist1->GetBinContent(hist1->GetMaximumBin()) < hist2->GetBinContent(hist2->GetMaximumBin());
 }
