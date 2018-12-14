@@ -594,10 +594,14 @@ inline TVector3 magCosthPhi_Vec3(const double mag, const double cosTheta, const 
   return vec3;
 }
 
-// based on BAD522_6, p. 120, eq. 141
-inline double cosHelicity(const TLorentzVector& P, const TLorentzVector& Q, const TLorentzVector& D) {
-
-  return ((P * D) * Q.M2() - (P * Q) * (Q * D)) /
-         std::sqrt(((P * Q) * (P * Q) - Q.M2() * P.M2()) * ((Q * D) * (Q * D) - Q.M2() * D.M2()));
+// Used to be based on BAD522_6, p. 120, eq. 141, but it seems the formula is not Lorentz invariant in all cases - at least that's what my results show.
+// Even though it looks lorentz invariant.
+inline double cosHelicity(TLorentzVector P, TLorentzVector Q, TLorentzVector D) {
+    
+    //boost to Q rest frame
+    D.Boost(-Q.BoostVector());
+    P.Boost(-Q.BoostVector());
+    
+    return std::cos(D.Vect().Angle(P.Vect()));
 }
 } // namespace myFuncs
