@@ -81,7 +81,7 @@ $(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
 # 	$(CCT) -c -fPIC -o $@ $(patsubst %.o,%.cxx,$(@F))
 # 	rm $(patsubst %.o,%.cxx,$(@F))                                #remove dictionart.cxx - not needed for anything
 
-$(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/LHEreader.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/generalFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o $(OBJ_DIR)/alpFuncs.o
+$(SHARED_DIR)/libbasf2Tools.so: $(OBJ_DIR)/myRootStyle.o $(OBJ_DIR)/eclCrystalDB.o $(OBJ_DIR)/fileFuncs.o $(OBJ_DIR)/mathFuncs.o $(OBJ_DIR)/histFuncs.o $(OBJ_DIR)/LHEreader.o $(OBJ_DIR)/stringFuncs.o $(OBJ_DIR)/generalFuncs.o $(OBJ_DIR)/fftFuncs.o $(OBJ_DIR)/Windows.o $(OBJ_DIR)/MVectorTemplate.o $(OBJ_DIR)/ParameterComparisonPlot.o $(OBJ_DIR)/filterFuncs.o $(OBJ_DIR)/alpFuncs.o $(OBJ_DIR)/LinearInterp.o
 	$(CCT) -shared -o $@ $^ `root-config --glibs` -lX11
 
 $(SHARED_DIR)/libtestBeam.so: 
