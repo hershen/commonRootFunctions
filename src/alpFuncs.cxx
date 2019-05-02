@@ -32,16 +32,15 @@ double getDistanceToEmcFace_m(const double theta_rad) {
   if(theta_rad < 0.27576202181510407315 or theta_rad > 2.47487687932795934008) { //[15.8, 141.8]
     return std::numeric_limits<double>::infinity();
   }
-  if(theta_rad < 0.47249693551706384232) { //endcap
-    //Front face of endcap in z-r plane: r = -2.659z+5.707 (all in meters).
-    const double z = 5.707/(std::tan(theta_rad)+2.659);
+  if(theta_rad < 0.46774823953448032662) { //theta = 26.8 deg
+    //Front face of endcap in z-r plane: r = -2.0337z + 4.5827 (all in meters).
+    const double z = 4.5827/(std::tan(theta_rad)+2.0337);
     return z/std::cos(theta_rad);
   }
-  if(theta_rad < 2.475) {
-    return 0.92/std::sin(theta_rad);
-  }
   
-  throw; 
+  //Barrel
+  return 0.92/std::sin(theta_rad);
+
 }
 
 } // namespace myFuncs
