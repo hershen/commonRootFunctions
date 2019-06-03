@@ -48,7 +48,7 @@ TF1 analytical_RC_CRn(int n, double tau = 500., double amplitude = 1., double st
 // calcResiduals
 //********************************************************************************************
 // Function to calculate residuals between a a model function (TF1) and y(x) yValues taken at points xValuesV.
-// Residual defined as f(x) - yValue
+// Residual defined as yValue - f(x)
 // x values are in vector xValues of type xValueType
 // y values are in vector yValues of type yValueType
 // If there are more yValues than xValues, the residuals are calculated only for the xValues given.
