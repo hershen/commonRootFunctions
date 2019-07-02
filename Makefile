@@ -67,11 +67,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx $(INC_DIR)/%.h
 
 #Python bindings
 $(PYTHON_OBJ)/%.o: $(PYTHON_SRC)/%.cxx
-	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -I/usr/include/python3.6 -fPIC -o $@ $<
+	$(CCT) -c $(INC) $(ROOT_HEADERS) $(EXTERNALS_INCLUDE) -I/usr/include -I/usr/include/python3.7 -fPIC -o $@ $<
 
 #python shared libraries
 $(PYTHON_LIB)/%.so: $(PYTHON_OBJ)/%.o
-	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.6` `root-config --glibs` -lX11 -lboost_python37 -lboost_system
+	$(CCT) -shared -o $@ $^ `pkg-config --libs python-3.7` `root-config --glibs` -lX11 -lboost_python37 -lboost_system
 
 # $(OBJ_DIR)/rootDictionalry.o:
 # 	-rootcint -f $(patsubst %.o,%.cxx,$@) $(INC_DIR)/eclCrystalDB.h $(INC_DIR)/fileFuncs.h
