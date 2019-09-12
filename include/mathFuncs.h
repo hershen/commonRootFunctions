@@ -604,4 +604,8 @@ inline double cosHelicity(TLorentzVector P, TLorentzVector Q, TLorentzVector D) 
     
     return std::cos(D.Vect().Angle(P.Vect()));
 }
+
+double expGaus(double* variables, double* parameters);
+double expGaus_pol1(double* variables, double* parameters);
+
 } // namespace myFuncs

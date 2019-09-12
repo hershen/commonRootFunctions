@@ -484,4 +484,22 @@ TF1 getNovosibirskTF1(const double minValue, const double maxValue) {
   return function;
 }
 
+double expGaus(double* variables, double* parameters) {
+  const double x = variables[0];
+  const double norm = parameters[0];
+  const double peak = parameters[1];
+  const double sigma = parameters[2];
+  const double tail = parameters[3]; 
+
+  const double gausArg = tail <= 0 ? (x - peak) / sigma : (peak - x) / sigma;  
+  const double absTail = std::abs(tail);
+
+//  std::cout << x << ": norm = " << norm << ", peak = " << peak << ", sigma = " << sigma << ", guasArg = " << gausArg << ", absTail = " << absTail << std::endl;
+  if(gausArg >= -absTail) return norm*std::exp(-0.5*gausArg*gausArg);
+  return norm*std::exp(0.5*tail*tail+ absTail*gausArg);
+}
+
+double expGaus_pol1(double* variables, double* parameters) {
+  return expGaus(variables, parameters) + parameters[4] + variables[0]*parameters[5];
+}
 } // namespace myFuncs
