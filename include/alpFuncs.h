@@ -23,7 +23,7 @@ LinearInterp chi2Max_Run16(std::vector<double>{0.06051532033426172, 0.3767270194
 LinearInterp chi2Max_Run7(std::vector<double>{0.05, 0.37, 11.0}, std::vector<double>{20.000000000000004, 100.0, 100.0});
 
 LinearInterp minE12cmMin_Run16(std::vector<double>{0.42315909057346635, 5.95, 6.5, 11.0}, std::vector<double>{0.7, 1.5445748422438028, 3.3499999999999694, 3.577000000000015});
-LinearInterp minE12cmMin_Run7(std::vector<double>{0.19, 0.25, 5.5, 11.0}, std::vector<double>{0.7, 1.0, 1.5835052732560575, 4.575059523809527});
+LinearInterp minE12cmMin_Run7(std::vector<double>{0,  5.5 , 11}, std::vector<double>{0.9722, 1.58350527, 3.5});
 LinearInterp minTheta_degMin_Run16(std::vector<double>{-100, 100}, std::vector<double>{22.5, 22.5});
 LinearInterp minTheta_degMin_Run7(std::vector<double>{-100, 100}, std::vector<double>{22.5, 22.5});
 
